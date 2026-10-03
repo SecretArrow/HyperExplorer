@@ -64,7 +64,10 @@ object TextFileIO {
      * lalu rename; bila rename gagal, salin menimpa target.
      * Kegagalan I/O dikembalikan sebagai [Result.failure].
      */
-    fun write(file: File, content: String): Result<Unit> =
+    fun write(
+        file: File,
+        content: String,
+    ): Result<Unit> =
         try {
             file.parentFile?.mkdirs()
             val tempFile = File(file.parentFile, "${file.name}.tmp")

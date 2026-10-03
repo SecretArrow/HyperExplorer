@@ -68,7 +68,10 @@ import java.io.File
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FtpServerScreen(rootDir: File, modifier: Modifier = Modifier) {
+fun FtpServerScreen(
+    rootDir: File,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val running by FtpService.running.collectAsState()
     val serverError by FtpService.error.collectAsState()
@@ -105,12 +108,13 @@ fun FtpServerScreen(rootDir: File, modifier: Modifier = Modifier) {
     fun startServer() {
         FtpService.start(
             context = context,
-            config = FtpConfig(
-                port = portText.trim().toIntOrNull() ?: 2121,
-                username = username.trim(),
-                password = password,
-                rootDir = rootDir,
-            ),
+            config =
+                FtpConfig(
+                    port = portText.trim().toIntOrNull() ?: 2121,
+                    username = username.trim(),
+                    password = password,
+                    rootDir = rootDir,
+                ),
         )
     }
 
@@ -132,10 +136,11 @@ fun FtpServerScreen(rootDir: File, modifier: Modifier = Modifier) {
     val onStop: () -> Unit = { FtpService.stop(context) }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(text = "Server FTP", style = MaterialTheme.typography.titleLarge)
@@ -203,7 +208,12 @@ fun FtpServerScreen(rootDir: File, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun StatusCard(running: Boolean, serverError: String?, port: Int, modifier: Modifier = Modifier) {
+private fun StatusCard(
+    running: Boolean,
+    serverError: String?,
+    port: Int,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -231,10 +241,11 @@ private fun UsageCard(modifier: Modifier = Modifier) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(text = "Cara pakai", style = MaterialTheme.typography.titleSmall)
             Text(
-                text = "1) Pastikan ponsel dan komputer terhubung ke jaringan Wi-Fi yang sama.\n" +
-                    "2) Gunakan nama pengguna dan kata sandi yang kuat.\n" +
-                    "3) Di komputer, buka ftp://<ip>:<port> lewat file manager atau klien FTP.\n" +
-                    "4) Server mati otomatis setelah beberapa waktu tanpa koneksi.",
+                text =
+                    "1) Pastikan ponsel dan komputer terhubung ke jaringan Wi-Fi yang sama.\n" +
+                        "2) Gunakan nama pengguna dan kata sandi yang kuat.\n" +
+                        "3) Di komputer, buka ftp://<ip>:<port> lewat file manager atau klien FTP.\n" +
+                        "4) Server mati otomatis setelah beberapa waktu tanpa koneksi.",
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -249,8 +260,9 @@ private fun SecurityWarningCard(modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.errorContainer,
     ) {
         Text(
-            text = "Server hanya boleh diaktifkan di jaringan tepercaya. " +
-                "Autentikasi wajib dan server mati otomatis saat idle.",
+            text =
+                "Server hanya boleh diaktifkan di jaringan tepercaya. " +
+                    "Autentikasi wajib dan server mati otomatis saat idle.",
             modifier = Modifier.padding(16.dp),
             style = MaterialTheme.typography.bodySmall,
         )

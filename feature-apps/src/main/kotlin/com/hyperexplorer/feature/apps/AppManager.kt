@@ -80,7 +80,10 @@ object AppManager {
      * Karakter di luar [A-Za-z0-9._-] diganti "_", lalu titik/spasi di ujung tiap bagian dibuang
      * sehingga hasil tidak berujung titik dan tidak menjadi berkas tersembunyi.
      */
-    fun sanitizeApkFileName(label: String, versionName: String): String {
+    fun sanitizeApkFileName(
+        label: String,
+        versionName: String,
+    ): String {
         val safeLabel = label.replace(ILLEGAL_FILE_NAME_CHARS, "_").trim { it == '.' || it == ' ' }
         val safeVersion = versionName.replace(ILLEGAL_FILE_NAME_CHARS, "_").trim { it == '.' || it == ' ' }
         val base = if (versionName.isEmpty()) safeLabel else "$safeLabel-$safeVersion"
@@ -88,14 +91,20 @@ object AppManager {
     }
 
     /** Membuka aplikasi lewat launch intent-nya. Return false bila tidak ada intent atau startActivity gagal. */
-    fun launch(context: Context, packageName: String): Boolean {
+    fun launch(
+        context: Context,
+        packageName: String,
+    ): Boolean {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return false
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return runCatching { context.startActivity(intent) }.isSuccess
     }
 
     /** Meminta sistem menampilkan dialog uninstal (bukan menghapus langsung). Return false bila gagal. */
-    fun uninstall(context: Context, packageName: String): Boolean {
+    fun uninstall(
+        context: Context,
+        packageName: String,
+    ): Boolean {
         val intent = Intent(Intent.ACTION_DELETE, Uri.parse("package:$packageName"))
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return runCatching { context.startActivity(intent) }.isSuccess

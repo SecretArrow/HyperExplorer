@@ -19,6 +19,13 @@
 
 package com.hyperexplorer.feature.transfer.ftp
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.Closeable
 import java.io.File
@@ -34,13 +41,6 @@ import java.net.UnknownHostException
 import java.util.Calendar
 import java.util.Collections
 import java.util.Locale
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Server FTP ditulis dari nol (tanpa Apache FtpServer/MINA) dan murni JVM:
@@ -120,11 +120,12 @@ class FtpServer(
         if (!config.rootDir.exists() || !config.rootDir.isDirectory) {
             throw IllegalStateException("Direktori root tidak valid: ${config.rootDir.absolutePath}")
         }
-        val socket = try {
-            ServerSocket(config.port)
-        } catch (e: IOException) {
-            throw IllegalStateException("Tidak dapat mengikat port ${config.port}: ${e.message}", e)
-        }
+        val socket =
+            try {
+                ServerSocket(config.port)
+            } catch (e: IOException) {
+                throw IllegalStateException("Tidak dapat mengikat port ${config.port}: ${e.message}", e)
+            }
         rootCanonical = config.rootDir.canonicalPath
         synchronized(lifecycleLock) { stopRequested = false }
         serverSocket = socket
@@ -150,11 +151,12 @@ class FtpServer(
         running = false
         closeQuietly(serverSocket)
         serverSocket = null
-        val snapshot: List<Socket> = synchronized(clients) {
-            val copy = clients.toList()
-            clients.clear()
-            copy
-        }
+        val snapshot: List<Socket> =
+            synchronized(clients) {
+                val copy = clients.toList()
+                clients.clear()
+                copy
+            }
         for (socket in snapshot) {
             closeQuietly(socket)
         }
@@ -292,26 +294,30 @@ class FtpServer(
             }
         }
 
-        private fun dispatch(command: String, argument: String?): String = when (command) {
-            "TYPE" -> handleType(argument)
-            "PWD" -> "257 \"$cwd\" is the current directory"
-            "CWD" -> handleCwd(argument)
-            "CDUP" -> handleCdup()
-            "MKD" -> handleMkd(argument)
-            "RMD" -> handleRmd(argument)
-            "DELE" -> handleDele(argument)
-            "SIZE" -> handleSize(argument)
-            "RNFR" -> handleRnfr(argument)
-            "RNTO" -> handleRnto(argument)
-            "PASV" -> handlePasv()
-            "PORT" -> handlePort(argument)
-            "LIST" -> handleList(argument, namesOnly = false)
-            "NLST" -> handleList(argument, namesOnly = true)
-            "RETR" -> handleRetr(argument)
-            "STOR" -> handleStore(argument, append = false)
-            "APPE" -> handleStore(argument, append = true)
-            else -> "502 Command not implemented"
-        }
+        private fun dispatch(
+            command: String,
+            argument: String?,
+        ): String =
+            when (command) {
+                "TYPE" -> handleType(argument)
+                "PWD" -> "257 \"$cwd\" is the current directory"
+                "CWD" -> handleCwd(argument)
+                "CDUP" -> handleCdup()
+                "MKD" -> handleMkd(argument)
+                "RMD" -> handleRmd(argument)
+                "DELE" -> handleDele(argument)
+                "SIZE" -> handleSize(argument)
+                "RNFR" -> handleRnfr(argument)
+                "RNTO" -> handleRnto(argument)
+                "PASV" -> handlePasv()
+                "PORT" -> handlePort(argument)
+                "LIST" -> handleList(argument, namesOnly = false)
+                "NLST" -> handleList(argument, namesOnly = true)
+                "RETR" -> handleRetr(argument)
+                "STOR" -> handleStore(argument, append = false)
+                "APPE" -> handleStore(argument, append = true)
+                else -> "502 Command not implemented"
+            }
 
         private fun handleUser(argument: String?): String {
             usernameMatches = argument != null && argument == config.username
@@ -394,11 +400,12 @@ class FtpServer(
 
         private fun handlePasv(): String {
             closeDataConnection(null)
-            val server = try {
-                ServerSocket(0)
-            } catch (_: IOException) {
-                return "425 Cannot open data connection"
-            }
+            val server =
+                try {
+                    ServerSocket(0)
+                } catch (_: IOException) {
+                    return "425 Cannot open data connection"
+                }
             passiveServer = server
             val octets = passiveAddress().address
             val port = server.localPort
@@ -411,17 +418,19 @@ class FtpServer(
             val numbers = argument?.split(",")?.map { it.trim().toIntOrNull() }.orEmpty()
             val valid = numbers.size == 6 && numbers.all { it != null && it >= 0 && it <= 255 }
             if (!valid) return "501 Syntax error"
-            val addressBytes = byteArrayOf(
-                numbers[0]!!.toByte(),
-                numbers[1]!!.toByte(),
-                numbers[2]!!.toByte(),
-                numbers[3]!!.toByte(),
-            )
-            val targetAddress = try {
-                InetAddress.getByAddress(addressBytes)
-            } catch (_: UnknownHostException) {
-                return "501 Syntax error"
-            }
+            val addressBytes =
+                byteArrayOf(
+                    numbers[0]!!.toByte(),
+                    numbers[1]!!.toByte(),
+                    numbers[2]!!.toByte(),
+                    numbers[3]!!.toByte(),
+                )
+            val targetAddress =
+                try {
+                    InetAddress.getByAddress(addressBytes)
+                } catch (_: UnknownHostException) {
+                    return "501 Syntax error"
+                }
             // Anti FTP-bounce: alamat PORT harus sama dengan host klien kontrol.
             val peer = control.inetAddress
             if (peer != null && peer != targetAddress) return "501 Syntax error"
@@ -431,7 +440,10 @@ class FtpServer(
             return "200 PORT command successful"
         }
 
-        private fun handleList(argument: String?, namesOnly: Boolean): String {
+        private fun handleList(
+            argument: String?,
+            namesOnly: Boolean,
+        ): String {
             // Klien umum mengirim flag seperti "-la": abaikan flag, tampilkan folder aktif.
             val pathArgument = argument?.takeIf { !it.startsWith("-") }
             val target = safeFile(cwd, pathArgument ?: ".") ?: return "550 Access denied"
@@ -440,11 +452,12 @@ class FtpServer(
             val data = openData() ?: return "425 Cannot open data connection"
             try {
                 data.getOutputStream().use { output ->
-                    val entries: List<File> = when {
-                        target.isDirectory ->
-                            target.listFiles()?.sortedBy { it.name.lowercase(Locale.US) } ?: emptyList()
-                        else -> listOf(target)
-                    }
+                    val entries: List<File> =
+                        when {
+                            target.isDirectory ->
+                                target.listFiles()?.sortedBy { it.name.lowercase(Locale.US) } ?: emptyList()
+                            else -> listOf(target)
+                        }
                     val listing = StringBuilder()
                     for (entry in entries) {
                         if (namesOnly) {
@@ -490,7 +503,10 @@ class FtpServer(
             return "226 Transfer complete"
         }
 
-        private fun handleStore(argument: String?, append: Boolean): String {
+        private fun handleStore(
+            argument: String?,
+            append: Boolean,
+        ): String {
             if (argument == null) return "501 Syntax error"
             val target = safeFile(cwd, argument) ?: return "550 Access denied"
             if (target.isDirectory) return "550 Not found"
@@ -512,27 +528,28 @@ class FtpServer(
         }
 
         /** Buka koneksi data sesuai mode sesi (PASV diutamakan); null bila gagal. */
-        private fun openData(): Socket? = try {
-            val passive = passiveServer
-            val address = portAddress
-            val number = portNumber
-            when {
-                passive != null -> {
-                    passive.soTimeout = DATA_TIMEOUT_MILLIS
-                    passive.accept()
+        private fun openData(): Socket? =
+            try {
+                val passive = passiveServer
+                val address = portAddress
+                val number = portNumber
+                when {
+                    passive != null -> {
+                        passive.soTimeout = DATA_TIMEOUT_MILLIS
+                        passive.accept()
+                    }
+                    address != null && number > 0 -> {
+                        val socket = Socket()
+                        socket.connect(InetSocketAddress(address, number), DATA_TIMEOUT_MILLIS)
+                        socket
+                    }
+                    else -> null
                 }
-                address != null && number > 0 -> {
-                    val socket = Socket()
-                    socket.connect(InetSocketAddress(address, number), DATA_TIMEOUT_MILLIS)
-                    socket
-                }
-                else -> null
+            } catch (_: IOException) {
+                null
+            } catch (_: IllegalArgumentException) {
+                null
             }
-        } catch (_: IOException) {
-            null
-        } catch (_: IllegalArgumentException) {
-            null
-        }
 
         private fun closeDataConnection(dataSocket: Socket?) {
             closeQuietly(dataSocket)
@@ -563,7 +580,10 @@ class FtpServer(
          * canonicalPath tetap di dalam rootDir. Null berarti di luar root
          * ("550 Access denied").
          */
-        private fun safeFile(current: String, argument: String): File? {
+        private fun safeFile(
+            current: String,
+            argument: String,
+        ): File? {
             val relative = relativePath(current, argument) ?: return null
             val candidate = File(rootDir, relative)
             return try {
@@ -582,7 +602,10 @@ class FtpServer(
          * Normalisasi chroot: ".." yang keluar dari root DITOLAK (null),
          * bukan di-clamp, agar pelanggaran terlihat jelas.
          */
-        private fun relativePath(current: String, argument: String): String? {
+        private fun relativePath(
+            current: String,
+            argument: String,
+        ): String? {
             val combined = if (argument.startsWith("/")) argument else current.trimEnd('/') + "/" + argument
             val segments = ArrayDeque<String>()
             for (segment in combined.split("/")) {
@@ -599,11 +622,12 @@ class FtpServer(
         }
 
         private fun displayPath(file: File): String {
-            val canonical = try {
-                file.canonicalPath
-            } catch (_: IOException) {
-                return "/"
-            }
+            val canonical =
+                try {
+                    file.canonicalPath
+                } catch (_: IOException) {
+                    return "/"
+                }
             return if (canonical == rootCanonical) "/" else "/" + canonical.removePrefix(rootCanonical + File.separator)
         }
     }
@@ -625,7 +649,11 @@ class FtpServer(
          * sudah diam setidaknya [timeoutMinutes] menit (timeout <= 0 berarti
          * berhenti segera saat idle).
          */
-        internal fun shouldAutoStop(connectionCount: Int, idleMillis: Long, timeoutMinutes: Int): Boolean {
+        internal fun shouldAutoStop(
+            connectionCount: Int,
+            idleMillis: Long,
+            timeoutMinutes: Int,
+        ): Boolean {
             if (connectionCount > 0) return false
             if (timeoutMinutes <= 0) return true
             return idleMillis >= timeoutMinutes * 60_000L

@@ -19,13 +19,6 @@
 
 package com.hyperexplorer.feature.transfer.ftp
 
-import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
-import java.io.PrintStream
-import java.net.Socket
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -37,6 +30,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.PrintStream
+import java.net.Socket
 
 /**
  * Test JVM murni untuk [FtpServer] memakai klien socket mini di localhost.
@@ -44,7 +44,6 @@ import org.junit.rules.TemporaryFolder
  * lewat [FtpServer.shouldAutoStop] yang murni.
  */
 class FtpServerTest {
-
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
@@ -57,15 +56,16 @@ class FtpServerTest {
     @Before
     fun setUp() {
         rootDir = temporaryFolder.newFolder("ftp-root")
-        server = FtpServer(
-            FtpConfig(
-                port = 0,
-                username = "hyper",
-                password = "rahasia",
-                rootDir = rootDir,
-                idleTimeoutMinutes = 15,
-            ),
-        )
+        server =
+            FtpServer(
+                FtpConfig(
+                    port = 0,
+                    username = "hyper",
+                    password = "rahasia",
+                    rootDir = rootDir,
+                    idleTimeoutMinutes = 15,
+                ),
+            )
         server.start()
         connect()
     }
@@ -76,69 +76,75 @@ class FtpServerTest {
     }
 
     @Test
-    fun `login salah dan perintah sebelum login ditolak`() = runBlocking<Unit> {
-        assertEquals("331 Password required", command("USER hyper"))
-        assertTrue(command("PASS salah-sandi").startsWith("530"))
-        assertTrue(command("PWD").startsWith("530"))
-        assertTrue(command("LIST").startsWith("530"))
-        // SYST/NOOP memang diizinkan sebelum login.
-        assertEquals("215 UNIX Type: L8", command("SYST"))
-        assertEquals("200 NOOP ok", command("NOOP"))
-    }
-
-    @Test
-    fun `siklus berkas lengkap via pasv`() = runBlocking<Unit> {
-        login()
-        assertEquals("502 Command not implemented", command("MAKESUCH"))
-        assertEquals("257 \"/\" is the current directory", command("PWD"))
-        assertEquals("257 Directory created", command("MKD testdir"))
-        assertEquals("250 Directory changed", command("CWD testdir"))
-        assertEquals("257 \"/testdir\" is the current directory", command("PWD"))
-
-        storeFile("hello.txt", "Hello FTP")
-        // "Hello FTP" = 9 byte.
-        assertEquals("213 9", command("SIZE hello.txt"))
-
-        assertEquals("Hello FTP", retrieveFile("hello.txt"))
-
-        val listing = listNames()
-        assertTrue("NLST harus memuat hello.txt: $listing", listing.contains("hello.txt"))
-
-        assertEquals("350 Ready for RNTO", command("RNFR hello.txt"))
-        assertEquals("250 Rename successful", command("RNTO hi.txt"))
-        assertTrue(command("SIZE hi.txt").startsWith("213"))
-        assertEquals("250 File deleted", command("DELE hi.txt"))
-        assertEquals("250 Directory changed", command("CDUP"))
-        assertEquals("257 \"/\" is the current directory", command("PWD"))
-    }
-
-    @Test
-    fun `path traversal di luar root ditolak`() = runBlocking<Unit> {
-        login()
-        assertTrue(command("CWD ../..").startsWith("550"))
-        assertTrue(command("RETR ../../etc/passwd").startsWith("550"))
-        assertTrue(command("CWD /../../etc").startsWith("550"))
-        assertEquals("257 \"/\" is the current directory", command("PWD"))
-    }
-
-    @Test
-    fun `stop mematikan server dan menutup klien`() = runBlocking<Unit> {
-        assertTrue(server.isRunning)
-        server.stop()
-        assertFalse(server.isRunning)
-        val line = try {
-            reader.readLine()
-        } catch (_: IOException) {
-            null
+    fun `login salah dan perintah sebelum login ditolak`() =
+        runBlocking<Unit> {
+            assertEquals("331 Password required", command("USER hyper"))
+            assertTrue(command("PASS salah-sandi").startsWith("530"))
+            assertTrue(command("PWD").startsWith("530"))
+            assertTrue(command("LIST").startsWith("530"))
+            // SYST/NOOP memang diizinkan sebelum login.
+            assertEquals("215 UNIX Type: L8", command("SYST"))
+            assertEquals("200 NOOP ok", command("NOOP"))
         }
-        assertNull("Koneksi kontrol harus tertutup setelah stop()", line)
-    }
+
+    @Test
+    fun `siklus berkas lengkap via pasv`() =
+        runBlocking<Unit> {
+            login()
+            assertEquals("502 Command not implemented", command("MAKESUCH"))
+            assertEquals("257 \"/\" is the current directory", command("PWD"))
+            assertEquals("257 Directory created", command("MKD testdir"))
+            assertEquals("250 Directory changed", command("CWD testdir"))
+            assertEquals("257 \"/testdir\" is the current directory", command("PWD"))
+
+            storeFile("hello.txt", "Hello FTP")
+            // "Hello FTP" = 9 byte.
+            assertEquals("213 9", command("SIZE hello.txt"))
+
+            assertEquals("Hello FTP", retrieveFile("hello.txt"))
+
+            val listing = listNames()
+            assertTrue("NLST harus memuat hello.txt: $listing", listing.contains("hello.txt"))
+
+            assertEquals("350 Ready for RNTO", command("RNFR hello.txt"))
+            assertEquals("250 Rename successful", command("RNTO hi.txt"))
+            assertTrue(command("SIZE hi.txt").startsWith("213"))
+            assertEquals("250 File deleted", command("DELE hi.txt"))
+            assertEquals("250 Directory changed", command("CDUP"))
+            assertEquals("257 \"/\" is the current directory", command("PWD"))
+        }
+
+    @Test
+    fun `path traversal di luar root ditolak`() =
+        runBlocking<Unit> {
+            login()
+            assertTrue(command("CWD ../..").startsWith("550"))
+            assertTrue(command("RETR ../../etc/passwd").startsWith("550"))
+            assertTrue(command("CWD /../../etc").startsWith("550"))
+            assertEquals("257 \"/\" is the current directory", command("PWD"))
+        }
+
+    @Test
+    fun `stop mematikan server dan menutup klien`() =
+        runBlocking<Unit> {
+            assertTrue(server.isRunning)
+            server.stop()
+            assertFalse(server.isRunning)
+            val line =
+                try {
+                    reader.readLine()
+                } catch (_: IOException) {
+                    null
+                }
+            assertNull("Koneksi kontrol harus tertutup setelah stop()", line)
+        }
 
     @Test
     fun `konfigurasi tanpa kredensial ditolak`() {
-        val anonymous = FtpServer(
-            FtpConfig(port = 2121, username = "", password = "x", rootDir = rootDir),
-        )
+        val anonymous =
+            FtpServer(
+                FtpConfig(port = 2121, username = "", password = "x", rootDir = rootDir),
+            )
         try {
             anonymous.start()
             fail("Server tanpa kredensial harus ditolak")
@@ -201,15 +207,19 @@ class FtpServerTest {
     private fun openPassiveData(): Socket {
         val response = command("PASV")
         assertTrue("Respons PASV harus 227: $response", response.startsWith("227"))
-        val match = Regex("\\((\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)\\)").find(response)
-            ?: error("Format PASV tidak dikenali: $response")
+        val match =
+            Regex("\\((\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)\\)").find(response)
+                ?: error("Format PASV tidak dikenali: $response")
         val values = match.groupValues.drop(1)
         val host = "${values[0]}.${values[1]}.${values[2]}.${values[3]}"
         val port = values[4].toInt() * 256 + values[5].toInt()
         return Socket(host, port)
     }
 
-    private fun storeFile(name: String, content: String) {
+    private fun storeFile(
+        name: String,
+        content: String,
+    ) {
         val data = openPassiveData()
         assertEquals("150 Opening data connection", command("STOR $name"))
         val output = data.getOutputStream()

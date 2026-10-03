@@ -31,8 +31,6 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import java.io.File
-import java.net.NetworkInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -41,6 +39,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
+import java.net.NetworkInterface
 
 /**
  * Foreground service (type dataSync) yang menjalankan [FtpServer].
@@ -51,13 +51,16 @@ import kotlinx.coroutines.launch
  * foreground.
  */
 class FtpService : Service() {
-
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var server: FtpServer? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         if (intent?.action == ACTION_STOP) {
             server?.stop()
             stopSelf()
@@ -82,24 +85,26 @@ class FtpService : Service() {
         val password = intent?.getStringExtra(EXTRA_PASSWORD).orEmpty()
         val rootPath = intent?.getStringExtra(EXTRA_ROOT).orEmpty()
         val idleMinutes = intent?.getIntExtra(EXTRA_IDLE_MINUTES, DEFAULT_IDLE_MINUTES) ?: DEFAULT_IDLE_MINUTES
-        val config = FtpConfig(
-            port = port,
-            username = username,
-            password = password,
-            rootDir = File(rootPath),
-            idleTimeoutMinutes = idleMinutes,
-        )
+        val config =
+            FtpConfig(
+                port = port,
+                username = username,
+                password = password,
+                rootDir = File(rootPath),
+                idleTimeoutMinutes = idleMinutes,
+            )
 
         ensureNotificationChannel()
         // Segera tampilkan notifikasi foreground sesuai ketentuan
         // startForegroundService.
         startForegroundCompat(buildNotification(config.port, config.username))
 
-        val ftpServer = FtpServer(config, onStopped = { reason ->
-            _running.value = false
-            _error.value = reason
-            stopSelf()
-        })
+        val ftpServer =
+            FtpServer(config, onStopped = { reason ->
+                _running.value = false
+                _error.value = reason
+                stopSelf()
+            })
         server = ftpServer
         serviceScope.launch {
             try {
@@ -131,11 +136,15 @@ class FtpService : Service() {
         }
     }
 
-    private fun buildNotification(port: Int, username: String): Notification {
+    private fun buildNotification(
+        port: Int,
+        username: String,
+    ): Notification {
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply { setPackage(null) }
-        val contentIntent = launchIntent?.let {
-            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
-        }
+        val contentIntent =
+            launchIntent?.let {
+                PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
+            }
         val host = localIp() ?: "127.0.0.1"
         val portText = if (port > 0) port.toString() else "…"
         return NotificationCompat.Builder(this, CHANNEL_ID)
@@ -147,7 +156,10 @@ class FtpService : Service() {
             .build()
     }
 
-    private fun refreshNotification(port: Int, username: String) {
+    private fun refreshNotification(
+        port: Int,
+        username: String,
+    ) {
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(NOTIFICATION_ID, buildNotification(port, username))
     }
@@ -175,15 +187,19 @@ class FtpService : Service() {
         val port: StateFlow<Int> = _port.asStateFlow()
 
         /** Mulai layanan foreground server FTP dengan [config]. */
-        fun start(context: Context, config: FtpConfig) {
-            val intent = Intent(context, FtpService::class.java).apply {
-                action = ACTION_START
-                putExtra(EXTRA_PORT, config.port)
-                putExtra(EXTRA_USERNAME, config.username)
-                putExtra(EXTRA_PASSWORD, config.password)
-                putExtra(EXTRA_ROOT, config.rootDir.absolutePath)
-                putExtra(EXTRA_IDLE_MINUTES, config.idleTimeoutMinutes)
-            }
+        fun start(
+            context: Context,
+            config: FtpConfig,
+        ) {
+            val intent =
+                Intent(context, FtpService::class.java).apply {
+                    action = ACTION_START
+                    putExtra(EXTRA_PORT, config.port)
+                    putExtra(EXTRA_USERNAME, config.username)
+                    putExtra(EXTRA_PASSWORD, config.password)
+                    putExtra(EXTRA_ROOT, config.rootDir.absolutePath)
+                    putExtra(EXTRA_IDLE_MINUTES, config.idleTimeoutMinutes)
+                }
             ContextCompat.startForegroundService(context, intent)
         }
 
@@ -197,11 +213,12 @@ class FtpService : Service() {
         fun localIpText(): String = localIp() ?: "tidak diketahui"
 
         private fun localIp(): String? {
-            val interfaces = try {
-                NetworkInterface.getNetworkInterfaces()
-            } catch (_: Exception) {
-                null
-            } ?: return null
+            val interfaces =
+                try {
+                    NetworkInterface.getNetworkInterfaces()
+                } catch (_: Exception) {
+                    null
+                } ?: return null
             while (interfaces.hasMoreElements()) {
                 val networkInterface = interfaces.nextElement()
                 try {

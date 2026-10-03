@@ -52,7 +52,6 @@ data class StorageReport(
  * (ukuran sama lalu dibandingkan lewat MD5, dengan batas hashing).
  */
 class StorageAnalyzer(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
-
     suspend fun analyze(root: File): StorageReport =
         withContext(dispatcher) {
             val files = root.walkTopDown().filter { it.isFile }.toList()

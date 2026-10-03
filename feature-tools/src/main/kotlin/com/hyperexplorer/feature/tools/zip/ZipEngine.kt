@@ -37,7 +37,6 @@ import java.util.zip.ZipOutputStream
  * Semua I/O berjalan di [dispatcher] agar UI tidak terblokir.
  */
 class ZipEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
-
     /**
      * Mengompresi [sources] menjadi arsip [targetZip].
      * Entri top-level memakai nama entitasnya; isi folder memakai path relatif,
@@ -46,7 +45,10 @@ class ZipEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
      * Mengembalikan [Result.success] berisi [targetZip] atau [Result.failure]
      * bila terjadi [IOException].
      */
-    suspend fun zipFiles(sources: List<File>, targetZip: File): Result<File> =
+    suspend fun zipFiles(
+        sources: List<File>,
+        targetZip: File,
+    ): Result<File> =
         withContext(dispatcher) {
             try {
                 targetZip.parentFile?.mkdirs()
@@ -69,7 +71,10 @@ class ZipEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
      * Entri yang menunjuk ke luar [targetDir] (zip-slip) ditolak: pemrosesan
      * berhenti dengan [Result.failure] berisi [SecurityException].
      */
-    suspend fun unzip(zipFile: File, targetDir: File): Result<Int> =
+    suspend fun unzip(
+        zipFile: File,
+        targetDir: File,
+    ): Result<Int> =
         withContext(dispatcher) {
             try {
                 targetDir.mkdirs()
@@ -101,7 +106,11 @@ class ZipEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
             }
         }
 
-    private fun writeEntry(zip: ZipOutputStream, file: File, entryPath: String) {
+    private fun writeEntry(
+        zip: ZipOutputStream,
+        file: File,
+        entryPath: String,
+    ) {
         val name = if (file.isDirectory) "$entryPath/" else entryPath
         zip.putNextEntry(ZipEntry(name))
         if (file.isFile) {

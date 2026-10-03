@@ -1,0 +1,16 @@
+version = 1
+
+# Info lisensi mesin-terbaca mengikuti spesifikasi REUSE (https://reuse.software).
+# File sumber Kotlin juga membawa header GPL lengkap di bagian atas file.
+
+[[annotations]]
+path = ["*", "**/*"]
+precedence = "override"
+SPDX-FileCopyrightText = "2025-2026 Hyper Explorer contributors"
+SPDX-License-Identifier = "GPL-3.0-only"
+
+[[annotations]]
+path = ["LICENSE"]
+precedence = "override"
+SPDX-FileCopyrightText = "2007 Free Software Foundation, Inc. <https://fsf.org/>"
+SPDX-License-Identifier = "GPL-3.0-only"

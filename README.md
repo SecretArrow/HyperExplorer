@@ -3,10 +3,27 @@
 [![CI](https://github.com/SecretArrow/HyperExplorer/actions/workflows/ci.yml/badge.svg)](https://github.com/SecretArrow/HyperExplorer/actions/workflows/ci.yml)
 [![E2E](https://github.com/SecretArrow/HyperExplorer/actions/workflows/e2e.yml/badge.svg)](https://github.com/SecretArrow/HyperExplorer/actions/workflows/e2e.yml)
 [![Release](https://github.com/SecretArrow/HyperExplorer/actions/workflows/release.yml/badge.svg)](https://github.com/SecretArrow/HyperExplorer/actions/workflows/release.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![REUSE status](https://img.shields.io/badge/reuse-REUSE.toml-informational)](https://reuse.software)
 
 **Hyper Explorer** adalah file manager Android modern dengan karakter setara file manager klasik paling populer
 (bagian-bagian fitur mengacu blueprint `fileman.md`) — dibangun dari nol dengan identitas sendiri, arsitektur modern,
 dan **privasi sebagai fitur inti**: tanpa pelacakan rahasia, tanpa iklan agresif, data tetap di perangkat.
+
+## 100% Free Software
+
+Hyper Explorer adalah **perangkat lunak bebas** (free software) sesuai definisi Free Software
+Foundation, berlisensi **GPL-3.0-only**:
+
+- Bebas digunakan, dipelajari, dimodifikasi, dan didistribusikan ulang — selamanya.
+- **Tanpa** iklan, telemetry, SDK proprietary, Firebase, atau Google Play Services —
+  aman dipakai di perangkat de-Googled.
+- Semua dependensi berlisensi open source (Apache-2.0/MIT/BSD); repositori Maven dibatasi
+  `google()`, `mavenCentral()`, `gradlePluginPortal()` (lihat `settings.gradle.kts`).
+- Setiap file sumber membawa header GPL + `SPDX-License-Identifier: GPL-3.0-only`, dan
+  info lisensi mesin-terbaca tersedia di [REUSE.toml](REUSE.toml) (spesifikasi [REUSE](https://reuse.software)).
+- Metadata distribusi **F-Droid** tersedia di `fastlane/metadata/android/` (en-US + Bahasa Indonesia).
+- Kontribusi otomatis dilisensikan GPL-3.0-only tanpa CLA — lihat [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Prinsip
 
@@ -83,7 +100,8 @@ Set secrets repo berikut agar APK/AAB ditandatangani; tanpa itu hasilnya unsigne
 
 Lihat `fileman.md` Bagian 9 (blueprint lengkap): klien jaringan (SMB2/3, FTP/FTPS, SFTP, WebDAV),
 multi-cloud dengan OAuth resmi, vault terenkripsi AES-256 di Android Keystore, transfer PC dengan
-autentikasi wajib + auto-off, analisis penyimpanan, manajer aplikasi, pemutar media, dan dukungan TV/layar besar.
+autentikasi wajib + auto-off, analisis penyimpanan, manajer aplikasi, pemutar media, dukungan TV/layar besar,
+serta distribusi **F-Droid** dengan build reproducible.
 
 ## Keamanan & Kepatuhan
 
@@ -93,4 +111,15 @@ autentikasi wajib + auto-off, analisis penyimpanan, manajer aplikasi, pemutar me
 
 ## Lisensi
 
-Hak cipta milik pemilik repo. Lisensi final akan ditentukan oleh pemilik proyek.
+Copyright (C) 2025-2026 Hyper Explorer contributors
+
+Hyper Explorer adalah perangkat lunak bebas: Anda dapat mendistribusikan ulang dan/atau
+memodifikasinya berdasarkan ketentuan **GNU General Public License versi 3**
+([GPL-3.0-only](https://www.gnu.org/licenses/gpl-3.0)) sebagaimana diterbitkan oleh Free
+Software Foundation. Tidak ada jaminan apa pun — lihat teks lisensi untuk detail lengkap.
+
+- Teks lengkap lisensi: [LICENSE](LICENSE)
+- Setiap file sumber membawa header GPL + `SPDX-License-Identifier: GPL-3.0-only`
+- Info lisensi mesin-terbaca: [REUSE.toml](REUSE.toml) (standar [REUSE](https://reuse.software))
+- Kontribusi Anda otomatis dilisensikan GPL-3.0-only — lihat [CONTRIBUTING.md](CONTRIBUTING.md)
+- Laporan kerentanan: lihat [SECURITY.md](SECURITY.md)

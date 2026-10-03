@@ -1,0 +1,28 @@
+Hyper Explorer is a fast, private, and 100% free and open source file manager for Android, licensed under the GNU General Public License v3.0 (GPL-3.0-only).
+
+WHY HYPER EXPLORER?
+
+* No ads, no tracking, no analytics — your file operations never leave your device.
+* No proprietary SDKs and no Google Play Services dependency; it works on de-Googled devices.
+* Built from scratch with a modern architecture: Kotlin, Jetpack Compose, Material 3.
+* Truly free software: you can study it, modify it, and redistribute it.
+
+CURRENT FEATURES
+
+* Browse internal storage — folders first, A-Z sorting, category thumbnails
+* Multi-select; copy, cut and paste with name-conflict resolution (overwrite / rename / skip)
+* Create folders, rename, and delete with a recoverable, metadata-based recycle bin
+* Open any file with your favorite apps via FileProvider
+* Material 3 theming with dynamic color and dark mode
+
+PRIVACY & SAFETY BY DESIGN
+
+* Recycle bin: deletions are recoverable — nothing is destroyed without confirmation
+* Zero telemetry and zero background servers
+* Future network features (SMB, FTP, SFTP, WebDAV, cloud drives) will always require explicit authentication, run only when you ask, and shut down automatically afterwards
+
+ROADMAP
+
+Network shares (SMB2/3, FTP/FTPS, SFTP, WebDAV), opt-in cloud storage, encrypted vault (AES-256), PC transfer with mandatory authentication, storage analyzer, app manager, media player, and TV/large-screen support.
+
+Hyper Explorer is free software under GPL-3.0-only. Contributions are welcome: https://github.com/SecretArrow/HyperExplorer

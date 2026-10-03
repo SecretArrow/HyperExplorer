@@ -3,8 +3,6 @@ package com.hyperexplorer.feature.browser
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.data.local.FileOperations
 import com.hyperexplorer.data.local.FileRepository
-import java.io.File
-import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
 
 data class UiState(
     val root: File,
@@ -52,11 +52,12 @@ class BrowserState(
         val dir = _ui.value.current
         _ui.update { it.copy(loading = true, error = null) }
         scope.launch {
-            val items = try {
-                repo.list(dir)
-            } catch (t: Throwable) {
-                null
-            }
+            val items =
+                try {
+                    repo.list(dir)
+                } catch (t: Throwable) {
+                    null
+                }
             _ui.update { state ->
                 if (items == null) {
                     state.copy(loading = false, items = emptyList(), error = "Tidak dapat membaca folder")
@@ -152,6 +153,5 @@ class BrowserState(
         }
     }
 
-    private fun selectedFiles(): List<File> =
-        _ui.value.selection.map { File(it) }.filter { it.exists() }
+    private fun selectedFiles(): List<File> = _ui.value.selection.map { File(it) }.filter { it.exists() }
 }

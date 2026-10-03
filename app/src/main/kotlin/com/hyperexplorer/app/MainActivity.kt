@@ -27,7 +27,6 @@ import java.io.File
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
-
     private var hasStorageAccess by mutableStateOf(false)
 
     private lateinit var browserState: BrowserState
@@ -69,10 +68,11 @@ class MainActivity : ComponentActivity() {
 
     private fun requestStorageAccess() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val appIntent = Intent(
-                Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                Uri.parse("package:$packageName"),
-            )
+            val appIntent =
+                Intent(
+                    Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                    Uri.parse("package:$packageName"),
+                )
             runCatching { allFilesSettingsLauncher.launch(appIntent) }
                 .onFailure {
                     allFilesSettingsLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
@@ -82,7 +82,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray,
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_STORAGE) {
             hasStorageAccess = grantResults.isNotEmpty() &&
@@ -94,12 +98,14 @@ class MainActivity : ComponentActivity() {
         val file = File(node.path)
         if (!file.isFile) return
         val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
-        val mime = MimeTypeMap.getSingleton()
-            .getMimeTypeFromExtension(node.name.substringAfterLast('.', "").lowercase(Locale.ROOT))
-            ?: "application/octet-stream"
-        val intent = Intent(Intent.ACTION_VIEW)
-            .setDataAndType(uri, mime)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val mime =
+            MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(node.name.substringAfterLast('.', "").lowercase(Locale.ROOT))
+                ?: "application/octet-stream"
+        val intent =
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, mime)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         runCatching { startActivity(intent) }
     }
 

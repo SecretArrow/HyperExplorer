@@ -9,7 +9,6 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class FileRepositoryTest {
-
     @get:Rule
     val tmp = TemporaryFolder()
 

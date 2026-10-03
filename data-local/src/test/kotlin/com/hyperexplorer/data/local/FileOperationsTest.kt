@@ -10,7 +10,6 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class FileOperationsTest {
-
     @get:Rule
     val tmp = TemporaryFolder()
 

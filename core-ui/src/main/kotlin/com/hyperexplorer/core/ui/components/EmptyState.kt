@@ -12,11 +12,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun EmptyState(message: String, modifier: Modifier = Modifier) {
+fun EmptyState(
+    message: String,
+    modifier: Modifier = Modifier,
+) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(24.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

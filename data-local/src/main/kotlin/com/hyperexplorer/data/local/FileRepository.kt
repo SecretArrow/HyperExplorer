@@ -3,7 +3,6 @@ package com.hyperexplorer.data.local
 import com.hyperexplorer.core.common.PathUtils
 import com.hyperexplorer.core.model.FileNode
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Properties
 
@@ -16,7 +15,6 @@ import java.util.Properties
  * yang mengimplementasikan kontrak serupa.
  */
 class FileRepository(private val trashDir: File) {
-
     init {
         if (!trashDir.exists()) trashDir.mkdirs()
     }
@@ -46,23 +44,24 @@ class FileRepository(private val trashDir: File) {
             if (!file.exists()) continue
             val entryName = PathUtils.uniqueName(trashDir, file.name)
             val entry = File(trashDir, entryName)
-            val moved = try {
-                if (file.renameTo(entry)) {
-                    writeMeta(entry, file.absolutePath)
-                    true
-                } else {
-                    if (file.isDirectory) {
-                        FileOperations.copyDirectory(file, entry)
+            val moved =
+                try {
+                    if (file.renameTo(entry)) {
+                        writeMeta(entry, file.absolutePath)
+                        true
                     } else {
-                        FileOperations.copyFile(file, entry)
+                        if (file.isDirectory) {
+                            FileOperations.copyDirectory(file, entry)
+                        } else {
+                            FileOperations.copyFile(file, entry)
+                        }
+                        writeMeta(entry, file.absolutePath)
+                        file.deleteRecursively()
+                        true
                     }
-                    writeMeta(entry, file.absolutePath)
-                    file.deleteRecursively()
-                    true
+                } catch (e: IOException) {
+                    false
                 }
-            } catch (e: IOException) {
-                false
-            }
             if (moved) count++
         }
         return count
@@ -75,23 +74,24 @@ class FileRepository(private val trashDir: File) {
         val parent = target.parentFile
         if (parent != null && !parent.exists()) parent.mkdirs()
         if (target.exists()) return false
-        val moved = try {
-            if (entry.renameTo(target)) {
-                true
-            } else {
-                if (entry.isDirectory) {
-                    FileOperations.copyDirectory(entry, target)
-                    entry.deleteRecursively()
+        val moved =
+            try {
+                if (entry.renameTo(target)) {
                     true
                 } else {
-                    FileOperations.copyFile(entry, target)
-                    entry.delete()
-                    true
+                    if (entry.isDirectory) {
+                        FileOperations.copyDirectory(entry, target)
+                        entry.deleteRecursively()
+                        true
+                    } else {
+                        FileOperations.copyFile(entry, target)
+                        entry.delete()
+                        true
+                    }
                 }
+            } catch (e: IOException) {
+                false
             }
-        } catch (e: IOException) {
-            false
-        }
         if (moved) deleteMeta(entry)
         return moved
     }
@@ -113,7 +113,10 @@ class FileRepository(private val trashDir: File) {
     private fun metaFor(entry: File): File =
         if (entry.isDirectory) File(entry, META_SUFFIX) else File(entry.parentFile, "." + entry.name + META_SUFFIX)
 
-    private fun writeMeta(entry: File, originalPath: String) {
+    private fun writeMeta(
+        entry: File,
+        originalPath: String,
+    ) {
         val props = Properties()
         props.setProperty(KEY_ORIGINAL, originalPath)
         metaFor(entry).outputStream().use { out -> props.store(out, "Hyper Explorer trash metadata") }

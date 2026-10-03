@@ -6,7 +6,6 @@ import java.io.File
  * Utilitas manipulasi path dan nama berkas.
  */
 object PathUtils {
-
     /** Buang karakter berbahaya dari nama berkas/folder yang diketik pengguna. */
     fun sanitizeName(name: String): String {
         val cleaned = name.replace(Regex("[/\\\\]"), "_").trim()
@@ -17,7 +16,10 @@ object PathUtils {
      * Cari nama unik di [dir]: jika [desired] sudah ada, hasilnya "nama (1).ext",
      * "nama (2).ext", dst. (padanan perilaku auto-rename klasik).
      */
-    fun uniqueName(dir: File, desired: String): String {
+    fun uniqueName(
+        dir: File,
+        desired: String,
+    ): String {
         val base = sanitizeName(desired)
         if (!File(dir, base).exists()) return base
         val dot = base.lastIndexOf('.')

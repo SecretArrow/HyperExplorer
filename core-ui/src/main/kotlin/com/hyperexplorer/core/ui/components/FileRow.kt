@@ -36,16 +36,17 @@ import java.util.Locale
 
 private val DATE_FORMAT = SimpleDateFormat("d MMM yyyy HH:mm", Locale.getDefault())
 
-private fun iconFor(category: FileCategory): ImageVector = when (category) {
-    FileCategory.FOLDER -> Icons.Filled.Folder
-    FileCategory.IMAGE -> Icons.Filled.Image
-    FileCategory.VIDEO -> Icons.Filled.Movie
-    FileCategory.AUDIO -> Icons.Filled.MusicNote
-    FileCategory.DOCUMENT -> Icons.Filled.Description
-    FileCategory.ARCHIVE -> Icons.Filled.FolderZip
-    FileCategory.APK -> Icons.Filled.Android
-    FileCategory.OTHER -> Icons.AutoMirrored.Filled.InsertDriveFile
-}
+private fun iconFor(category: FileCategory): ImageVector =
+    when (category) {
+        FileCategory.FOLDER -> Icons.Filled.Folder
+        FileCategory.IMAGE -> Icons.Filled.Image
+        FileCategory.VIDEO -> Icons.Filled.Movie
+        FileCategory.AUDIO -> Icons.Filled.MusicNote
+        FileCategory.DOCUMENT -> Icons.Filled.Description
+        FileCategory.ARCHIVE -> Icons.Filled.FolderZip
+        FileCategory.APK -> Icons.Filled.Android
+        FileCategory.OTHER -> Icons.AutoMirrored.Filled.InsertDriveFile
+    }
 
 private fun subtitleFor(node: FileNode): String =
     if (node.isDirectory) {
@@ -63,11 +64,12 @@ fun FileRow(
 ) {
     val background = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(background)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(background)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

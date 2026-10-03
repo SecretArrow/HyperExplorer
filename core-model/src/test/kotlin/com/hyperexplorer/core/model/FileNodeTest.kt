@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class FileNodeTest {
-
     @Test
     fun `category detects media and documents`() {
         assertEquals(FileCategory.IMAGE, FileNode.categoryOf("photo.JPG"))

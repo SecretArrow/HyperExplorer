@@ -34,12 +34,13 @@ data class FileNode(
     fun humanSize(): String = humanSize(size)
 
     companion object {
-        fun from(file: File): FileNode = FileNode(
-            path = file.absolutePath,
-            isDirectory = file.isDirectory,
-            size = if (file.isDirectory) 0L else file.length(),
-            lastModified = file.lastModified(),
-        )
+        fun from(file: File): FileNode =
+            FileNode(
+                path = file.absolutePath,
+                isDirectory = file.isDirectory,
+                size = if (file.isDirectory) 0L else file.length(),
+                lastModified = file.lastModified(),
+            )
 
         fun categoryOf(fileName: String): FileCategory {
             val ext = fileName.substringAfterLast('.', "").lowercase(Locale.ROOT)

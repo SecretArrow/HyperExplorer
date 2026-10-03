@@ -108,21 +108,22 @@ fun BrowserScreen(
             when {
                 ui.error != null -> EmptyState(message = ui.error ?: "")
                 ui.items.isEmpty() -> EmptyState(message = "Folder kosong")
-                else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(ui.items, key = { it.path }) { node ->
-                        FileRow(
-                            node = node,
-                            selected = node.path in ui.selection,
-                            onClick = {
-                                when {
-                                    ui.selectionMode -> state.toggleSelection(node)
-                                    node.isDirectory -> state.open(node)
-                                    else -> onOpenFile(node)
-                                }
-                            },
-                        )
+                else ->
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(ui.items, key = { it.path }) { node ->
+                            FileRow(
+                                node = node,
+                                selected = node.path in ui.selection,
+                                onClick = {
+                                    when {
+                                        ui.selectionMode -> state.toggleSelection(node)
+                                        node.isDirectory -> state.open(node)
+                                        else -> onOpenFile(node)
+                                    }
+                                },
+                            )
+                        }
                     }
-                }
             }
         }
     }
@@ -156,7 +157,10 @@ fun BrowserScreen(
 }
 
 @Composable
-private fun StorageAccessBanner(onRequest: () -> Unit, modifier: Modifier = Modifier) {
+private fun StorageAccessBanner(
+    onRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(modifier = modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.errorContainer) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),

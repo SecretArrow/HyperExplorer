@@ -10,7 +10,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class BrowserSmokeTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 

@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 
         val trashDir = File(filesDir, "trash").apply { mkdirs() }
         val repository = FileRepository(trashDir)
-        val root = Environment.getExternalStorageDirectory() ?: File(filesDir)
+        val root = Environment.getExternalStorageDirectory() ?: filesDir
         browserState = BrowserState(repository, root)
 
         setContent {
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_STORAGE) {
             hasStorageAccess = grantResults.isNotEmpty() &&

@@ -1,5 +1,6 @@
 package com.hyperexplorer.feature.browser
 
+import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.data.local.FileRepository
 import java.io.File
 import java.nio.file.Files

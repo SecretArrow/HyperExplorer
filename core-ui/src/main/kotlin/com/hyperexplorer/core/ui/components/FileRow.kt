@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Icon
@@ -44,7 +44,7 @@ private fun iconFor(category: FileCategory): ImageVector = when (category) {
     FileCategory.DOCUMENT -> Icons.Filled.Description
     FileCategory.ARCHIVE -> Icons.Filled.FolderZip
     FileCategory.APK -> Icons.Filled.Android
-    FileCategory.OTHER -> Icons.Filled.InsertDriveFile
+    FileCategory.OTHER -> Icons.AutoMirrored.Filled.InsertDriveFile
 }
 
 private fun subtitleFor(node: FileNode): String =

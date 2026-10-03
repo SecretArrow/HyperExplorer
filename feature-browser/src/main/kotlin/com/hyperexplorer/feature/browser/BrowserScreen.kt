@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +69,7 @@ fun BrowserScreen(
     hasStorageAccess: Boolean,
     onRequestStorageAccess: () -> Unit,
     onOpenFile: (FileNode) -> Unit,
+    onZip: (() -> Unit)? = null,
 ) {
     val ui by state.ui.collectAsState()
     val clipboard by state.clipboard.collectAsState()
@@ -113,6 +115,7 @@ fun BrowserScreen(
                     onDelete = { state.deleteSelected() },
                     onCopy = { state.copySelected() },
                     onCut = { state.cutSelected() },
+                    onZip = onZip.takeIf { hasStorageAccess },
                 )
             }
         },
@@ -201,6 +204,7 @@ private fun SelectionBar(
     onDelete: () -> Unit,
     onCopy: () -> Unit,
     onCut: () -> Unit,
+    onZip: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier = modifier.fillMaxWidth(), tonalElevation = 3.dp) {
@@ -211,6 +215,11 @@ private fun SelectionBar(
             IconButton(onClick = onDelete) { Icon(Icons.Filled.Delete, contentDescription = "Hapus") }
             IconButton(onClick = onCopy) { Icon(Icons.Filled.ContentCopy, contentDescription = "Salin") }
             IconButton(onClick = onCut) { Icon(Icons.Filled.ContentCut, contentDescription = "Potong") }
+            if (onZip != null) {
+                IconButton(onClick = onZip) {
+                    Icon(Icons.Filled.FolderZip, contentDescription = "Kompres ZIP")
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
             Text(text = "$count dipilih", style = MaterialTheme.typography.labelLarge)
         }

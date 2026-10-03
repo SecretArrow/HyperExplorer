@@ -20,8 +20,8 @@ android {
         applicationId = "com.hyperexplorer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -72,12 +72,18 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":data-local"))
     implementation(project(":feature-browser"))
+    implementation(project(":feature-tools"))
+    implementation(project(":feature-media"))
+    implementation(project(":feature-transfer"))
+    implementation(project(":feature-apps"))
+    implementation(project(":feature-settings"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

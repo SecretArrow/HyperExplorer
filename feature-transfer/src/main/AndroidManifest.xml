@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Wajib sejak API 28 untuk layanan foreground apa pun. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Wajib sejak API 34 untuk foregroundServiceType="dataSync"; tanpa ini
+         startForeground() melempar SecurityException di Android 14+. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <application>
+        <service
+            android:name="com.hyperexplorer.feature.transfer.ftp.FtpService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+    </application>
+</manifest>

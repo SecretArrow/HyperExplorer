@@ -58,7 +58,12 @@ Semua build dijalankan di CI — **tidak ada build lokal**. Pipeline dirancang h
 ### Cara rilis otomatis
 1. **Otomatis via commit**: dorong commit ke `main` dengan pesan `[release] v0.1.0 ...` — CI akan membuat tag lalu workflow Release menjalankan build & publish.
 2. **Manual via tag**: `git tag v0.1.0 && git push origin v0.1.0`.
-3. **Manual via UI**: jalankan workflow "Release" (menghasilkan `v0.0.0-runN`).
+3. **Manual via UI**: jalankan workflow "Release" (pilih ref tag atau branch).
+
+> **Catatan**: Tag yang dibuat job CI memakai `GITHUB_TOKEN`, dan event dari `GITHUB_TOKEN`
+> tidak memicu workflow lain (aturan GitHub). Agar alur no.1 memicu Release otomatis,
+> isi secret repo **`RELEASE_TOKEN`** dengan PAT ber-scope `repo` — job auto-tag akan
+> memakainya untuk mendorong tag. Tanpa itu, gunakan cara no.2/no.3.
 
 ### Signing release (opsional)
 Set secrets repo berikut agar APK/AAB ditandatangani; tanpa itu hasilnya unsigned:

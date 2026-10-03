@@ -104,6 +104,8 @@ jobs:
           fetch-depth: 0
 
       - name: Buat & dorong tag versi
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           VERSION=$(echo "${{ github.event.head_commit.message }}" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
           if [ -z "$VERSION" ]; then
@@ -112,5 +114,12 @@ jobs:
           git config user.name "hyper-bot"
           git config user.email "actions@users.noreply.github.com"
           git tag "$VERSION"
-          git push origin "$VERSION"
+          # GITHUB_TOKEN tidak memicu workflow lain; gunakan RELEASE_TOKEN (PAT)
+          # agar tag otomatis men-trigger workflow Release.
+          if [ -n "$RELEASE_TOKEN" ]; then
+            git push "https://x-access-token:$RELEASE_TOKEN@github.com/SecretArrow/HyperExplorer.git" "$VERSION"
+          else
+            git push origin "$VERSION"
+            echo "PERHATIAN: RELEASE_TOKEN belum diisi -> tag tidak memicu Release otomatis."
+          fi
           echo "Tag rilis dibuat: $VERSION"

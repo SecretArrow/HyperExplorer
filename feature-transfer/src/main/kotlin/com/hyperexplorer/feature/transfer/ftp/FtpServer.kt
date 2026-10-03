@@ -585,7 +585,7 @@ class FtpServer(
             argument: String,
         ): File? {
             val relative = relativePath(current, argument) ?: return null
-            val candidate = File(rootDir, relative)
+            val candidate = File(config.rootDir, relative)
             return try {
                 val canonical = candidate.canonicalPath
                 if (canonical == rootCanonical || canonical.startsWith(rootCanonical + File.separator)) {

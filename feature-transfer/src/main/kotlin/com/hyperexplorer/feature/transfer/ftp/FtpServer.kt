@@ -351,7 +351,7 @@ class FtpServer(
 
         private fun handleCdup(): String {
             cwd = if (cwd == "/") "/" else cwd.substringBeforeLast("/").ifEmpty { "/" }
-            return "200 Directory changed"
+            return "250 Directory changed"
         }
 
         private fun handleMkd(argument: String?): String {

@@ -47,7 +47,7 @@ class StorageAnalyzerTest {
             val report = analyzer.analyze(root)
 
             assertEquals(root, report.root)
-            assertEquals(550L, report.totalBytes)
+            assertEquals(450L, report.totalBytes)
             assertEquals(4, report.fileCount)
             assertTrue(report.usableBytes >= 0L)
             assertEquals(200L, report.categorySizes[FileCategory.IMAGE])

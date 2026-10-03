@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (ktlint + Android Lint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: ktlint check (gaya kode)
+        run: ./gradlew ktlintCheck --stacktrace
+
+      - name: Android lint
+        run: ./gradlew lint --stacktrace
+
+      - name: Upload laporan lint (saat gagal)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            **/build/reports/ktlint/
+            **/build/reports/lint-results*.html
+          retention-days: 7
+
+  unit-test:
+    name: Unit Tests (semua modul)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Jalankan unit test
+        run: ./gradlew test --stacktrace
+
+      - name: Upload laporan test (saat gagal)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: '**/build/reports/tests/'
+          retention-days: 7
+
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Assemble debug
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: HyperExplorer-debug-${{ github.sha }}
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 14
+
+  auto-tag:
+    name: Auto release ([release] di pesan commit)
+    needs: [lint, unit-test, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(github.event.head_commit.message, '[release]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Buat & dorong tag versi
+        run: |
+          VERSION=$(echo "${{ github.event.head_commit.message }}" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+          if [ -z "$VERSION" ]; then
+            VERSION="v0.$GITHUB_RUN_NUMBER.0"
+          fi
+          git config user.name "hyper-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git tag "$VERSION"
+          git push origin "$VERSION"
+          echo "Tag rilis dibuat: $VERSION"

@@ -47,17 +47,21 @@ object RemotePath {
         return stack.joinToString("/")
     }
 
-    /** Gabungkan [parent] dan [child] lalu normalisasi hasilnya. */
+    /**
+     * Gabungkan [parent] dan [child], lalu normalisasi hasil gabungannya — bukan
+     * masing-masing bagian — sehingga traversal ".." dari [child] dijepit di root
+     * remote dan tidak pernah lolos keluar parent+root.
+     */
     fun join(
         parent: String,
         child: String,
     ): String {
-        val normalizedParent = normalize(parent)
-        val normalizedChild = normalize(child)
+        val p = parent.trim()
+        val c = child.trim()
         return when {
-            normalizedParent.isEmpty() -> normalizedChild
-            normalizedChild.isEmpty() -> normalizedParent
-            else -> "$normalizedParent/$normalizedChild"
+            p.isEmpty() -> normalize(c)
+            c.isEmpty() -> normalize(p)
+            else -> normalize("$p/$c")
         }
     }
 

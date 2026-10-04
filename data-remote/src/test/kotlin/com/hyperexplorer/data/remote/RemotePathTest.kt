@@ -40,7 +40,7 @@ class RemotePathTest {
 
     @Test
     fun `normalize clamps traversal at root`() {
-        assertEquals("a/b", RemotePath.normalize("a/b/../c"))
+        assertEquals("a/c", RemotePath.normalize("a/b/../c"))
         assertEquals("x", RemotePath.normalize("a/../../x"))
         assertEquals("", RemotePath.normalize(".."))
         assertEquals("", RemotePath.normalize("a/.."))

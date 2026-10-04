@@ -274,9 +274,10 @@ class SearchEngineTest {
         val result = SearchEngine.search(entries, SearchFilters(nameQuery = "LAPORAN"))
 
         assertEquals("dua nama mengandung 'laporan' tanpa peduli huruf besar", 2, result.totalMatches)
+        // Urutan nama lowercase asc: "laporan-q1.md" < "laporan.txt" ('-' 0x2D < '.' 0x2E).
         assertEquals(
-            "entri yang cocok benar",
-            listOf("/sdcard/Laporan.TXT", "/sdcard/laporan-q1.md"),
+            "entri yang cocok benar (urutan nama asc)",
+            listOf("/sdcard/laporan-q1.md", "/sdcard/Laporan.TXT"),
             result.entries.map { it.path },
         )
     }

@@ -73,7 +73,12 @@ class SearchControllerTest {
 
     @Test
     fun `init dengan indeks tersimpan menghasilkan READY dan jumlah benar`() {
+        // Indeks tersimpan harus berisi: buat berkas terlebih dahulu sebelum seeding,
+        // karena indeks kosong memang sengaja dipetakan ke IDLE (kontrak).
+        newFile("satu.txt", "isi satu")
+        newFile("dua.jpg", "isi dua")
         val expected = seedIndex()
+        assertEquals("pra-syarat: seeding menghasilkan indeks tidak kosong", 2, expected)
         val controller = newController()
 
         scheduler.advanceUntilIdle()

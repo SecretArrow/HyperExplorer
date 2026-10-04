@@ -46,8 +46,7 @@ class ConnectionStore(context: Context) {
     private val prefs: SharedPreferences by lazy { createPrefs(appContext) }
 
     /** Baca seluruh sambungan tersimpan; kosong bila belum ada atau berkas rusak. */
-    fun read(): List<RemoteConnection> =
-        runCatching { decode(prefs.getString(KEY_CONNECTIONS, null)) }.getOrDefault(emptyList())
+    fun read(): List<RemoteConnection> = runCatching { decode(prefs.getString(KEY_CONNECTIONS, null)) }.getOrDefault(emptyList())
 
     /** Timpa seluruh daftar sambungan; gagal ditulis diabaikan begitu saja. */
     fun save(connections: List<RemoteConnection>) {

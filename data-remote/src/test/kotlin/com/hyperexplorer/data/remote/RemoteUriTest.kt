@@ -26,7 +26,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RemoteUriTest {
-
     @Test
     fun `parse smb uri splits share and base path`() {
         val connection = RemoteUri.parse("smb://server.lan/share/dir/x")

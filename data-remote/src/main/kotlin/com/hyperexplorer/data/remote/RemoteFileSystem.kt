@@ -33,19 +33,36 @@ interface RemoteFileSystem : AutoCloseable {
     suspend fun list(path: String): List<RemoteEntry>
 
     /** Buat direktori [name] di dalam [parent]. */
-    suspend fun makeDirectory(parent: String, name: String)
+    suspend fun makeDirectory(
+        parent: String,
+        name: String,
+    )
 
     /** Hapus [path]; [isDirectory] menentukan apakah target direktori. */
-    suspend fun delete(path: String, isDirectory: Boolean)
+    suspend fun delete(
+        path: String,
+        isDirectory: Boolean,
+    )
 
     /** Ganti nama [oldName] menjadi [newName] di dalam direktori [path]. */
-    suspend fun rename(path: String, oldName: String, newName: String)
+    suspend fun rename(
+        path: String,
+        oldName: String,
+        newName: String,
+    )
 
     /** Unduh [remotePath] ke berkas lokal [target]. [sizeHint] boleh diabaikan implementasi. */
-    suspend fun download(remotePath: String, target: File, sizeHint: Long = -1L)
+    suspend fun download(
+        remotePath: String,
+        target: File,
+        sizeHint: Long = -1L,
+    )
 
     /** Unggah [local] ke direktori remote [remoteDir] dengan nama berkas lokalnya. */
-    suspend fun upload(local: File, remoteDir: String)
+    suspend fun upload(
+        local: File,
+        remoteDir: String,
+    )
 
     /** Tutup koneksi (idempoten; operasi berikutnya melempar IllegalStateException). */
     override fun close()

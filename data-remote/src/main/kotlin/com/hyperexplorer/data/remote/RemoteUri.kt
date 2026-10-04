@@ -34,35 +34,40 @@ object RemoteUri {
      */
     fun parse(raw: String): RemoteConnection {
         val trimmed = raw.trim()
-        val uri = try {
-            URI(trimmed)
-        } catch (e: URISyntaxException) {
-            throw IllegalArgumentException("Invalid remote URI: $trimmed", e)
-        }
+        val uri =
+            try {
+                URI(trimmed)
+            } catch (e: URISyntaxException) {
+                throw IllegalArgumentException("Invalid remote URI: $trimmed", e)
+            }
         val scheme = uri.scheme?.lowercase()
-        val protocol = protocolsByScheme[scheme]
-            ?: throw IllegalArgumentException("Unsupported scheme '$scheme' in remote URI: $trimmed")
-        val host = uri.host?.takeUnless { it.isEmpty() }
-            ?: throw IllegalArgumentException("Missing host in remote URI: $trimmed")
+        val protocol =
+            protocolsByScheme[scheme]
+                ?: throw IllegalArgumentException("Unsupported scheme '$scheme' in remote URI: $trimmed")
+        val host =
+            uri.host?.takeUnless { it.isEmpty() }
+                ?: throw IllegalArgumentException("Missing host in remote URI: $trimmed")
         if (uri.port < -1 || uri.port > 65535) {
             throw IllegalArgumentException("Invalid port in remote URI: $trimmed")
         }
         val segments = (uri.path ?: "").trim('/')
-        val (share, basePath) = when (protocol) {
-            RemoteProtocol.SMB -> segments.substringBefore('/') to segments.substringAfter('/', "")
-            RemoteProtocol.WEBDAV -> segments to ""
-            RemoteProtocol.FTP, RemoteProtocol.SFTP -> "" to segments
-        }
+        val (share, basePath) =
+            when (protocol) {
+                RemoteProtocol.SMB -> segments.substringBefore('/') to segments.substringAfter('/', "")
+                RemoteProtocol.WEBDAV -> segments to ""
+                RemoteProtocol.FTP, RemoteProtocol.SFTP -> "" to segments
+            }
         val userInfo = uri.userInfo
-        val credentials = if (userInfo == null) {
-            RemoteCredentials()
-        } else {
-            RemoteCredentials(
-                username = userInfo.substringBefore(':'),
-                password = userInfo.substringAfter(':', ""),
-                anonymous = false,
-            )
-        }
+        val credentials =
+            if (userInfo == null) {
+                RemoteCredentials()
+            } else {
+                RemoteCredentials(
+                    username = userInfo.substringBefore(':'),
+                    password = userInfo.substringAfter(':', ""),
+                    anonymous = false,
+                )
+            }
         return RemoteConnection(
             protocol = protocol,
             host = host,
@@ -83,11 +88,12 @@ object RemoteUri {
         if (connection.port != connection.protocol.defaultPort) {
             builder.append(':').append(connection.port)
         }
-        val pathSegments = when (connection.protocol) {
-            RemoteProtocol.SMB -> listOf(connection.share, connection.basePath)
-            RemoteProtocol.WEBDAV -> listOf(connection.share)
-            RemoteProtocol.FTP, RemoteProtocol.SFTP -> listOf(connection.basePath)
-        }.filter { it.isNotEmpty() }
+        val pathSegments =
+            when (connection.protocol) {
+                RemoteProtocol.SMB -> listOf(connection.share, connection.basePath)
+                RemoteProtocol.WEBDAV -> listOf(connection.share)
+                RemoteProtocol.FTP, RemoteProtocol.SFTP -> listOf(connection.basePath)
+            }.filter { it.isNotEmpty() }
         for (segment in pathSegments) {
             builder.append('/').append(segment)
         }

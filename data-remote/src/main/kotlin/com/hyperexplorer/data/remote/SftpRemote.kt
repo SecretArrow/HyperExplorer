@@ -45,7 +45,6 @@ import java.io.IOException
  * bergantung pada server yang mengizinkan auth "none".
  */
 class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
-
     @Volatile
     private var closed = false
 
@@ -54,30 +53,37 @@ class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
 
     private val mutex = Mutex()
 
-    override suspend fun list(path: String): List<RemoteEntry> = io("list", path) {
-        RemotePath.requireSafe(path)
-        val dir = absolute(path)
-        sftp().use { channel ->
-            channel.ls(dir).map {
-                RemoteEntry(
-                    name = it.name,
-                    path = RemotePath.join(dir, it.name),
-                    isDirectory = it.isDirectory,
-                    size = maxOf(0L, it.attributes.size),
-                    lastModified = maxOf(0L, it.attributes.mtime) * 1000L,
-                )
+    override suspend fun list(path: String): List<RemoteEntry> =
+        io("list", path) {
+            RemotePath.requireSafe(path)
+            val dir = absolute(path)
+            sftp().use { channel ->
+                channel.ls(dir).map {
+                    RemoteEntry(
+                        name = it.name,
+                        path = RemotePath.join(dir, it.name),
+                        isDirectory = it.isDirectory,
+                        size = maxOf(0L, it.attributes.size),
+                        lastModified = maxOf(0L, it.attributes.mtime) * 1000L,
+                    )
+                }
             }
         }
-    }
 
-    override suspend fun makeDirectory(parent: String, name: String) = io("mkdir", name) {
+    override suspend fun makeDirectory(
+        parent: String,
+        name: String,
+    ) = io("mkdir", name) {
         RemotePath.requireSafe(parent)
         RemotePath.requireSafe(name)
         val target = absolute(RemotePath.join(parent, name))
         sftp().use { it.mkdir(target) }
     }
 
-    override suspend fun delete(path: String, isDirectory: Boolean) = io("delete", path) {
+    override suspend fun delete(
+        path: String,
+        isDirectory: Boolean,
+    ) = io("delete", path) {
         RemotePath.requireSafe(path)
         val target = absolute(path)
         sftp().use { channel ->
@@ -85,7 +91,11 @@ class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         }
     }
 
-    override suspend fun rename(path: String, oldName: String, newName: String) = io("rename", oldName) {
+    override suspend fun rename(
+        path: String,
+        oldName: String,
+        newName: String,
+    ) = io("rename", oldName) {
         RemotePath.requireSafe(path)
         RemotePath.requireSafe(oldName)
         RemotePath.requireSafe(newName)
@@ -94,16 +104,22 @@ class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         sftp().use { it.rename(from, to) }
     }
 
-    override suspend fun download(remotePath: String, target: File, sizeHint: Long) =
-        io("download", remotePath) {
-            // sizeHint diabaikan: sshj menulis sampai transfer selesai.
-            RemotePath.requireSafe(remotePath)
-            target.parentFile?.mkdirs()
-            val source = absolute(remotePath)
-            sftp().use { it.get(source, target.absolutePath) }
-        }
+    override suspend fun download(
+        remotePath: String,
+        target: File,
+        sizeHint: Long,
+    ) = io("download", remotePath) {
+        // sizeHint diabaikan: sshj menulis sampai transfer selesai.
+        RemotePath.requireSafe(remotePath)
+        target.parentFile?.mkdirs()
+        val source = absolute(remotePath)
+        sftp().use { it.get(source, target.absolutePath) }
+    }
 
-    override suspend fun upload(local: File, remoteDir: String) = io("upload", local.name) {
+    override suspend fun upload(
+        local: File,
+        remoteDir: String,
+    ) = io("upload", local.name) {
         RemotePath.requireSafe(remoteDir)
         if (!local.isFile) throw IOException("local file not found: ${local.absolutePath}")
         val target = absolute(RemotePath.join(remoteDir, local.name))
@@ -127,11 +143,12 @@ class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         if (closed) throw IllegalStateException("Remote file system is closed")
     }
 
-    private suspend fun sftp(): SFTPClient = mutex.withLock {
-        ensureOpen()
-        val existing = ssh ?: connect().also { ssh = it }
-        existing.newSFTPClient()
-    }
+    private suspend fun sftp(): SFTPClient =
+        mutex.withLock {
+            ensureOpen()
+            val existing = ssh ?: connect().also { ssh = it }
+            existing.newSFTPClient()
+        }
 
     private fun connect(): SSHClient {
         val client = SSHClient()
@@ -162,7 +179,11 @@ class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
 
     private fun absolute(path: String): String = "/" + RemotePath.join(connection.basePath, path)
 
-    private suspend fun <T> io(operation: String, target: String, block: suspend () -> T): T =
+    private suspend fun <T> io(
+        operation: String,
+        target: String,
+        block: suspend () -> T,
+    ): T =
         withContext(Dispatchers.IO) {
             ensureOpen()
             try {

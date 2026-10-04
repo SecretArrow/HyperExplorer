@@ -37,7 +37,6 @@ import java.io.IOException
  * remote); root koneksi = basePath koneksi, atau root server bila kosong.
  */
 class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
-
     @Volatile
     private var closed = false
 
@@ -46,27 +45,32 @@ class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
 
     private val mutex = Mutex()
 
-    override suspend fun list(path: String): List<RemoteEntry> = io("list", path) {
-        RemotePath.requireSafe(path)
-        val ftp = control()
-        val dir = absolute(path)
-        val files = ftp.listFiles(dir)
-            ?: throw IOException("listing unavailable${ftp.replyDetail()}")
-        files
-            .filterNotNull()
-            .filter { it.name != "." && it.name != ".." }
-            .map {
-                RemoteEntry(
-                    name = it.name,
-                    path = RemotePath.join(dir, it.name),
-                    isDirectory = it.isDirectory,
-                    size = maxOf(0L, it.size),
-                    lastModified = it.timestamp?.timeInMillis ?: 0L,
-                )
-            }
-    }
+    override suspend fun list(path: String): List<RemoteEntry> =
+        io("list", path) {
+            RemotePath.requireSafe(path)
+            val ftp = control()
+            val dir = absolute(path)
+            val files =
+                ftp.listFiles(dir)
+                    ?: throw IOException("listing unavailable${ftp.replyDetail()}")
+            files
+                .filterNotNull()
+                .filter { it.name != "." && it.name != ".." }
+                .map {
+                    RemoteEntry(
+                        name = it.name,
+                        path = RemotePath.join(dir, it.name),
+                        isDirectory = it.isDirectory,
+                        size = maxOf(0L, it.size),
+                        lastModified = it.timestamp?.timeInMillis ?: 0L,
+                    )
+                }
+        }
 
-    override suspend fun makeDirectory(parent: String, name: String) = io("mkdir", name) {
+    override suspend fun makeDirectory(
+        parent: String,
+        name: String,
+    ) = io("mkdir", name) {
         RemotePath.requireSafe(parent)
         RemotePath.requireSafe(name)
         val ftp = control()
@@ -76,7 +80,10 @@ class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         }
     }
 
-    override suspend fun delete(path: String, isDirectory: Boolean) = io("delete", path) {
+    override suspend fun delete(
+        path: String,
+        isDirectory: Boolean,
+    ) = io("delete", path) {
         RemotePath.requireSafe(path)
         val ftp = control()
         val target = absolute(path)
@@ -86,7 +93,11 @@ class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         }
     }
 
-    override suspend fun rename(path: String, oldName: String, newName: String) = io("rename", oldName) {
+    override suspend fun rename(
+        path: String,
+        oldName: String,
+        newName: String,
+    ) = io("rename", oldName) {
         RemotePath.requireSafe(path)
         RemotePath.requireSafe(oldName)
         RemotePath.requireSafe(newName)
@@ -98,21 +109,27 @@ class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         }
     }
 
-    override suspend fun download(remotePath: String, target: File, sizeHint: Long) =
-        io("download", remotePath) {
-            // sizeHint diabaikan: ukuran diambil dari transfer itu sendiri.
-            RemotePath.requireSafe(remotePath)
-            val ftp = control()
-            val source = absolute(remotePath)
-            target.parentFile?.mkdirs()
-            target.outputStream().use { output ->
-                if (!ftp.retrieveFile(source, output)) {
-                    throw IOException("rejected by server${ftp.replyDetail()}")
-                }
+    override suspend fun download(
+        remotePath: String,
+        target: File,
+        sizeHint: Long,
+    ) = io("download", remotePath) {
+        // sizeHint diabaikan: ukuran diambil dari transfer itu sendiri.
+        RemotePath.requireSafe(remotePath)
+        val ftp = control()
+        val source = absolute(remotePath)
+        target.parentFile?.mkdirs()
+        target.outputStream().use { output ->
+            if (!ftp.retrieveFile(source, output)) {
+                throw IOException("rejected by server${ftp.replyDetail()}")
             }
         }
+    }
 
-    override suspend fun upload(local: File, remoteDir: String) = io("upload", local.name) {
+    override suspend fun upload(
+        local: File,
+        remoteDir: String,
+    ) = io("upload", local.name) {
         RemotePath.requireSafe(remoteDir)
         if (!local.isFile) throw IOException("local file not found: ${local.absolutePath}")
         val ftp = control()
@@ -146,10 +163,11 @@ class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         if (closed) throw IllegalStateException("Remote file system is closed")
     }
 
-    private suspend fun control(): FTPClient = mutex.withLock {
-        ensureOpen()
-        client ?: openControl().also { client = it }
-    }
+    private suspend fun control(): FTPClient =
+        mutex.withLock {
+            ensureOpen()
+            client ?: openControl().also { client = it }
+        }
 
     private fun openControl(): FTPClient {
         val ftp = FTPClient()
@@ -185,7 +203,11 @@ class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         return if (reply.isNullOrEmpty()) " (reply $replyCode)" else " (reply $replyCode: $reply)"
     }
 
-    private suspend fun <T> io(operation: String, target: String, block: suspend () -> T): T =
+    private suspend fun <T> io(
+        operation: String,
+        target: String,
+        block: suspend () -> T,
+    ): T =
         withContext(Dispatchers.IO) {
             ensureOpen()
             try {

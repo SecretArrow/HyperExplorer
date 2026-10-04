@@ -197,7 +197,10 @@ class NetworkViewModel(
      * Buka [path] (tanpa skema; SMB: segmen pertama = share) pada [connection]:
      * klien lama ditutup, klien baru di-connect lalu isi folder di-list.
      */
-    fun browse(connection: RemoteConnection, path: String) {
+    fun browse(
+        connection: RemoteConnection,
+        path: String,
+    ) {
         closeCurrent()
         generation++
         screen = NetworkScreen.BROWSING
@@ -252,7 +255,10 @@ class NetworkViewModel(
     }
 
     /** Ganti nama [entry] menjadi [newName] di lokasi jarak jauh. */
-    fun renameEntry(entry: RemoteEntry, newName: String) {
+    fun renameEntry(
+        entry: RemoteEntry,
+        newName: String,
+    ) {
         val fs = client ?: return
         val trimmed = newName.trim()
         if (trimmed.isEmpty() || trimmed == entry.name) return
@@ -348,7 +354,10 @@ class NetworkViewModel(
         )
 
     /** Jalankan uji koneksi (connect + list path dasar/share) lalu tutup klien uji. */
-    private fun runTest(connection: RemoteConnection, saveOnSuccess: Boolean) {
+    private fun runTest(
+        connection: RemoteConnection,
+        saveOnSuccess: Boolean,
+    ) {
         testStatus = ConnectionTestStatus.RUNNING
         testDetail = null
         scope.launch {
@@ -401,7 +410,10 @@ class NetworkViewModel(
         }
     }
 
-    private suspend fun listCurrentInternal(fs: RemoteFileSystem, gen: Long) {
+    private suspend fun listCurrentInternal(
+        fs: RemoteFileSystem,
+        gen: Long,
+    ) {
         val result =
             try {
                 fs.list(currentPath)

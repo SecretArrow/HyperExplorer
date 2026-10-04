@@ -45,7 +45,6 @@ import java.io.IOException
  * [RemoteConnection.share]; [RemoteConnection.basePath] menjadi root koordinat.
  */
 class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
-
     @Volatile
     private var closed = false
 
@@ -60,37 +59,48 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
 
     private val mutex = Mutex()
 
-    override suspend fun list(path: String): List<RemoteEntry> = io("list", path) {
-        RemotePath.requireSafe(path)
-        val dir = RemotePath.join(connection.basePath, path)
-        diskShare().list(dir.replace('/', '\\'))
-            .filter { it.fileName != "." && it.fileName != ".." }
-            .map { info ->
-                RemoteEntry(
-                    name = info.fileName,
-                    path = RemotePath.join(dir, info.fileName),
-                    isDirectory = (info.fileAttributes and FileAttributes.FILE_ATTRIBUTE_DIRECTORY.value) != 0L,
-                    size = maxOf(0L, info.endOfFile),
-                    lastModified = windowsToEpochMillis(info.lastWriteTime.windowsTimeStamp),
-                )
-            }
-    }
+    override suspend fun list(path: String): List<RemoteEntry> =
+        io("list", path) {
+            RemotePath.requireSafe(path)
+            val dir = RemotePath.join(connection.basePath, path)
+            diskShare().list(dir.replace('/', '\\'))
+                .filter { it.fileName != "." && it.fileName != ".." }
+                .map { info ->
+                    RemoteEntry(
+                        name = info.fileName,
+                        path = RemotePath.join(dir, info.fileName),
+                        isDirectory = (info.fileAttributes and FileAttributes.FILE_ATTRIBUTE_DIRECTORY.value) != 0L,
+                        size = maxOf(0L, info.endOfFile),
+                        lastModified = windowsToEpochMillis(info.lastWriteTime.windowsTimeStamp),
+                    )
+                }
+        }
 
-    override suspend fun makeDirectory(parent: String, name: String) = io("mkdir", name) {
+    override suspend fun makeDirectory(
+        parent: String,
+        name: String,
+    ) = io("mkdir", name) {
         RemotePath.requireSafe(parent)
         RemotePath.requireSafe(name)
         val target = toSmb(RemotePath.join(parent, name))
         diskShare().mkdir(target)
     }
 
-    override suspend fun delete(path: String, isDirectory: Boolean) = io("delete", path) {
+    override suspend fun delete(
+        path: String,
+        isDirectory: Boolean,
+    ) = io("delete", path) {
         RemotePath.requireSafe(path)
         val target = toSmb(path)
         val share = diskShare()
         if (isDirectory) share.rmdir(target, true) else share.rm(target)
     }
 
-    override suspend fun rename(path: String, oldName: String, newName: String) = io("rename", oldName) {
+    override suspend fun rename(
+        path: String,
+        oldName: String,
+        newName: String,
+    ) = io("rename", oldName) {
         RemotePath.requireSafe(path)
         RemotePath.requireSafe(oldName)
         RemotePath.requireSafe(newName)
@@ -98,22 +108,27 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         val to = toSmb(RemotePath.join(path, newName))
         // Rename perlu handle dengan AccessMask.DELETE lalu SET_INFO FileRenameInformation
         // (DiskEntry.rename di SMBJ); jalan paling sederhana yang benar di SMBJ 0.13.
-        val entry = diskShare().open(
-            from,
-            setOf(AccessMask.DELETE),
-            null,
-            SMB2ShareAccess.ALL,
-            SMB2CreateDisposition.FILE_OPEN,
-            null,
-        )
+        val entry =
+            diskShare().open(
+                from,
+                setOf(AccessMask.DELETE),
+                null,
+                SMB2ShareAccess.ALL,
+                SMB2CreateDisposition.FILE_OPEN,
+                null,
+            )
         entry.use { it.rename(to, true) }
     }
 
-    override suspend fun download(remotePath: String, target: File, sizeHint: Long) =
-        io("download", remotePath) {
-            // sizeHint diabaikan: stream dibaca sampai habis.
-            RemotePath.requireSafe(remotePath)
-            val handle = diskShare().openFile(
+    override suspend fun download(
+        remotePath: String,
+        target: File,
+        sizeHint: Long,
+    ) = io("download", remotePath) {
+        // sizeHint diabaikan: stream dibaca sampai habis.
+        RemotePath.requireSafe(remotePath)
+        val handle =
+            diskShare().openFile(
                 toSmb(remotePath),
                 setOf(AccessMask.GENERIC_READ),
                 null,
@@ -121,27 +136,31 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
                 SMB2CreateDisposition.FILE_OPEN,
                 null,
             )
-            target.parentFile?.mkdirs()
-            handle.use { file ->
-                file.getInputStream().use { input ->
-                    target.outputStream().use { output ->
-                        input.copyTo(output, 64 * 1024)
-                    }
+        target.parentFile?.mkdirs()
+        handle.use { file ->
+            file.getInputStream().use { input ->
+                target.outputStream().use { output ->
+                    input.copyTo(output, 64 * 1024)
                 }
             }
         }
+    }
 
-    override suspend fun upload(local: File, remoteDir: String) = io("upload", local.name) {
+    override suspend fun upload(
+        local: File,
+        remoteDir: String,
+    ) = io("upload", local.name) {
         RemotePath.requireSafe(remoteDir)
         if (!local.isFile) throw IOException("local file not found: ${local.absolutePath}")
-        val handle = diskShare().openFile(
-            toSmb(RemotePath.join(remoteDir, local.name)),
-            setOf(AccessMask.GENERIC_WRITE),
-            null,
-            SMB2ShareAccess.ALL,
-            SMB2CreateDisposition.FILE_OVERWRITE_IF,
-            null,
-        )
+        val handle =
+            diskShare().openFile(
+                toSmb(RemotePath.join(remoteDir, local.name)),
+                setOf(AccessMask.GENERIC_WRITE),
+                null,
+                SMB2ShareAccess.ALL,
+                SMB2CreateDisposition.FILE_OVERWRITE_IF,
+                null,
+            )
         handle.use { file ->
             file.getOutputStream().use { output ->
                 local.inputStream().use { input ->
@@ -186,10 +205,11 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         if (closed) throw IllegalStateException("Remote file system is closed")
     }
 
-    private suspend fun diskShare(): DiskShare = mutex.withLock {
-        ensureOpen()
-        diskShare ?: connect().also { diskShare = it }
-    }
+    private suspend fun diskShare(): DiskShare =
+        mutex.withLock {
+            ensureOpen()
+            diskShare ?: connect().also { diskShare = it }
+        }
 
     private fun connect(): DiskShare {
         val shareName = connection.share
@@ -252,7 +272,11 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         return maxOf(0L, millis)
     }
 
-    private suspend fun <T> io(operation: String, target: String, block: suspend () -> T): T =
+    private suspend fun <T> io(
+        operation: String,
+        target: String,
+        block: suspend () -> T,
+    ): T =
         withContext(Dispatchers.IO) {
             ensureOpen()
             try {

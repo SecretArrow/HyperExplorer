@@ -27,7 +27,6 @@ package com.hyperexplorer.data.remote
  * mengandung ".." sehingga tidak bisa keluar dari root.
  */
 object RemotePath {
-
     /**
      * Normalisasi [path]: buang whitespace, '/' di depan & belakang, segmen kosong
      * ("//" → "/"), segmen "."; segmen ".." menaik satu tingkat dan DIJEPIT di root
@@ -49,7 +48,10 @@ object RemotePath {
     }
 
     /** Gabungkan [parent] dan [child] lalu normalisasi hasilnya. */
-    fun join(parent: String, child: String): String {
+    fun join(
+        parent: String,
+        child: String,
+    ): String {
         val normalizedParent = normalize(parent)
         val normalizedChild = normalize(child)
         return when {

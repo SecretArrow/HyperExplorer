@@ -43,32 +43,37 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 /** Base path WebDAV dianggap plain HTTP (dav:// → http://); koneksi stateless. */
 class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem {
-
     @Volatile
     private var closed = false
 
-    private val http: OkHttpClient = OkHttpClient.Builder()
-        .connectTimeout(Duration.ofSeconds(30))
-        .readTimeout(Duration.ofSeconds(30))
-        .writeTimeout(Duration.ofSeconds(30))
-        .build()
+    private val http: OkHttpClient =
+        OkHttpClient.Builder()
+            .connectTimeout(Duration.ofSeconds(30))
+            .readTimeout(Duration.ofSeconds(30))
+            .writeTimeout(Duration.ofSeconds(30))
+            .build()
 
-    override suspend fun list(path: String): List<RemoteEntry> = io("list", path) {
-        RemotePath.requireSafe(path)
-        val dir = RemotePath.join(connection.share, path)
-        val body = PROPFIND_BODY.toRequestBody(XML_MEDIA_TYPE)
-        val request = buildRequest(dir) {
-            header("Depth", "1")
-            method("PROPFIND", body)
+    override suspend fun list(path: String): List<RemoteEntry> =
+        io("list", path) {
+            RemotePath.requireSafe(path)
+            val dir = RemotePath.join(connection.share, path)
+            val body = PROPFIND_BODY.toRequestBody(XML_MEDIA_TYPE)
+            val request =
+                buildRequest(dir) {
+                    header("Depth", "1")
+                    method("PROPFIND", body)
+                }
+            http.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
+                val bytes = response.body?.bytes() ?: throw IOException("empty response body")
+                parseMultistatus(bytes, dir)
+            }
         }
-        http.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
-            val bytes = response.body?.bytes() ?: throw IOException("empty response body")
-            parseMultistatus(bytes, dir)
-        }
-    }
 
-    override suspend fun makeDirectory(parent: String, name: String) = io("mkcol", name) {
+    override suspend fun makeDirectory(
+        parent: String,
+        name: String,
+    ) = io("mkcol", name) {
         RemotePath.requireSafe(parent)
         RemotePath.requireSafe(name)
         val request = buildRequest(RemotePath.join(parent, name)) { method("MKCOL", null) }
@@ -77,7 +82,10 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
         }
     }
 
-    override suspend fun delete(path: String, isDirectory: Boolean) = io("delete", path) {
+    override suspend fun delete(
+        path: String,
+        isDirectory: Boolean,
+    ) = io("delete", path) {
         RemotePath.requireSafe(path)
         val request = buildRequest(path) { method("DELETE", null) }
         http.newCall(request).execute().use { response ->
@@ -85,41 +93,53 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
         }
     }
 
-    override suspend fun rename(path: String, oldName: String, newName: String) = io("rename", oldName) {
+    override suspend fun rename(
+        path: String,
+        oldName: String,
+        newName: String,
+    ) = io("rename", oldName) {
         RemotePath.requireSafe(path)
         RemotePath.requireSafe(oldName)
         RemotePath.requireSafe(newName)
         val destination = url(RemotePath.join(path, newName))
-        val request = buildRequest(RemotePath.join(path, oldName)) {
-            header("Destination", destination)
-            method("MOVE", null)
-        }
+        val request =
+            buildRequest(RemotePath.join(path, oldName)) {
+                header("Destination", destination)
+                method("MOVE", null)
+            }
         http.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
         }
     }
 
-    override suspend fun download(remotePath: String, target: File, sizeHint: Long) =
-        io("download", remotePath) {
-            // sizeHint diabaikan: stream dibaca sampai habis.
-            RemotePath.requireSafe(remotePath)
-            val request = buildRequest(remotePath) { get() }
-            http.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
-                val input = response.body?.byteStream() ?: throw IOException("empty response body")
-                target.parentFile?.mkdirs()
-                target.outputStream().use { output ->
-                    input.copyTo(output, 64 * 1024)
-                }
+    override suspend fun download(
+        remotePath: String,
+        target: File,
+        sizeHint: Long,
+    ) = io("download", remotePath) {
+        // sizeHint diabaikan: stream dibaca sampai habis.
+        RemotePath.requireSafe(remotePath)
+        val request = buildRequest(remotePath) { get() }
+        http.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
+            val input = response.body?.byteStream() ?: throw IOException("empty response body")
+            target.parentFile?.mkdirs()
+            target.outputStream().use { output ->
+                input.copyTo(output, 64 * 1024)
             }
         }
+    }
 
-    override suspend fun upload(local: File, remoteDir: String) = io("upload", local.name) {
+    override suspend fun upload(
+        local: File,
+        remoteDir: String,
+    ) = io("upload", local.name) {
         RemotePath.requireSafe(remoteDir)
         if (!local.isFile) throw IOException("local file not found: ${local.absolutePath}")
-        val request = buildRequest(RemotePath.join(remoteDir, local.name)) {
-            put(local.asRequestBody(OCTET_STREAM_MEDIA_TYPE))
-        }
+        val request =
+            buildRequest(RemotePath.join(remoteDir, local.name)) {
+                put(local.asRequestBody(OCTET_STREAM_MEDIA_TYPE))
+            }
         http.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
         }
@@ -133,7 +153,10 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
         if (closed) throw IllegalStateException("Remote file system is closed")
     }
 
-    private fun buildRequest(remotePath: String, configure: Request.Builder.() -> Unit): Request {
+    private fun buildRequest(
+        remotePath: String,
+        configure: Request.Builder.() -> Unit,
+    ): Request {
         val builder = Request.Builder().url(url(remotePath))
         authHeader()?.let { (name, value) -> builder.header(name, value) }
         builder.configure()
@@ -155,12 +178,16 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
         return "Authorization" to "Basic $encoded"
     }
 
-    private fun parseMultistatus(bytes: ByteArray, dir: String): List<RemoteEntry> {
-        val document = try {
-            secureFactory().newDocumentBuilder().parse(ByteArrayInputStream(bytes))
-        } catch (e: Exception) {
-            throw IOException("invalid XML in PROPFIND response: ${e.message}", e)
-        }
+    private fun parseMultistatus(
+        bytes: ByteArray,
+        dir: String,
+    ): List<RemoteEntry> {
+        val document =
+            try {
+                secureFactory().newDocumentBuilder().parse(ByteArrayInputStream(bytes))
+            } catch (e: Exception) {
+                throw IOException("invalid XML in PROPFIND response: ${e.message}", e)
+            }
         val entries = mutableListOf<RemoteEntry>()
         val responses = document.getElementsByTagNameNS("DAV:", "response")
         for (index in 0 until responses.length) {
@@ -171,13 +198,14 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
             val name = relative.substringAfterLast('/')
             val isDirectory =
                 response.getElementsByTagNameNS("DAV:", "collection").length > 0 || href.endsWith('/')
-            entries += RemoteEntry(
-                name = name,
-                path = RemotePath.join(dir, name),
-                isDirectory = isDirectory,
-                size = response.text("getcontentlength")?.toLongOrNull() ?: 0L,
-                lastModified = response.text("getlastmodified")?.let { parseRfc1123(it) } ?: 0L,
-            )
+            entries +=
+                RemoteEntry(
+                    name = name,
+                    path = RemotePath.join(dir, name),
+                    isDirectory = isDirectory,
+                    size = response.text("getcontentlength")?.toLongOrNull() ?: 0L,
+                    lastModified = response.text("getlastmodified")?.let { parseRfc1123(it) } ?: 0L,
+                )
         }
         return entries
     }
@@ -199,19 +227,19 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
 
     /** Relatifkan href terhadap base path koneksi; null bila href di luar koneksi. */
     private fun relativize(href: String): String? {
-        val decoded = try {
-            URI(href).path ?: return null
-        } catch (_: URISyntaxException) {
-            return null
-        }
+        val decoded =
+            try {
+                URI(href).path ?: return null
+            } catch (_: URISyntaxException) {
+                return null
+            }
         val withSlash = if (decoded.startsWith("/")) decoded else "/$decoded"
         val base = "/" + connection.share
         if (!withSlash.startsWith(base)) return null
         return withSlash.removePrefix(base).trim('/')
     }
 
-    private fun Element.text(localName: String): String? =
-        getElementsByTagNameNS("DAV:", localName).item(0)?.textContent
+    private fun Element.text(localName: String): String? = getElementsByTagNameNS("DAV:", localName).item(0)?.textContent
 
     /** Parse tanggal RFC 1123 ("Wed, 21 Oct 2015 07:28:00 GMT"); fallback 0. */
     private fun parseRfc1123(value: String): Long =
@@ -221,7 +249,11 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
             0L
         }
 
-    private suspend fun <T> io(operation: String, target: String, block: suspend () -> T): T =
+    private suspend fun <T> io(
+        operation: String,
+        target: String,
+        block: suspend () -> T,
+    ): T =
         withContext(Dispatchers.IO) {
             ensureOpen()
             try {

@@ -103,7 +103,10 @@ object NetworkFormValidator {
     }
 
     /** Kumpulkan seluruh pelanggaran pada [host] dan [port] (teks dari TextField). */
-    fun validate(host: String, port: String): List<ValidationError> {
+    fun validate(
+        host: String,
+        port: String,
+    ): List<ValidationError> {
         val errors = mutableListOf<ValidationError>()
         if (host.isBlank()) errors += ValidationError.EMPTY_HOST
         val parsed = port.trim().toIntOrNull()

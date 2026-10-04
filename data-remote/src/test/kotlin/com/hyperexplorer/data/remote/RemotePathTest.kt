@@ -24,7 +24,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class RemotePathTest {
-
     @Test
     fun `normalize strips leading and trailing slashes`() {
         assertEquals("", RemotePath.normalize("/"))

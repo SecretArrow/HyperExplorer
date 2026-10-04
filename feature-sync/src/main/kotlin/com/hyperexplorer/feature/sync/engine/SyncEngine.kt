@@ -146,7 +146,7 @@ class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
 
         val remoteDirs = LinkedHashMap<String, RemoteEntry>()
         val remoteFiles = LinkedHashMap<String, RemoteEntry>()
-        collectRemote(root, rootEntries, fs, remoteDirs, remoteFiles, failures, depth = 0)
+        collectRemote(root, root, rootEntries, fs, remoteDirs, remoteFiles, failures, depth = 0)
 
         val localDirs = LinkedHashMap<String, File>()
         val localFiles = LinkedHashMap<String, File>()
@@ -245,6 +245,7 @@ class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
      */
     private suspend fun collectRemote(
         dirPath: String,
+        syncRoot: String,
         entries: List<RemoteEntry>,
         fs: RemoteFileSystem,
         dirs: MutableMap<String, RemoteEntry>,
@@ -262,7 +263,9 @@ class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
                 failures += "${entry.path}: nama entri remote tidak sah, dilewati (anti-traversal)"
                 continue
             }
-            val rel = relativePath(dirPath, entry.path)
+            // Rel dihitung terhadap ROOT SINKRONISASI (bukan folder yang sedang dipindai)
+            // agar entri bersarang mempertahankan prefix foldernya (mis. "docs/readme.txt").
+            val rel = relativePath(syncRoot, entry.path)
             if (rel.isNullOrEmpty()) {
                 failures += "${entry.path}: path entri tidak berada di dalam folder yang dipindai, dilewati"
                 continue
@@ -277,7 +280,7 @@ class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
                         failures += "$rel: gagal membaca subfolder remote: ${e.message ?: e.javaClass.simpleName}"
                         continue
                     }
-                collectRemote(entry.path, children, fs, dirs, files, failures, depth + 1)
+                collectRemote(entry.path, syncRoot, children, fs, dirs, files, failures, depth + 1)
             } else {
                 files[rel] = entry
             }

@@ -1,0 +1,1 @@
+New: TV and large-screen support - adaptive file grid (2-3 columns on tablets/desktop mode), Android TV launcher with banner, D-pad/keyboard navigation, split-screen ready.

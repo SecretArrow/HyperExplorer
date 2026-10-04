@@ -65,6 +65,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -72,6 +73,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.LocaleListCompat
 import com.hyperexplorer.core.model.FileNode
+import com.hyperexplorer.core.ui.adaptive.windowWidthFor
 import com.hyperexplorer.core.ui.theme.HyperExplorerTheme
 import com.hyperexplorer.data.local.FileRepository
 import com.hyperexplorer.feature.apps.AppsState
@@ -310,6 +312,8 @@ class MainActivity : AppCompatActivity() {
                             onOpenFile = { openFile(it) },
                             onZip = { zipDialogVisible = true },
                             onSearch = { searchOpen = true },
+                            // Lebar jendela aktual dipetakan ke klasifikasi (TV/tablet -> grid); screenWidthDp 0/UNDEFINED aman -> COMPACT.
+                            windowWidth = windowWidthFor(LocalConfiguration.current.screenWidthDp),
                         )
                     Screen.APPS -> AppsScreen(state = appsState)
                     Screen.STORAGE -> StorageHub()

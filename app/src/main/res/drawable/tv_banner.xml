@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<!-- Hyper Explorer TV banner - domain publik / lisensi proyek (GPL-3.0-only) -->
+<!-- Banner launcher Android TV 320x180 (leanback): latar rounded rect biru teal gelap,
+     aksen folder putih berlidah oranye di tengah kiri, dan garis putih tipis sebagai berkas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <!-- Latar: rounded rect biru teal gelap penuh (radius 16). -->
+    <path
+        android:fillColor="#0B3B3C"
+        android:pathData="M16,0h288a16,16 0 0 1 16,16v148a16,16 0 0 1 -16,16h-288a16,16 0 0 1 -16,-16v-148a16,16 0 0 1 16,-16z" />
+    <!-- Aksen latar: lingkaran teal lebih terang di kanan (kedalaman halus). -->
+    <path
+        android:fillColor="#0F4A4B"
+        android:pathData="M188,92a64,64 0 1 0 128,0a64,64 0 1 0 -128,0z" />
+    <!-- Lidah folder (oranye), digambar sebelum badan agar sambungan rapi. -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M74,56h36l10,10v8h-46z" />
+    <!-- Badan folder (putih), tengah kiri banner. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M66,70h100a6,6 0 0 1 6,6v40a6,6 0 0 1 -6,6h-100a6,6 0 0 1 -6,-6v-40a6,6 0 0 1 6,-6z" />
+    <!-- Tiga garis putih tipis sebagai berkas di samping folder. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M196,68h64a3,3 0 0 1 0,6h-64a3,3 0 0 1 0,-6z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M196,90h48a3,3 0 0 1 0,6h-48a3,3 0 0 1 0,-6z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M196,112h56a3,3 0 0 1 0,6h-56a3,3 0 0 1 0,-6z" />
+</vector>

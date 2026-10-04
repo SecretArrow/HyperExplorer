@@ -52,7 +52,7 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:feature-sync` | Android lib | Sinkronisasi folder lokal↔remote satu arah (push/pull), WorkManager periodic, engine + worker + UI |
 | `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kunci aplikasi biometrik, kebijakan privasi |
 
-Modul berikutnya di roadmap: dukungan TV/layar besar.
+Modul berikutnya di roadmap: distribusi **F-Droid** dengan build reproducible.
 
 ## Fitur Saat Ini (scaffold MVP)
 
@@ -77,6 +77,9 @@ Modul berikutnya di roadmap: dukungan TV/layar besar.
 - Indexed file search — build a local index with scan budget (entries/depth/time), search by name
   (case-insensitive substring), filter by category/size/date, tap a result to open the file or jump
   to its folder in the browser; index persists atomically and self-heals when corrupted
+- TV & large-screen support — adaptive file grid (2 columns on medium, 3 on expanded widths),
+  Android TV leanback launcher with a branded banner, D-pad/keyboard navigation
+  (touchscreen not required), split-screen/Chromebook resizable
 
 ## CI/CD (GitHub Actions)
 
@@ -124,8 +127,9 @@ Set secrets repo berikut agar APK/AAB ditandatangani; tanpa itu hasilnya unsigne
 Lihat `fileman.md` Bagian 9 (blueprint lengkap). Sudah tuntas: klien jaringan (SMB2/3, FTP, SFTP, WebDAV),
 vault terenkripsi AES-256 di Android Keystore, pemutar media, transfer PC dengan autentikasi wajib + auto-off,
 analisis penyimpanan, manajer aplikasi, cloud FOSS Nextcloud (Login flow v2), sinkronisasi folder (WorkManager),
-kunci aplikasi biometrik, ekstraksi ZIP berpassword, dan pencarian berkas berbasis indeks.
-Berikutnya: dukungan TV/layar besar serta distribusi **F-Droid** dengan build reproducible.
+kunci aplikasi biometrik, ekstraksi ZIP berpassword, pencarian berkas berbasis indeks,
+dan dukungan TV/layar besar (grid adaptif + leanback launcher).
+Berikutnya: distribusi **F-Droid** dengan build reproducible.
 
 ## Keamanan & Kepatuhan
 

@@ -26,6 +26,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -62,9 +65,17 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyperexplorer.core.model.FileNode
+import com.hyperexplorer.core.ui.adaptive.WindowWidth
+import com.hyperexplorer.core.ui.adaptive.browserLayoutFor
 import com.hyperexplorer.core.ui.components.EmptyState
 import com.hyperexplorer.core.ui.components.FileRow
 
+/**
+ * Layar penjelajah berkas.
+ *
+ * @param windowWidth Lebar jendela yang diklasifikasi; COMPACT (default) mempertahankan
+ *   daftar 1 kolom persis perilaku lama.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowserScreen(
@@ -74,7 +85,9 @@ fun BrowserScreen(
     onOpenFile: (FileNode) -> Unit,
     onZip: (() -> Unit)? = null,
     onSearch: (() -> Unit)? = null,
+    windowWidth: WindowWidth = WindowWidth.COMPACT,
 ) {
+    val layout = remember(windowWidth) { browserLayoutFor(windowWidth) }
     val ui by state.ui.collectAsState()
     val clipboard by state.clipboard.collectAsState()
     var showNewFolderDialog by remember { mutableStateOf(false) }
@@ -140,19 +153,40 @@ fun BrowserScreen(
                 ui.error != null -> EmptyState(message = stringResource(R.string.browser_error_read_folder))
                 ui.items.isEmpty() -> EmptyState(message = stringResource(R.string.browser_empty_folder))
                 else ->
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(ui.items, key = { it.path }) { node ->
-                            FileRow(
-                                node = node,
-                                selected = node.path in ui.selection,
-                                onClick = {
-                                    when {
-                                        ui.selectionMode -> state.toggleSelection(node)
-                                        node.isDirectory -> state.open(node)
-                                        else -> onOpenFile(node)
-                                    }
-                                },
-                            )
+                    if (layout.isGrid) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(layout.gridColumns),
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            items(ui.items, key = { it.path }) { node ->
+                                FileRow(
+                                    node = node,
+                                    selected = node.path in ui.selection,
+                                    onClick = {
+                                        when {
+                                            ui.selectionMode -> state.toggleSelection(node)
+                                            node.isDirectory -> state.open(node)
+                                            else -> onOpenFile(node)
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(ui.items, key = { it.path }) { node ->
+                                FileRow(
+                                    node = node,
+                                    selected = node.path in ui.selection,
+                                    onClick = {
+                                        when {
+                                            ui.selectionMode -> state.toggleSelection(node)
+                                            node.isDirectory -> state.open(node)
+                                            else -> onOpenFile(node)
+                                        }
+                                    },
+                                )
+                            }
                         }
                     }
             }

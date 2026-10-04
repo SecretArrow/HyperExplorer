@@ -22,6 +22,15 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <!-- Dukungan TV (leanback) opsional — app tetap terpasang di ponsel. -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <!-- D-pad/keyboard tidak mensyaratkan layar sentuh (butir perangkat TV). -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
     <!-- Manajer aplikasi: hanya aplikasi yang dapat diluncurkan (tanpa QUERY_ALL_PACKAGES). -->
     <queries>
         <intent>
@@ -30,11 +39,15 @@
         </intent>
     </queries>
 
+    <!-- Banner launcher TV 320x180 (android:banner) dan resizeableActivity eksplisit
+         untuk split-screen/Chromebook (default targetSdk >= 24, ditulis sebagai niat desain). -->
     <application
         android:allowBackup="true"
+        android:banner="@drawable/tv_banner"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
+        android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HyperExplorer"
@@ -47,6 +60,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <!-- Launcher Android TV: tampil di leanback launcher dgn ikon android:banner. -->
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 

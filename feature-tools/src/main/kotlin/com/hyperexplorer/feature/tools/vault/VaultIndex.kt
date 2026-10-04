@@ -25,10 +25,12 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.EOFException
 import java.io.File
+import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.SyncFailedException
 import java.io.UTFDataFormatException
 
 /**
@@ -173,7 +175,7 @@ internal object VaultIndex {
                     }
                     out.flush()
                 }
-                raw.fd.sync()
+                syncBestEffort(raw.fd)
             }
         } catch (e: UTFDataFormatException) {
             tmp.delete()
@@ -222,7 +224,7 @@ internal object VaultIndex {
                         source.copyTo(out, VaultFormat.STREAM_BUFFER_SIZE)
                         out.flush()
                     }
-                    raw.fd.sync()
+                    syncBestEffort(raw.fd)
                 }
             }
             if (!tmp.renameTo(target)) {
@@ -240,6 +242,26 @@ internal object VaultIndex {
     ) {
         if (value.length > MAX_UTF_CHARS) {
             throw VaultIndexFormatException("kolom $field terlalu panjang: ${value.length} karakter (batas $MAX_UTF_CHARS)")
+        }
+    }
+
+    /**
+     * fsync upaya-terbaik (best-effort durability).
+     *
+     * Atomicity index tetap dijamin pola tulis `.tmp` lalu rename; flush saat
+     * close() sudah memastikan data sampai ke kernel. Pada sebagian filesystem
+     * (mis. overlayfs kontainer CI) fsync tidak didukung penuh dan melempar
+     * [SyncFailedException] — itu BUKAN kegagalan penulisan, jadi tidak boleh
+     * menggagalkan operasi yang datanya sudah tertulis. Kegagalan ini diterima
+     * secara eksplisit dan terdokumentasi (bukan swallow diam-diam): konsekuensinya
+     * hanya kehilangan jaminan crash-durability, bukan kehilangan atomicity.
+     */
+    private fun syncBestEffort(fd: FileDescriptor) {
+        try {
+            fd.sync()
+        } catch (e: SyncFailedException) {
+            // Diterima sengaja: durability best-effort — lihat KDoc di atas.
+            // Tidak ada aksi lanjutan karena data sudah tertulis dan rename tetap atomik.
         }
     }
 

@@ -29,8 +29,7 @@ class LanguagePrefs(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /** Baca bahasa tersimpan; default [LanguageMode.SYSTEM] bila belum pernah diset. */
-    fun read(): LanguageMode =
-        LanguageMode.fromOrdinal(prefs.getInt(KEY_LANGUAGE_MODE, LanguageMode.SYSTEM.ordinal))
+    fun read(): LanguageMode = LanguageMode.fromOrdinal(prefs.getInt(KEY_LANGUAGE_MODE, LanguageMode.SYSTEM.ordinal))
 
     /** Simpan bahasa pilihan pengguna secara asinkron (apply). */
     fun write(mode: LanguageMode) {

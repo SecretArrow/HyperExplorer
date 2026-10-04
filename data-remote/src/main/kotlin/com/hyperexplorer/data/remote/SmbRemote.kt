@@ -124,7 +124,7 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         remotePath: String,
         target: File,
         sizeHint: Long,
-    ) = io("download", remotePath) {
+    ) = io<Unit>("download", remotePath) {
         // sizeHint diabaikan: stream dibaca sampai habis.
         RemotePath.requireSafe(remotePath)
         val handle =
@@ -149,7 +149,7 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
     override suspend fun upload(
         local: File,
         remoteDir: String,
-    ) = io("upload", local.name) {
+    ) = io<Unit>("upload", local.name) {
         RemotePath.requireSafe(remoteDir)
         if (!local.isFile) throw IOException("local file not found: ${local.absolutePath}")
         val handle =

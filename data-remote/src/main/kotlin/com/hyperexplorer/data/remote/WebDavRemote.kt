@@ -116,7 +116,7 @@ class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem 
         remotePath: String,
         target: File,
         sizeHint: Long,
-    ) = io("download", remotePath) {
+    ) = io<Unit>("download", remotePath) {
         // sizeHint diabaikan: stream dibaca sampai habis.
         RemotePath.requireSafe(remotePath)
         val request = buildRequest(remotePath) { get() }

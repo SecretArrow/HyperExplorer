@@ -27,6 +27,7 @@
     <string name="app_tab_settings">Pengaturan</string>
     <string name="app_network_section_server">Server FTP</string>
     <string name="app_network_section_locations">Lokasi Jaringan</string>
+    <string name="app_network_section_sync">Sinkronisasi</string>
     <string name="app_storage_section_analyzer">Analisis</string>
     <string name="app_storage_section_vault">Vault</string>
     <string name="app_zip_created">Arsip dibuat: %1$s</string>
@@ -37,5 +38,14 @@
     <string name="app_zip_action_encrypted">Buat terenkripsi</string>
     <string name="app_zip_action_plain">Buat tanpa sandi</string>
     <string name="app_action_cancel">Batal</string>
+    <string name="app_extract_dialog_title">Ekstrak %1$s</string>
+    <string name="app_extract_password_hint">Kata sandi (opsional)</string>
+    <string name="app_extract_action_plain">Ekstrak</string>
+    <string name="app_extract_action_encrypted">Ekstrak dgn sandi</string>
+    <string name="app_extract_open">Buka dengan…</string>
+    <string name="app_extract_success">%1$d entri diekstrak ke %2$s</string>
+    <string name="app_extract_failed">Gagal mengekstrak arsip</string>
+    <string name="app_extract_wrong_password">Sandi salah atau entri arsip tidak aman</string>
+    <string name="app_extract_target_exists">Folder tujuan sudah ada: %1$s</string>
     <string name="app_default_archive_name">arsip</string>
 </resources>

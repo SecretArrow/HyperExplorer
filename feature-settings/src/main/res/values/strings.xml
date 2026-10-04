@@ -34,4 +34,16 @@
     <string name="settings_about_read_license">Read the license (gnu.org)</string>
     <string name="settings_section_privacy">Privacy</string>
     <string name="settings_privacy_description">This app does not collect any data. All processing happens on the device.</string>
+    <string name="settings_section_security">Security</string>
+    <string name="settings_app_lock">App lock</string>
+    <string name="settings_app_lock_description">Require biometric or device credential when opening or returning to the app.</string>
+    <string name="lock_title">Hyper Explorer is locked</string>
+    <string name="lock_subtitle">Unlock to continue</string>
+    <string name="lock_button">Unlock</string>
+    <string name="lock_button_disable">Turn off app lock</string>
+    <string name="lock_no_authenticator">No fingerprint/face/PIN is set up on this device.</string>
+    <string name="lock_no_activity">Cannot show the unlock dialog from this screen.</string>
+    <string name="lock_failed">Not recognized. Try again.</string>
+    <string name="lock_error_generic">Unlock failed (code %1$d).</string>
+    <string name="lock_error_lockout">Too many attempts. Wait a moment.</string>
 </resources>

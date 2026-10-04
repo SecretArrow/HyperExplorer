@@ -20,8 +20,8 @@ android {
         applicationId = "com.hyperexplorer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.6.0"
+        versionCode = 8
+        versionName = "0.7.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -76,8 +76,11 @@ dependencies {
     implementation(project(":feature-media"))
     implementation(project(":feature-transfer"))
     implementation(project(":feature-network"))
+    implementation(project(":feature-sync"))
     implementation(project(":feature-apps"))
     implementation(project(":feature-settings"))
+    // MainActivity memakai BiometricManager/BiometricPrompt.Authenticators langsung.
+    implementation(libs.androidx.biometric)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

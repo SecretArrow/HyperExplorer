@@ -34,4 +34,16 @@
     <string name="settings_about_read_license">Baca lisensi (gnu.org)</string>
     <string name="settings_section_privacy">Privasi</string>
     <string name="settings_privacy_description">Aplikasi ini tidak mengumpulkan data apa pun. Semua proses berjalan di perangkat.</string>
+    <string name="settings_section_security">Keamanan</string>
+    <string name="settings_app_lock">Kunci aplikasi</string>
+    <string name="settings_app_lock_description">Minta biometrik atau kredensial perangkat saat membuka atau kembali ke aplikasi.</string>
+    <string name="lock_title">Hyper Explorer terkunci</string>
+    <string name="lock_subtitle">Buka kunci untuk melanjutkan</string>
+    <string name="lock_button">Buka kunci</string>
+    <string name="lock_button_disable">Matikan kunci aplikasi</string>
+    <string name="lock_no_authenticator">Tidak ada sidik jari/wajah/PIN terdaftar di perangkat ini.</string>
+    <string name="lock_no_activity">Tidak dapat menampilkan dialog buka kunci dari layar ini.</string>
+    <string name="lock_failed">Tidak dikenali. Coba lagi.</string>
+    <string name="lock_error_generic">Gagal membuka kunci (kode %1$d).</string>
+    <string name="lock_error_lockout">Terlalu banyak percobaan. Tunggu sebentar.</string>
 </resources>

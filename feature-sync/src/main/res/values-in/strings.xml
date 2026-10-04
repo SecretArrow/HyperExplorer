@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Layar daftar pasangan sinkronisasi -->
+    <string name="sync_title">Sinkronisasi</string>
+    <string name="sync_empty">Belum ada pasangan sinkronisasi</string>
+    <string name="sync_empty_hint">Tambahkan pasangan agar folder lokal dan folder jarak jauh tetap seiring</string>
+    <string name="sync_sync_now">Sinkronkan sekarang</string>
+    <string name="sync_delete">Hapus</string>
+    <string name="sync_delete_title">Hapus pasangan sinkronisasi</string>
+    <string name="sync_delete_confirm">Hapus %1$s?</string>
+    <string name="sync_retry">Coba lagi</string>
+    <string name="sync_status_never">Belum pernah disinkronkan</string>
+    <string name="sync_last_sync">Terakhir: %1$s</string>
+
+    <!-- Label interval pada baris daftar -->
+    <string name="sync_every_minutes">Setiap %1$d menit</string>
+    <string name="sync_every_hours">Setiap %1$d jam</string>
+    <string name="sync_every_day">Harian</string>
+
+    <!-- Dialog tambah pasangan -->
+    <string name="sync_add_pair">Tambah pasangan sinkronisasi</string>
+    <string name="sync_pair_connection">Sambungan</string>
+    <string name="sync_pair_local_path">Folder lokal</string>
+    <string name="sync_pair_remote_path">Folder jarak jauh</string>
+    <string name="sync_pair_remote_hint">Kosong = root</string>
+    <string name="sync_direction">Arah</string>
+    <string name="sync_direction_push">Dorong ke remote</string>
+    <string name="sync_direction_pull">Tarik ke lokal</string>
+    <string name="sync_interval">Interval</string>
+    <string name="sync_interval_15m">15 menit</string>
+    <string name="sync_interval_1h">1 jam</string>
+    <string name="sync_interval_6h">6 jam</string>
+    <string name="sync_interval_1d">1 hari</string>
+    <string name="sync_save">Simpan</string>
+    <string name="sync_cancel">Batal</string>
+
+    <!-- Galat (pesan dari state; tanpa data kredensial) -->
+    <string name="sync_error_connection_required">Sambungan wajib dipilih</string>
+    <string name="sync_error_local_path_required">Folder lokal wajib diisi</string>
+    <string name="sync_error_interval_invalid">Interval tidak valid</string>
+    <string name="sync_error_save_failed">Gagal menyimpan pasangan sinkronisasi</string>
+    <string name="sync_error_load">Gagal memuat data sinkronisasi</string>
+    <string name="sync_error_delete">Gagal menghapus pasangan sinkronisasi</string>
+    <string name="sync_error_sync_now">Gagal memulai sinkronisasi</string>
+</resources>

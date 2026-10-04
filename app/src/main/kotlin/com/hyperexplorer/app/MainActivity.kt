@@ -34,6 +34,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,7 +89,11 @@ import com.hyperexplorer.feature.settings.LanguageMode
 import com.hyperexplorer.feature.settings.LanguagePrefs
 import com.hyperexplorer.feature.settings.ThemeMode
 import com.hyperexplorer.feature.settings.ThemePrefs
+import com.hyperexplorer.feature.settings.lock.AppLockHelper
+import com.hyperexplorer.feature.settings.lock.AppLockPrefs
+import com.hyperexplorer.feature.settings.lock.AppLockScreen
 import com.hyperexplorer.feature.settings.ui.SettingsScreen
+import com.hyperexplorer.feature.sync.ui.SyncScreen
 import com.hyperexplorer.feature.tools.ui.StorageAnalyzerScreen
 import com.hyperexplorer.feature.tools.vault.ui.VaultScreen
 import com.hyperexplorer.feature.tools.zip.ZipCrypto
@@ -109,10 +115,11 @@ private enum class Screen(val labelRes: Int) {
     SETTINGS(R.string.app_tab_settings),
 }
 
-/** Seksi pada tab Network: server FTP lokal atau lokasi jaringan tersimpan. */
+/** Seksi pada tab Network: server FTP lokal, lokasi jaringan, atau sinkronisasi. */
 private enum class NetworkSection(val labelRes: Int) {
     SERVER(R.string.app_network_section_server),
     LOCATIONS(R.string.app_network_section_locations),
+    SYNC(R.string.app_network_section_sync),
 }
 
 /** Seksi pada tab Storage: analisis penyimpanan atau vault terenkripsi. */
@@ -131,6 +138,9 @@ class MainActivity : AppCompatActivity() {
     private var languageMode by mutableStateOf(LanguageMode.SYSTEM)
     private var zipDialogVisible by mutableStateOf(false)
     private var pendingZipPassword by mutableStateOf<CharArray?>(null)
+    private var extractTarget by mutableStateOf<File?>(null)
+    private var appLockEnabled by mutableStateOf(false)
+    private var needsLock by mutableStateOf(false)
 
     private lateinit var browserState: BrowserState
     private lateinit var appsState: AppsState
@@ -146,6 +156,15 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             hasStorageAccess = checkStorageAccess()
         }
+
+    /**
+     * Arm ulang kunci setiap aktivitas berhenti (pindah aplikasi, layar mati, membuka
+     * aplikasi eksternal) — saat kembali pengguna diminta membuka kunci lagi.
+     */
+    override fun onStop() {
+        super.onStop()
+        if (appLockEnabled) needsLock = true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Pola resmi AppCompat untuk penyimpanan bahasa kustom: terapkan SEBELUM super.onCreate().
@@ -164,6 +183,9 @@ class MainActivity : AppCompatActivity() {
         themeMode = themePrefs.read()
         languagePrefs = LanguagePrefs(this)
         languageMode = languagePrefs.read()
+        appLockEnabled = AppLockPrefs.read(this)
+        // Buka terkunci bila kunci aktif; pengguna membuka kunci lewat AppLockScreen.
+        needsLock = appLockEnabled
 
         setContent {
             val darkTheme =
@@ -188,6 +210,25 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     private fun AppContent() {
+        if (appLockEnabled && needsLock) {
+            val authenticators =
+                BiometricPrompt.Authenticators.BIOMETRIC_WEAK or
+                    BiometricPrompt.Authenticators.DEVICE_CREDENTIAL
+            val availability =
+                AppLockHelper.mapAvailability(
+                    BiometricManager.from(this@MainActivity).canAuthenticate(authenticators),
+                )
+            AppLockScreen(
+                availability = availability,
+                onUnlocked = { needsLock = false },
+                onDisableLock = {
+                    AppLockPrefs.write(this@MainActivity, false)
+                    appLockEnabled = false
+                    needsLock = false
+                },
+            )
+            return
+        }
         val route = viewer
         when (route) {
             is ViewerRoute.Image -> ImageViewerScreen(path = route.path, onClose = { viewer = null })
@@ -234,6 +275,20 @@ class MainActivity : AppCompatActivity() {
                         },
                     )
                 }
+                extractTarget?.let { archive ->
+                    ZipExtractDialog(
+                        archiveName = archive.name,
+                        onDismiss = { extractTarget = null },
+                        onOpenExternal = {
+                            extractTarget = null
+                            openWithFile(archive, archive.name)
+                        },
+                        onExtract = { password ->
+                            extractTarget = null
+                            runExtract(archive, password)
+                        },
+                    )
+                }
                 when (screen) {
                     Screen.BROWSER ->
                         BrowserScreen(
@@ -261,6 +316,12 @@ class MainActivity : AppCompatActivity() {
                                 AppCompatDelegate.setApplicationLocales(localesFor(mode))
                             },
                             appVersion = appVersion(),
+                            appLockEnabled = appLockEnabled,
+                            onToggleAppLock = { enabled ->
+                                appLockEnabled = enabled
+                                AppLockPrefs.write(this@MainActivity, enabled)
+                                if (enabled) needsLock = true
+                            },
                         )
                 }
             }
@@ -290,6 +351,7 @@ class MainActivity : AppCompatActivity() {
             when (networkSection) {
                 NetworkSection.SERVER -> FtpServerScreen(rootDir = storageRoot())
                 NetworkSection.LOCATIONS -> NetworkLocationsScreen(modifier = Modifier.fillMaxSize())
+                NetworkSection.SYNC -> SyncScreen(modifier = Modifier.fillMaxSize())
             }
         }
     }
@@ -377,8 +439,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Buka berkas: gambar/teks memakai penampil internal, lainnya diserahkan ke aplikasi eksternal. */
+    /** Buka berkas: ZIP ditawarkan ekstraksi, gambar/teks penampil internal, lainnya aplikasi eksternal. */
     private fun openFile(node: FileNode) {
+        val isZip = node.name.substringAfterLast('.', "").equals("zip", ignoreCase = true)
+        if (isZip && File(node.path).isFile) {
+            extractTarget = File(node.path)
+            return
+        }
         val route = ViewerRouter.routeFor(node.path)
         if (route != null) {
             viewer = route
@@ -499,6 +566,103 @@ class MainActivity : AppCompatActivity() {
                         onClick = { onEncryptedZip(password.toCharArray()) },
                     ) {
                         Text(text = stringResource(R.string.app_zip_action_encrypted))
+                    }
+                }
+            },
+        )
+    }
+
+    /**
+     * Ekstraksi arsip ZIP [archive] ke folder se-nama (tanpa ekstensi) di folder yang sama.
+     * [password] null/kosong = arsip polos via ZipEngine; non-null = terenkripsi via ZipCrypto
+     * (AES-256, sandi di-wipe setelah dipakai). Gagal dikenal dipetakan ke pesan spesifik.
+     */
+    private fun runExtract(
+        archive: File,
+        password: CharArray?,
+    ) {
+        val target = File(archive.parentFile, archive.nameWithoutExtension)
+        if (target.exists() && target.listFiles()?.isNotEmpty() == true) {
+            Toast
+                .makeText(
+                    this@MainActivity,
+                    getString(R.string.app_extract_target_exists, target.name),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            return
+        }
+        val encrypted = password != null && password.isNotEmpty()
+        mainScope.launch {
+            val result =
+                if (encrypted) {
+                    zipCrypto.unzip(archive, target, password ?: CharArray(0))
+                } else {
+                    zipEngine.unzip(archive, target)
+                }
+            password?.fill('\u0000')
+            browserState.refresh()
+            val message =
+                result.fold(
+                    onSuccess = { count -> getString(R.string.app_extract_success, count, target.name) },
+                    onFailure = { error ->
+                        if (error is SecurityException) {
+                            getString(R.string.app_extract_wrong_password)
+                        } else {
+                            getString(R.string.app_extract_failed)
+                        }
+                    },
+                )
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Dialog ekstraksi arsip ZIP: ekstrak (opsi sandi utk arsip terenkripsi),
+     * buka dengan aplikasi lain, atau batal.
+     */
+    @Composable
+    private fun ZipExtractDialog(
+        archiveName: String,
+        onDismiss: () -> Unit,
+        onOpenExternal: () -> Unit,
+        onExtract: (CharArray?) -> Unit,
+    ) {
+        var password by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = stringResource(R.string.app_extract_dialog_title, archiveName)) },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        singleLine = true,
+                        label = { Text(text = stringResource(R.string.app_extract_password_hint)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.app_action_cancel))
+                }
+            },
+            confirmButton = {
+                Row {
+                    TextButton(onClick = onOpenExternal) {
+                        Text(text = stringResource(R.string.app_extract_open))
+                    }
+                    TextButton(
+                        enabled = password.isBlank(),
+                        onClick = { onExtract(null) },
+                    ) {
+                        Text(text = stringResource(R.string.app_extract_action_plain))
+                    }
+                    TextButton(
+                        enabled = password.isNotBlank(),
+                        onClick = { onExtract(password.toCharArray()) },
+                    ) {
+                        Text(text = stringResource(R.string.app_extract_action_encrypted))
                     }
                 }
             },

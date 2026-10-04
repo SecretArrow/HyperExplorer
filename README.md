@@ -49,7 +49,8 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:feature-media` | Android lib | Penampil gambar/teks + pemutar audio/video (Media3 ExoPlayer) |
 | `:feature-tools` | Android lib | Analisis penyimpanan, ZIP engine, vault terenkripsi AES-256-GCM |
 | `:feature-apps` | Android lib | Manajer aplikasi + backup APK |
-| `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kebijakan privasi |
+| `:feature-sync` | Android lib | Sinkronisasi folder lokal↔remote satu arah (push/pull), WorkManager periodic, engine + worker + UI |
+| `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kunci aplikasi biometrik, kebijakan privasi |
 
 Modul berikutnya di roadmap: `:feature-sync` (sinkronisasi folder via WorkManager).
 
@@ -68,6 +69,11 @@ Modul berikutnya di roadmap: `:feature-sync` (sinkronisasi folder via WorkManage
 - FOSS cloud — Nextcloud accounts with official Login flow v2 (browser approval) or app password,
   HTTPS by default, browse/upload/download/rename/mkdir/delete on your own server
 - Password-protected ZIP creation (AES-256 via zip4j) with optional password dialog
+- Folder synchronization (one-way push/pull) between local folders and your own servers,
+  scheduled periodically via WorkManager (network+storage constraints) or run manually
+- Biometric app lock (fingerprint/face/device credential) — lock on launch and on return
+  from background; fail-closed with a documented escape hatch
+- ZIP extraction from the browser, including password-protected archives (AES-256)
 
 ## CI/CD (GitHub Actions)
 

@@ -1,0 +1,5 @@
+Sinkronisasi folder (push/pull) antara penyimpanan lokal dan server milikmu
+(SMB/FTP/SFTP/WebDAV/Nextcloud), terjadwal berkala via WorkManager.
+Kunci aplikasi biometrik (sidik jari/wajah/kredensial perangkat) dgn sakelar di Pengaturan.
+Ekstraksi arsip ZIP langsung dari peramban berkas, termasuk yang berpassword (AES-256).
+Modul baru :feature-sync, 100% perangkat lunak bebas (GPL-3.0-only).

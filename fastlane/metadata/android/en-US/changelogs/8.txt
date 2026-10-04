@@ -1,0 +1,5 @@
+Folder sync (push/pull) between local storage and your own servers (SMB/FTP/SFTP/WebDAV/Nextcloud),
+with periodic background scheduling via WorkManager.
+Biometric app lock (fingerprint/face/device credential) with a Settings switch.
+Extract ZIP archives from the file browser, including password-protected ones (AES-256).
+New module :feature-sync, fully free software (GPL-3.0-only).

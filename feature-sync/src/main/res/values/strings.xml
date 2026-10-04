@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Layar daftar pasangan sinkronisasi -->
+    <string name="sync_title">Sync</string>
+    <string name="sync_empty">No sync pairs yet</string>
+    <string name="sync_empty_hint">Add a pair to keep a local folder and a remote folder in step</string>
+    <string name="sync_sync_now">Sync now</string>
+    <string name="sync_delete">Delete</string>
+    <string name="sync_delete_title">Delete sync pair</string>
+    <string name="sync_delete_confirm">Delete %1$s?</string>
+    <string name="sync_retry">Retry</string>
+    <string name="sync_status_never">Never synced</string>
+    <string name="sync_last_sync">Last: %1$s</string>
+
+    <!-- Label interval pada baris daftar -->
+    <string name="sync_every_minutes">Every %1$d minutes</string>
+    <string name="sync_every_hours">Every %1$d hours</string>
+    <string name="sync_every_day">Daily</string>
+
+    <!-- Dialog tambah pasangan -->
+    <string name="sync_add_pair">Add sync pair</string>
+    <string name="sync_pair_connection">Connection</string>
+    <string name="sync_pair_local_path">Local folder</string>
+    <string name="sync_pair_remote_path">Remote folder</string>
+    <string name="sync_pair_remote_hint">Empty = root</string>
+    <string name="sync_direction">Direction</string>
+    <string name="sync_direction_push">Push to remote</string>
+    <string name="sync_direction_pull">Pull to local</string>
+    <string name="sync_interval">Interval</string>
+    <string name="sync_interval_15m">15 minutes</string>
+    <string name="sync_interval_1h">1 hour</string>
+    <string name="sync_interval_6h">6 hours</string>
+    <string name="sync_interval_1d">1 day</string>
+    <string name="sync_save">Save</string>
+    <string name="sync_cancel">Cancel</string>
+
+    <!-- Galat (pesan dari state; tanpa data kredensial) -->
+    <string name="sync_error_connection_required">Connection is required</string>
+    <string name="sync_error_local_path_required">Local folder is required</string>
+    <string name="sync_error_interval_invalid">Interval is not valid</string>
+    <string name="sync_error_save_failed">Could not save sync pair</string>
+    <string name="sync_error_load">Could not load sync data</string>
+    <string name="sync_error_delete">Could not delete sync pair</string>
+    <string name="sync_error_sync_now">Could not start sync</string>
+</resources>

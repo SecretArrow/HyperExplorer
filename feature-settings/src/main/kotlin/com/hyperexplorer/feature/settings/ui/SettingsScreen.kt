@@ -35,6 +35,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -58,6 +59,8 @@ fun SettingsScreen(
     currentLanguage: LanguageMode,
     onSelectLanguage: (LanguageMode) -> Unit,
     appVersion: String,
+    appLockEnabled: Boolean,
+    onToggleAppLock: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -84,6 +87,16 @@ fun SettingsScreen(
                     mode = mode,
                     selected = mode == currentLanguage,
                     onSelect = { onSelectLanguage(mode) },
+                )
+            }
+            item { SectionTitle(text = stringResource(R.string.settings_section_security)) }
+            item { AppLockRow(enabled = appLockEnabled, onToggle = onToggleAppLock) }
+            item {
+                Text(
+                    text = stringResource(R.string.settings_app_lock_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             item { SectionTitle(text = stringResource(R.string.settings_section_about)) }
@@ -143,6 +156,22 @@ private fun LanguageOptionRow(
     ) {
         RadioButton(selected = selected, onClick = onSelect)
         Text(text = stringResource(mode.labelRes()), style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+/** Baris sakelar "App lock": seluruh baris dapat diklik untuk membalik status kunci aplikasi. */
+@Composable
+private fun AppLockRow(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().clickable(onClick = { onToggle(!enabled) }),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Switch(checked = enabled, onCheckedChange = { onToggle(it) })
+        Text(text = stringResource(R.string.settings_app_lock), style = MaterialTheme.typography.bodyLarge)
     }
 }
 

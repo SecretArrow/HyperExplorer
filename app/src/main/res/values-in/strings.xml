@@ -31,5 +31,11 @@
     <string name="app_storage_section_vault">Vault</string>
     <string name="app_zip_created">Arsip dibuat: %1$s</string>
     <string name="app_zip_failed">Gagal membuat arsip ZIP</string>
+    <string name="app_zip_encrypted_created">Arsip terenkripsi dibuat: %1$s</string>
+    <string name="app_zip_dialog_title">Buat arsip ZIP</string>
+    <string name="app_zip_password_hint">Kata sandi (opsional, AES-256)</string>
+    <string name="app_zip_action_encrypted">Buat terenkripsi</string>
+    <string name="app_zip_action_plain">Buat tanpa sandi</string>
+    <string name="app_action_cancel">Batal</string>
     <string name="app_default_archive_name">arsip</string>
 </resources>

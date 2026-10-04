@@ -47,14 +47,25 @@ enum class RemoteProtocol(
     SFTP(22, "sftp"),
     SMB(445, "smb"),
     WEBDAV(80, "dav"),
+
+    /**
+     * Nextcloud: WebDAV di "/remote.php/dav/files/<username>" + Login flow v2.
+     * Entri enum DITAMBAH DI AKHIR agar indeks tersimpan di penyimpanan lama
+     * (ConnectionStore protokolIndex) tetap valid.
+     */
+    NEXTCLOUD(443, "nc"),
 }
 
 /**
  * Definisi koneksi remote.
  *
  * Semantik [share] per protokol: SMB = nama share; WebDAV = base path server
- * (mis. "remote.php/webdav"); FTP/SFTP = "" (tidak dipakai).
- * [basePath] = sub-path awal opsional yang menjadi root koordinat path operasi.
+ * (mis. "remote.php/webdav"); FTP/SFTP/NEXTCLOUD = "" (tidak dipakai).
+ * [basePath] = sub-path awal opsional yang menjadi root koordinat path operasi;
+ * untuk NEXTCLOUD = prefix path server (mis. "nextcloud" pada
+ * "https://host/nextcloud"), boleh kosong.
+ * [secure] = pakai TLS (https); dipakai protokol NEXTCLOUD, protokol lain
+ * mengabaikannya.
  */
 data class RemoteConnection(
     val id: Long = 0L,
@@ -65,4 +76,5 @@ data class RemoteConnection(
     val basePath: String = "",
     val credentials: RemoteCredentials = RemoteCredentials(),
     val displayName: String = "",
+    val secure: Boolean = false,
 )

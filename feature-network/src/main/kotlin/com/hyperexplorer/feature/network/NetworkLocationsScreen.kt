@@ -19,6 +19,8 @@
 
 package com.hyperexplorer.feature.network
 
+import android.content.Intent
+import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +46,7 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.CloudQueue
 import androidx.compose.material.icons.outlined.CreateNewFolder
 import androidx.compose.material.icons.outlined.Delete
@@ -75,6 +78,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -113,8 +117,8 @@ private val FOLDER_ICON_TINT = Color(0xFFF9A825)
 private val SUCCESS_TINT = Color(0xFF2E7D32)
 
 /**
- * Layar lokasi jaringan: kelola sambungan tersimpan (SMB/FTP/SFTP/WebDAV) dan
- * jelajahi isinya. State holder dibuat internal lewat [remember] (bukan
+ * Layar lokasi jaringan: kelola sambungan tersimpan (SMB/FTP/SFTP/WebDAV/Nextcloud)
+ * dan jelajahi isinya. State holder dibuat internal lewat [remember] (bukan
  * rememberSaveable karena klien jaringan tak bisa dihidupkan ulang otomatis)
  * dan klien ditutup lewat [DisposableEffect] saat layar dibuang.
  */
@@ -539,10 +543,11 @@ private fun ConnectionFormDialog(
                     label = {
                         Text(
                             text =
-                                if (form.protocol == RemoteProtocol.SMB) {
-                                    stringResource(R.string.network_share)
-                                } else {
-                                    stringResource(R.string.network_base_path)
+                                when (form.protocol) {
+                                    RemoteProtocol.SMB -> stringResource(R.string.network_share)
+                                    RemoteProtocol.NEXTCLOUD -> stringResource(R.string.network_field_server_prefix)
+                                    RemoteProtocol.FTP, RemoteProtocol.SFTP, RemoteProtocol.WEBDAV ->
+                                        stringResource(R.string.network_base_path)
                                 },
                         )
                     },
@@ -553,11 +558,34 @@ private fun ConnectionFormDialog(
                     onValueChange = { value -> vm.updateForm { it.copy(username = value) } },
                     label = { Text(text = stringResource(R.string.network_username)) },
                     singleLine = true,
+                    isError = NetworkFormValidator.ValidationError.EMPTY_USERNAME in vm.formErrors,
+                    supportingText = {
+                        if (NetworkFormValidator.ValidationError.EMPTY_USERNAME in vm.formErrors) {
+                            Text(text = stringResource(R.string.network_error_username_required))
+                        }
+                    },
                 )
                 PasswordField(
                     value = form.password,
                     onValueChange = { value -> vm.updateForm { it.copy(password = value) } },
                 )
+                if (form.protocol == RemoteProtocol.NEXTCLOUD) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.network_tls),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = form.secure,
+                            onCheckedChange = { checked -> vm.updateForm { it.copy(secure = checked) } },
+                        )
+                    }
+                    LoginFlowSection(vm = vm)
+                }
                 TestConnectionRow(vm = vm)
             }
         },
@@ -676,6 +704,60 @@ private fun TestConnectionRow(vm: NetworkViewModel) {
     }
 }
 
+/**
+ * Bagian Login flow v2 Nextcloud pada dialog form: tombol mulai, status
+ * menunggu/sukses/gagal, dan pembukaan URL persetujuan di peramban. URL dibuka
+ * reaktif lewat [LaunchedEffect] (bukan langsung pada onClick) karena start()
+ * berjalan asinkron di ViewModel; bila tidak ada peramban, status menjadi FAILED.
+ */
+@Composable
+private fun LoginFlowSection(vm: NetworkViewModel) {
+    val context = LocalContext.current
+    LaunchedEffect(vm.loginFlowUrl) {
+        val url = vm.loginFlowUrl ?: return@LaunchedEffect
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            vm.consumeLoginFlowUrl()
+        } catch (e: Exception) {
+            // Tidak ada aktivitas peramban / ditolak sistem — laporkan sebagai kegagalan.
+            vm.onLoginFlowBrowserMissing(e.message)
+        }
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextButton(
+            onClick = { vm.startLoginFlow() },
+            enabled = vm.loginFlowStatus != LoginFlowStatus.WAITING_BROWSER,
+        ) {
+            Text(text = stringResource(R.string.network_login_flow_button))
+        }
+        when (vm.loginFlowStatus) {
+            LoginFlowStatus.WAITING_BROWSER -> {
+                Text(
+                    text = stringResource(R.string.network_login_flow_waiting),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                TextButton(onClick = { vm.cancelLoginFlow() }) {
+                    Text(text = stringResource(R.string.network_login_flow_cancel))
+                }
+            }
+            LoginFlowStatus.SUCCESS ->
+                Text(
+                    text = stringResource(R.string.network_login_flow_success),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            LoginFlowStatus.FAILED ->
+                vm.loginFlowDetail?.let { detail ->
+                    Text(
+                        text = stringResource(R.string.network_login_flow_failed, detail),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            LoginFlowStatus.IDLE -> Unit
+        }
+    }
+}
+
 @Composable
 private fun ConfirmDeleteDialog(
     @StringRes titleRes: Int,
@@ -781,6 +863,7 @@ private fun protocolIcon(protocol: RemoteProtocol): ImageVector =
         RemoteProtocol.SFTP -> Icons.Outlined.Terminal
         RemoteProtocol.SMB -> Icons.Outlined.Storage
         RemoteProtocol.WEBDAV -> Icons.Outlined.CloudQueue
+        RemoteProtocol.NEXTCLOUD -> Icons.Outlined.Cloud
     }
 
 @Composable
@@ -790,6 +873,7 @@ private fun protocolLabel(protocol: RemoteProtocol): String =
         RemoteProtocol.SFTP -> stringResource(R.string.network_protocol_sftp)
         RemoteProtocol.SMB -> stringResource(R.string.network_protocol_smb)
         RemoteProtocol.WEBDAV -> stringResource(R.string.network_protocol_webdav)
+        RemoteProtocol.NEXTCLOUD -> stringResource(R.string.network_protocol_nextcloud)
     }
 
 private fun errorRes(error: NetworkError): Int =

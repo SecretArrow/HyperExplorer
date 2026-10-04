@@ -21,6 +21,7 @@ package com.hyperexplorer.feature.network
 
 import com.hyperexplorer.data.remote.RemoteProtocol
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -71,5 +72,59 @@ class NetworkFormValidationTest {
         val form = NetworkFormState()
         assertEquals(RemoteProtocol.FTP, form.protocol)
         assertEquals(RemoteProtocol.FTP.defaultPort, form.port.trim().toIntOrNull())
+    }
+
+    @Test
+    fun `nextcloud without username is rejected with empty username`() {
+        for (username in listOf("", " ", "\t")) {
+            val errors =
+                NetworkFormValidator.validate(
+                    host = "cloud.example.com",
+                    port = "443",
+                    username = username,
+                    protocol = RemoteProtocol.NEXTCLOUD,
+                )
+            assertTrue("username '$username'", NetworkFormValidator.ValidationError.EMPTY_USERNAME in errors)
+            assertTrue("username '$username'", NetworkFormValidator.ValidationError.EMPTY_HOST !in errors)
+            assertTrue("username '$username'", NetworkFormValidator.ValidationError.INVALID_PORT !in errors)
+        }
+    }
+
+    @Test
+    fun `nextcloud with username has no empty username error`() {
+        val errors =
+            NetworkFormValidator.validate(
+                host = "cloud.example.com",
+                port = "443",
+                username = "alice",
+                protocol = RemoteProtocol.NEXTCLOUD,
+            )
+        assertTrue(NetworkFormValidator.ValidationError.EMPTY_USERNAME !in errors)
+        assertTrue(errors.isEmpty())
+    }
+
+    @Test
+    fun `ftp and null protocol keep username optional`() {
+        val ftp =
+            NetworkFormValidator.validate(host = "ftp.server", port = "21", username = "", protocol = RemoteProtocol.FTP)
+        assertTrue(NetworkFormValidator.ValidationError.EMPTY_USERNAME !in ftp)
+        val legacy = NetworkFormValidator.validate(host = "server", port = "80")
+        assertTrue(NetworkFormValidator.ValidationError.EMPTY_USERNAME !in legacy)
+    }
+
+    @Test
+    fun `nextcloud collects empty username together with other violations`() {
+        val errors =
+            NetworkFormValidator.validate(host = "", port = "99999", username = "", protocol = RemoteProtocol.NEXTCLOUD)
+        assertTrue(NetworkFormValidator.ValidationError.EMPTY_HOST in errors)
+        assertTrue(NetworkFormValidator.ValidationError.INVALID_PORT in errors)
+        assertTrue(NetworkFormValidator.ValidationError.EMPTY_USERNAME in errors)
+    }
+
+    @Test
+    fun `nextcloud default port text and secure flag defaults`() {
+        assertEquals("443", NetworkFormState.defaultPortText(RemoteProtocol.NEXTCLOUD))
+        assertFalse(NetworkFormState().secure)
+        assertTrue(NetworkFormState(secure = true).secure)
     }
 }

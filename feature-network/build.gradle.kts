@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation(project(":data-remote"))
+    implementation(project(":data-cloud"))
     implementation(project(":core-model"))
     implementation(project(":core-common"))
 

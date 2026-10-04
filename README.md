@@ -44,13 +44,14 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:feature-browser` | Android lib | `BrowserState` (state holder) + `BrowserScreen` (Compose UI) |
 | `:data-remote` | Kotlin JVM | Klien jaringan (network clients) FTP/SFTP/SMB/WebDAV: commons-net/sshj/SMBJ/OkHttp |
 | `:feature-network` | Android lib | UI koneksi jaringan (connections UI) + penyimpanan kredensial terenkripsi (encrypted store) |
+| `:data-cloud` | Kotlin JVM | Klien cloud FOSS (Nextcloud): WebDAV `remote.php/dav` + Login flow v2, factory `CloudFileSystems` |
 | `:feature-transfer` | Android lib | Server FTP lokal (RFC 959 subset, auth wajib, auto-off) + layar kontrol |
 | `:feature-media` | Android lib | Penampil gambar/teks + pemutar audio/video (Media3 ExoPlayer) |
 | `:feature-tools` | Android lib | Analisis penyimpanan, ZIP engine, vault terenkripsi AES-256-GCM |
 | `:feature-apps` | Android lib | Manajer aplikasi + backup APK |
 | `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kebijakan privasi |
 
-Rencana modul berikutnya: `:data-cloud` (Nextcloud/Drive/Dropbox/OneDrive).
+Modul berikutnya di roadmap: `:feature-sync` (sinkronisasi folder via WorkManager).
 
 ## Fitur Saat Ini (scaffold MVP)
 
@@ -64,6 +65,9 @@ Rencana modul berikutnya: `:data-cloud` (Nextcloud/Drive/Dropbox/OneDrive).
 - Encrypted vault — file locking/unlocking with AES-256-GCM (Android Keystore), integrity verification,
   documented container format (no lock-in), per-file random data key wrapped by a device key
 - Audio/video player (Media3 ExoPlayer) with graceful error & missing-file handling
+- FOSS cloud — Nextcloud accounts with official Login flow v2 (browser approval) or app password,
+  HTTPS by default, browse/upload/download/rename/mkdir/delete on your own server
+- Password-protected ZIP creation (AES-256 via zip4j) with optional password dialog
 
 ## CI/CD (GitHub Actions)
 

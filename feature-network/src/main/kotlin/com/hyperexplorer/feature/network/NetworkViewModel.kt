@@ -24,18 +24,27 @@ import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.hyperexplorer.data.cloud.CloudFileSystems
+import com.hyperexplorer.data.cloud.NextcloudCredentials
+import com.hyperexplorer.data.cloud.NextcloudLoginFlow
 import com.hyperexplorer.data.remote.RemoteConnection
 import com.hyperexplorer.data.remote.RemoteCredentials
 import com.hyperexplorer.data.remote.RemoteEntry
 import com.hyperexplorer.data.remote.RemoteFileSystem
-import com.hyperexplorer.data.remote.RemoteFileSystems
 import com.hyperexplorer.data.remote.RemoteProtocol
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
+import java.net.URI
+import java.net.URISyntaxException
 
 /**
  * State holder layar lokasi jaringan; class biasa tanpa DI (pola state holder modul
@@ -44,6 +53,8 @@ import java.io.File
  *
  * Semua operasi I/O berjalan di [ioDispatcher]. Kredensial tidak pernah ditulis ke
  * log; pesan galat hanya berisi message exception untuk ditampilkan di banner.
+ * Kredensial Login flow v2 Nextcloud hanya mengisi form dan tidak pernah masuk
+ * log/pesan galat.
  *
  * Kontrak path sama dengan :data-remote — tanpa skema, segmen pertama SMB = share.
  */
@@ -57,6 +68,9 @@ class NetworkViewModel(
 
     /** Pembangkit urutan operasi list; operasi tua dibuang bila urutan berubah. */
     private var generation = 0L
+
+    /** Job polling Login flow v2 aktif; null bila tidak ada, dibatalkan rapi saat reset. */
+    private var loginFlowJob: Job? = null
 
     var connectionsLoading by mutableStateOf(true)
         private set
@@ -99,6 +113,18 @@ class NetworkViewModel(
         private set
 
     var testDetail by mutableStateOf<String?>(null)
+        private set
+
+    /** Status Login flow v2 Nextcloud; teksnya dipetakan ke resource string di UI. */
+    var loginFlowStatus by mutableStateOf(LoginFlowStatus.IDLE)
+        private set
+
+    /** URL persetujuan Login flow untuk dibuka di peramban; null setelah dikonsumsi UI. */
+    var loginFlowUrl by mutableStateOf<String?>(null)
+        private set
+
+    /** Pesan galat Login flow (tanpa kredensial) untuk ditampilkan di dialog form. */
+    var loginFlowDetail by mutableStateOf<String?>(null)
         private set
 
     /** Path target unduhan terakhir (untuk snackbar); null setelah dikonsumsi UI. */
@@ -150,6 +176,7 @@ class NetworkViewModel(
                 basePath = if (connection.protocol == RemoteProtocol.SMB) connection.share else connection.basePath,
                 username = connection.credentials.username,
                 password = connection.credentials.password,
+                secure = connection.secure,
             )
         resetFormAux()
         formVisible = true
@@ -160,14 +187,26 @@ class NetworkViewModel(
         formState = transform(formState)
     }
 
-    /** Ganti protokol pada form; port diisi ulang dengan port default protokol. */
+    /**
+     * Ganti protokol pada form; port diisi ulang dengan port default protokol
+     * (443 untuk NEXTCLOUD) dan secure hanya true untuk NEXTCLOUD.
+     */
     fun updateProtocol(protocol: RemoteProtocol) {
-        formState = formState.copy(protocol = protocol, port = NetworkFormState.defaultPortText(protocol))
+        formState =
+            formState.copy(
+                protocol = protocol,
+                port = NetworkFormState.defaultPortText(protocol),
+                secure = protocol == RemoteProtocol.NEXTCLOUD,
+            )
     }
 
-    /** Tutup dialog form tanpa menyimpan. */
+    /**
+     * Tutup dialog form tanpa menyimpan; polling Login flow yang masih berjalan
+     * dihentikan agar tidak bocor hingga timeout.
+     */
     fun dismissForm() {
         formVisible = false
+        resetLoginFlow()
     }
 
     /** Uji koneksi sesuai isi form (connect + list path dasar); hasil di [testStatus]. */
@@ -183,6 +222,143 @@ class NetworkViewModel(
     fun saveConnection() {
         if (!validateForm()) return
         runTest(buildConnection(formState), saveOnSuccess = true)
+    }
+
+    /**
+     * Mulai Login flow v2 Nextcloud: minta URL persetujuan ke server lalu polling
+     * kredensial. Hanya untuk NEXTCLOUD; hasilnya HANYA mengisi form — penyimpanan
+     * tetap lewat [saveConnection] (uji koneksi + simpan) agar pengguna dapat
+     * memeriksa isian lebih dulu (tidak auto-save).
+     */
+    fun startLoginFlow() {
+        resetLoginFlow()
+        if (formState.protocol != RemoteProtocol.NEXTCLOUD) {
+            // Defensive: tombol login hanya ada pada NEXTCLOUD — jangan pernah lempar dari jalur UI.
+            loginFlowStatus = LoginFlowStatus.FAILED
+            loginFlowDetail = LOGIN_FLOW_ONLY_NEXTCLOUD
+            return
+        }
+        val serverUrl = formState.host.trim()
+        if (serverUrl.isEmpty()) {
+            loginFlowStatus = LoginFlowStatus.FAILED
+            loginFlowDetail = LOGIN_FLOW_HOST_BLANK
+            return
+        }
+        loginFlowJob =
+            scope.launch {
+                try {
+                    runLoginFlow(serverUrl)
+                } catch (e: CancellationException) {
+                    // Pembatalan (tombol batal/dialog ditutup) — jangan ditelan, tanpa tulis state.
+                    throw e
+                } catch (t: Throwable) {
+                    // Pengaman terakhir agar galat tak terduga tidak crash: tampil sebagai FAILED.
+                    if (isActive) {
+                        loginFlowStatus = LoginFlowStatus.FAILED
+                        loginFlowDetail = t.message ?: LOGIN_FLOW_UNEXPECTED
+                    }
+                }
+            }
+    }
+
+    /** Batalkan polling Login flow; status kembali IDLE dan URL persetujuan dibuang. */
+    fun cancelLoginFlow() {
+        resetLoginFlow()
+    }
+
+    /** Tandai URL Login flow sudah dibuka agar peramban tidak dibuka ulang saat rekomposisi. */
+    fun consumeLoginFlowUrl() {
+        loginFlowUrl = null
+    }
+
+    /**
+     * Dilaporkan UI bila tidak ada aplikasi peramban untuk membuka URL persetujuan;
+     * polling dihentikan dan status menjadi FAILED dengan [reason].
+     */
+    fun onLoginFlowBrowserMissing(reason: String?) {
+        resetLoginFlow()
+        loginFlowStatus = LoginFlowStatus.FAILED
+        loginFlowDetail = reason?.takeIf { it.isNotBlank() } ?: LOGIN_FLOW_NO_BROWSER
+    }
+
+    /**
+     * Isi Login flow v2 (jalur sukses): start() → tampilkan loginUrl →
+     * awaitCredentials() → isi form dari kredensial. Setiap galat menulis state
+     * FAILED + detail (message exception; tanpa kredensial). CancellationException
+     * dari pembatalan tidak ditangkap di sini dan mengalir ke pemanggil launch.
+     */
+    private suspend fun runLoginFlow(serverUrl: String) {
+        val flow =
+            try {
+                NextcloudLoginFlow(serverUrl = serverUrl)
+            } catch (e: IllegalArgumentException) {
+                // URL server blank/tak valid — tombol login bisa ditekan sebelum validasi form.
+                loginFlowStatus = LoginFlowStatus.FAILED
+                loginFlowDetail = e.message ?: LOGIN_FLOW_INVALID_SERVER
+                return
+            }
+        val start =
+            try {
+                flow.start()
+            } catch (e: IOException) {
+                loginFlowStatus = LoginFlowStatus.FAILED
+                loginFlowDetail = e.message ?: LOGIN_FLOW_START_FAILED
+                return
+            }
+        coroutineContext.ensureActive()
+        loginFlowUrl = start.loginUrl
+        loginFlowStatus = LoginFlowStatus.WAITING_BROWSER
+        val credentials =
+            try {
+                flow.awaitCredentials(start)
+            } catch (e: IOException) {
+                loginFlowStatus = LoginFlowStatus.FAILED
+                loginFlowDetail = e.message ?: LOGIN_FLOW_POLL_FAILED
+                return
+            }
+        coroutineContext.ensureActive()
+        if (credentials == null) {
+            loginFlowStatus = LoginFlowStatus.FAILED
+            loginFlowDetail = LOGIN_FLOW_TIMEOUT
+            return
+        }
+        applyCredentials(credentials)
+        loginFlowStatus = LoginFlowStatus.SUCCESS
+    }
+
+    /**
+     * Isi form dari kredensial Login flow v2: parse URL server (java.net.URI) menjadi
+     * host/port/basePath/secure, lalu username = loginName dan password = appPassword.
+     * Port -1 berarti default 443; basePath = path server di-trim '/'.
+     */
+    private fun applyCredentials(credentials: NextcloudCredentials) {
+        val uri =
+            try {
+                URI(credentials.server)
+            } catch (e: URISyntaxException) {
+                // Server dari respons login flow semestinya URL absolut valid; bila tidak,
+                // isi kredensial saja dan biarkan kolom server tidak tersentuh.
+                formState = formState.copy(username = credentials.loginName, password = credentials.appPassword)
+                return
+            }
+        formState =
+            formState.copy(
+                host = uri.host?.takeUnless { it.isEmpty() } ?: formState.host,
+                port = (if (uri.port == -1) RemoteProtocol.NEXTCLOUD.defaultPort else uri.port).toString(),
+                basePath = (uri.path ?: "").trim('/'),
+                secure = uri.scheme?.lowercase() == "https",
+                username = credentials.loginName,
+                password = credentials.appPassword,
+            )
+    }
+
+    /** Hentikan job polling Login flow dan bersihkan state-nya (IDLE, URL/detail null). */
+    private fun resetLoginFlow() {
+        loginFlowJob?.cancel()
+        loginFlowJob = null
+        loginFlowStatus = LoginFlowStatus.IDLE
+        loginFlowUrl = null
+        loginFlowDetail = null
     }
 
     /** Hapus sambungan tersimpan dengan [id]. */
@@ -327,15 +503,26 @@ class NetworkViewModel(
         formErrors = emptyList()
         testStatus = ConnectionTestStatus.IDLE
         testDetail = null
+        resetLoginFlow()
     }
 
     private fun validateForm(): Boolean {
-        val errors = NetworkFormValidator.validate(formState.host, formState.port)
+        val errors =
+            NetworkFormValidator.validate(
+                host = formState.host,
+                port = formState.port,
+                username = formState.username,
+                protocol = formState.protocol,
+            )
         formErrors = errors
         return errors.isEmpty()
     }
 
-    /** Bangun RemoteConnection dari form; username kosong berarti anonim. */
+    /**
+     * Bangun RemoteConnection dari form; username kosong berarti anonim.
+     * NEXTCLOUD: secure mengikuti form.secure, share tetap "", basePath = prefix
+     * path server, username wajib (sudah dijaga [validateForm] via validator).
+     */
     private fun buildConnection(form: NetworkFormState): RemoteConnection =
         RemoteConnection(
             id = form.id,
@@ -351,6 +538,7 @@ class NetworkViewModel(
                     RemoteCredentials(username = form.username.trim(), password = form.password, anonymous = false)
                 },
             displayName = "",
+            secure = if (form.protocol == RemoteProtocol.NEXTCLOUD) form.secure else false,
         )
 
     /** Jalankan uji koneksi (connect + list path dasar/share) lalu tutup klien uji. */
@@ -364,7 +552,7 @@ class NetworkViewModel(
             var probe: RemoteFileSystem? = null
             val result =
                 try {
-                    probe = RemoteFileSystems.connect(connection)
+                    probe = CloudFileSystems.connect(connection)
                     probe.list(probePath(connection))
                     ConnectionTestStatus.SUCCESS
                 } catch (t: Throwable) {
@@ -375,6 +563,8 @@ class NetworkViewModel(
                 }
             testStatus = result
             if (saveOnSuccess && result == ConnectionTestStatus.SUCCESS) {
+                // Dialog akan tertutup — hentikan polling Login flow bila masih berjalan.
+                resetLoginFlow()
                 store.upsert(connection)
                 connections = store.read()
                 connectionsLoading = false
@@ -390,7 +580,7 @@ class NetworkViewModel(
         scope.launch {
             val fs =
                 try {
-                    RemoteFileSystems.connect(connection)
+                    CloudFileSystems.connect(connection)
                 } catch (t: Throwable) {
                     if (gen == generation) {
                         client = null
@@ -455,5 +645,15 @@ class NetworkViewModel(
     private companion object {
         const val ROOT_PATH = "/"
         const val DOWNLOAD_DIR = "HyperExplorer"
+
+        // Detail galat Login flow (data, setara message exception; tanpa kredensial).
+        const val LOGIN_FLOW_ONLY_NEXTCLOUD = "Login flow is only available for Nextcloud"
+        const val LOGIN_FLOW_HOST_BLANK = "Host is required to start the login flow"
+        const val LOGIN_FLOW_INVALID_SERVER = "Server address is not a valid URL"
+        const val LOGIN_FLOW_START_FAILED = "Starting the login flow failed"
+        const val LOGIN_FLOW_POLL_FAILED = "Waiting for approval failed"
+        const val LOGIN_FLOW_TIMEOUT = "Login flow timed out before approval"
+        const val LOGIN_FLOW_NO_BROWSER = "No browser available to open the login page"
+        const val LOGIN_FLOW_UNEXPECTED = "Unexpected error during login flow"
     }
 }

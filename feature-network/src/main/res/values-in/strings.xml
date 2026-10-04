@@ -35,6 +35,7 @@
     <string name="network_protocol_sftp">SFTP</string>
     <string name="network_protocol_smb">SMB</string>
     <string name="network_protocol_webdav">WebDAV</string>
+    <string name="network_protocol_nextcloud">Nextcloud</string>
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>
     <string name="network_share">Share</string>
@@ -50,6 +51,14 @@
     <string name="network_save">Simpan</string>
     <string name="network_error_host_required">Host wajib diisi</string>
     <string name="network_error_port_invalid">Port harus antara 1 dan 65535</string>
+    <string name="network_error_username_required">Nama pengguna wajib diisi untuk Nextcloud</string>
+    <string name="network_tls">HTTPS/TLS</string>
+    <string name="network_field_server_prefix">Prefiks path server (opsional)</string>
+    <string name="network_login_flow_button">Masuk via peramban</string>
+    <string name="network_login_flow_waiting">Menunggu persetujuan di peramban…</string>
+    <string name="network_login_flow_cancel">Batal</string>
+    <string name="network_login_flow_success">Masuk berhasil — periksa kolom, lalu simpan</string>
+    <string name="network_login_flow_failed">Masuk gagal: %1$s</string>
 
     <!-- Mode browsing -->
     <string name="network_up">Naik</string>

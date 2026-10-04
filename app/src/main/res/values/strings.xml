@@ -32,5 +32,11 @@
     <string name="app_storage_section_vault">Vault</string>
     <string name="app_zip_created">Archive created: %1$s</string>
     <string name="app_zip_failed">Failed to create ZIP archive</string>
+    <string name="app_zip_encrypted_created">Encrypted archive created: %1$s</string>
+    <string name="app_zip_dialog_title">Create ZIP archive</string>
+    <string name="app_zip_password_hint">Password (optional, AES-256)</string>
+    <string name="app_zip_action_encrypted">Create encrypted</string>
+    <string name="app_zip_action_plain">Create without password</string>
+    <string name="app_action_cancel">Cancel</string>
     <string name="app_default_archive_name">archive</string>
 </resources>

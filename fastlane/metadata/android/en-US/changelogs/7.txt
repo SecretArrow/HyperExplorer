@@ -1,0 +1,4 @@
+Cloud FOSS: Nextcloud accounts with browser login flow v2 and app passwords (TLS).
+Browse, upload, download, rename and delete files on your own Nextcloud server.
+Password-protected ZIP archives (AES-256) from the file browser.
+New module :data-cloud, fully free software (GPL-3.0-only).

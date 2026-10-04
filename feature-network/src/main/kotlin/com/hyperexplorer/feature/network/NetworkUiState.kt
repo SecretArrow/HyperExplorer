@@ -67,11 +67,34 @@ enum class ConnectionTestStatus {
 }
 
 /**
+ * Status Login flow v2 Nextcloud pada dialog tambah/ubah sambungan.
+ * Alurnya: IDLE → WAITING_BROWSER (menunggu persetujuan di peramban) → SUCCESS,
+ * atau FAILED bila mulai/polling/timeout gagal. Metode pemantiknya ada di
+ * [NetworkViewModel.startLoginFlow] dan [NetworkViewModel.cancelLoginFlow].
+ */
+enum class LoginFlowStatus {
+    /** Belum dimulai, sudah selesai, atau dibatalkan pengguna. */
+    IDLE,
+
+    /** Menunggu pengguna menyetujui permintaan login di peramban. */
+    WAITING_BROWSER,
+
+    /** Kredensial diterima; form sudah terisi dan siap diverifikasi lalu disimpan. */
+    SUCCESS,
+
+    /** Login flow gagal; penjelasannya ada pada state loginFlowDetail (tanpa kredensial). */
+    FAILED,
+}
+
+/**
  * Isi form tambah/ubah sambungan.
  *
  * @param id 0 berarti sambungan baru; selain itu id sambungan yang diedit.
  * @param port teks port agar terikat langsung pada TextField.
- * @param basePath share (SMB) atau path dasar (protokol lain) — labelnya dinamis.
+ * @param basePath share (SMB), prefix path server (NEXTCLOUD), atau path dasar
+ *   (protokol lain) — labelnya dinamis.
+ * @param secure pakai TLS/https; hanya berlaku untuk NEXTCLOUD, protokol lain
+ *   mengabaikannya (lihat RemoteConnection.secure).
  */
 data class NetworkFormState(
     val id: Long = 0L,
@@ -81,6 +104,7 @@ data class NetworkFormState(
     val basePath: String = "",
     val username: String = "",
     val password: String = "",
+    val secure: Boolean = false,
 ) {
     companion object {
         /** Teks port bawaan untuk [protocol] sesuai port default protokol. */
@@ -100,17 +124,32 @@ object NetworkFormValidator {
 
         /** Port bukan angka atau di luar 1..65535. */
         INVALID_PORT,
+
+        /** Username kosong/blank — wajib untuk protokol NEXTCLOUD (loginName Login flow v2). */
+        EMPTY_USERNAME,
     }
 
-    /** Kumpulkan seluruh pelanggaran pada [host] dan [port] (teks dari TextField). */
+    /**
+     * Kumpulkan seluruh pelanggaran pada form sambungan (teks dari TextField).
+     *
+     * [username] dan [protocol] dipakai untuk aturan khusus protokol: NEXTCLOUD
+     * mewajibkan username; protokol lain atau [protocol] null mempertahankan
+     * perilaku lama (username opsional → anonim). Nilai default keduanya membuat
+     * pemanggil lama validate(host, port) tetap kompatibel.
+     */
     fun validate(
         host: String,
         port: String,
+        username: String = "",
+        protocol: RemoteProtocol? = null,
     ): List<ValidationError> {
         val errors = mutableListOf<ValidationError>()
         if (host.isBlank()) errors += ValidationError.EMPTY_HOST
         val parsed = port.trim().toIntOrNull()
         if (parsed == null || parsed !in MIN_PORT..MAX_PORT) errors += ValidationError.INVALID_PORT
+        if (protocol == RemoteProtocol.NEXTCLOUD && username.isBlank()) {
+            errors += ValidationError.EMPTY_USERNAME
+        }
         return errors
     }
 

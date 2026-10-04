@@ -35,6 +35,7 @@
     <string name="network_protocol_sftp">SFTP</string>
     <string name="network_protocol_smb">SMB</string>
     <string name="network_protocol_webdav">WebDAV</string>
+    <string name="network_protocol_nextcloud">Nextcloud</string>
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>
     <string name="network_share">Share</string>
@@ -50,6 +51,14 @@
     <string name="network_save">Save</string>
     <string name="network_error_host_required">Host is required</string>
     <string name="network_error_port_invalid">Port must be between 1 and 65535</string>
+    <string name="network_error_username_required">Username is required for Nextcloud</string>
+    <string name="network_tls">HTTPS/TLS</string>
+    <string name="network_field_server_prefix">Server path prefix (optional)</string>
+    <string name="network_login_flow_button">Login via browser</string>
+    <string name="network_login_flow_waiting">Waiting for approval in the browser…</string>
+    <string name="network_login_flow_cancel">Cancel</string>
+    <string name="network_login_flow_success">Login successful — check the fields, then save</string>
+    <string name="network_login_flow_failed">Login failed: %1$s</string>
 
     <!-- Mode browsing -->
     <string name="network_up">Go up</string>

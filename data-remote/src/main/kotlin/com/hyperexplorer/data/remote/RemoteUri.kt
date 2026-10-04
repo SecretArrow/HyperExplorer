@@ -56,6 +56,7 @@ object RemoteUri {
                 RemoteProtocol.SMB -> segments.substringBefore('/') to segments.substringAfter('/', "")
                 RemoteProtocol.WEBDAV -> segments to ""
                 RemoteProtocol.FTP, RemoteProtocol.SFTP -> "" to segments
+                RemoteProtocol.NEXTCLOUD -> "" to segments
             }
         val userInfo = uri.userInfo
         val credentials =
@@ -76,6 +77,8 @@ object RemoteUri {
             basePath = basePath,
             credentials = credentials,
             displayName = "",
+            // Nextcloud praktis selalu https; protokol lain memakai skema non-TLS masing-masing.
+            secure = protocol == RemoteProtocol.NEXTCLOUD,
         )
     }
 
@@ -93,6 +96,7 @@ object RemoteUri {
                 RemoteProtocol.SMB -> listOf(connection.share, connection.basePath)
                 RemoteProtocol.WEBDAV -> listOf(connection.share)
                 RemoteProtocol.FTP, RemoteProtocol.SFTP -> listOf(connection.basePath)
+                RemoteProtocol.NEXTCLOUD -> listOf(connection.basePath)
             }.filter { it.isNotEmpty() }
         for (segment in pathSegments) {
             builder.append('/').append(segment)

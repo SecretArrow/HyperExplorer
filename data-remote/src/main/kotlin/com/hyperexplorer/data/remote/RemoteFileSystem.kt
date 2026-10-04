@@ -79,6 +79,12 @@ object RemoteFileSystems {
             RemoteProtocol.SFTP -> SftpRemote(connection)
             RemoteProtocol.SMB -> SmbRemote(connection)
             RemoteProtocol.WEBDAV -> WebDavRemote(connection)
+            // Fail-fast eksplisit: Nextcloud harus lewat CloudFileSystems.connect
+            // (implementasinya ada di modul :data-cloud, bukan di sini).
+            RemoteProtocol.NEXTCLOUD ->
+                throw IllegalArgumentException(
+                    "NEXTCLOUD must be connected via CloudFileSystems.connect (module :data-cloud)",
+                )
         }
     }
 }

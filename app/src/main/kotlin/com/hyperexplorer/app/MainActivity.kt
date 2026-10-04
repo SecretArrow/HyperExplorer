@@ -37,6 +37,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -46,20 +47,25 @@ import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -84,6 +90,7 @@ import com.hyperexplorer.feature.settings.ThemePrefs
 import com.hyperexplorer.feature.settings.ui.SettingsScreen
 import com.hyperexplorer.feature.tools.ui.StorageAnalyzerScreen
 import com.hyperexplorer.feature.tools.vault.ui.VaultScreen
+import com.hyperexplorer.feature.tools.zip.ZipCrypto
 import com.hyperexplorer.feature.tools.zip.ZipEngine
 import com.hyperexplorer.feature.transfer.ui.FtpServerScreen
 import kotlinx.coroutines.CoroutineScope
@@ -122,6 +129,8 @@ class MainActivity : AppCompatActivity() {
     private var viewer by mutableStateOf<ViewerRoute?>(null)
     private var themeMode by mutableStateOf(ThemeMode.SYSTEM)
     private var languageMode by mutableStateOf(LanguageMode.SYSTEM)
+    private var zipDialogVisible by mutableStateOf(false)
+    private var pendingZipPassword by mutableStateOf<CharArray?>(null)
 
     private lateinit var browserState: BrowserState
     private lateinit var appsState: AppsState
@@ -130,6 +139,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var vaultDir: File
 
     private val zipEngine = ZipEngine()
+    private val zipCrypto = ZipCrypto()
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val allFilesSettingsLauncher =
@@ -206,6 +216,24 @@ class MainActivity : AppCompatActivity() {
             },
         ) { padding ->
             Box(modifier = Modifier.padding(padding)) {
+                if (zipDialogVisible) {
+                    ZipPasswordDialog(
+                        onDismiss = {
+                            zipDialogVisible = false
+                            pendingZipPassword = null
+                        },
+                        onPlainZip = {
+                            pendingZipPassword = null
+                            zipDialogVisible = false
+                            runZip()
+                        },
+                        onEncryptedZip = { password ->
+                            pendingZipPassword = password
+                            zipDialogVisible = false
+                            runZip()
+                        },
+                    )
+                }
                 when (screen) {
                     Screen.BROWSER ->
                         BrowserScreen(
@@ -213,7 +241,7 @@ class MainActivity : AppCompatActivity() {
                             hasStorageAccess = hasStorageAccess,
                             onRequestStorageAccess = { requestStorageAccess() },
                             onOpenFile = { openFile(it) },
-                            onZip = { zipSelected() },
+                            onZip = { zipDialogVisible = true },
                         )
                     Screen.APPS -> AppsScreen(state = appsState)
                     Screen.STORAGE -> StorageHub()
@@ -390,8 +418,12 @@ class MainActivity : AppCompatActivity() {
         runCatching { startActivity(intent) }
     }
 
-    /** Kompres berkas terpilih menjadi arsip ZIP di folder yang sedang dibuka. */
-    private fun zipSelected() {
+    /**
+     * Kompres berkas terpilih menjadi arsip ZIP di folder yang sedang dibuka.
+     * [pendingZipPassword] null = arsip polos (ZipEngine); non-null = arsip
+     * terenkripsi AES-256 (ZipCrypto) — sandi di-wipe setelah dipakai.
+     */
+    private fun runZip() {
         val current = browserState.ui.value.current
         val sources = browserState.ui.value.selection.map { File(it) }.filter { it.exists() }
         if (sources.isEmpty()) return
@@ -402,17 +434,75 @@ class MainActivity : AppCompatActivity() {
                 current.name
             }
         val target = File(current, "$archiveName.zip")
+        val encrypted = pendingZipPassword != null
+        val password = pendingZipPassword
+        pendingZipPassword = null
         mainScope.launch {
-            val result = zipEngine.zipFiles(sources, target)
+            val result =
+                if (encrypted) {
+                    zipCrypto.zipFilesEncrypted(sources, target, password ?: CharArray(0))
+                } else {
+                    zipEngine.zipFiles(sources, target)
+                }
+            password?.fill('\u0000')
             browserState.clearSelection()
             browserState.refresh()
             val message =
                 result.fold(
-                    onSuccess = { getString(R.string.app_zip_created, it.name) },
+                    onSuccess = {
+                        getString(
+                            if (encrypted) R.string.app_zip_encrypted_created else R.string.app_zip_created,
+                            it.name,
+                        )
+                    },
                     onFailure = { getString(R.string.app_zip_failed) },
                 )
             Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    /**
+     * Dialog opsi pembuatan ZIP: tanpa sandi (polos) atau dgn sandi AES-256.
+     * Tombol terenkripsi hanya aktif bila sandi tidak kosong (fail-fast).
+     */
+    @Composable
+    private fun ZipPasswordDialog(
+        onDismiss: () -> Unit,
+        onPlainZip: () -> Unit,
+        onEncryptedZip: (CharArray) -> Unit,
+    ) {
+        var password by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = stringResource(R.string.app_zip_dialog_title)) },
+            text = {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    singleLine = true,
+                    label = { Text(text = stringResource(R.string.app_zip_password_hint)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.app_action_cancel))
+                }
+            },
+            confirmButton = {
+                Row {
+                    TextButton(onClick = onPlainZip) {
+                        Text(text = stringResource(R.string.app_zip_action_plain))
+                    }
+                    TextButton(
+                        enabled = password.isNotBlank(),
+                        onClick = { onEncryptedZip(password.toCharArray()) },
+                    ) {
+                        Text(text = stringResource(R.string.app_zip_action_encrypted))
+                    }
+                }
+            },
+        )
     }
 
     companion object {

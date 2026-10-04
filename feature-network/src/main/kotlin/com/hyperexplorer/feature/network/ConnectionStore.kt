@@ -122,6 +122,7 @@ class ConnectionStore(context: Context) {
             put(KEY_PASSWORD, credentials.password)
             put(KEY_ANONYMOUS, credentials.anonymous)
             put(KEY_DISPLAY_NAME, displayName)
+            put(KEY_SECURE, secure)
         }
 
     private fun JSONObject.toConnection(): RemoteConnection? =
@@ -140,6 +141,7 @@ class ConnectionStore(context: Context) {
                         anonymous = optBoolean(KEY_ANONYMOUS, true),
                     ),
                 displayName = optString(KEY_DISPLAY_NAME),
+                secure = optBoolean(KEY_SECURE, false),
             )
         }.getOrNull()
 
@@ -163,5 +165,6 @@ class ConnectionStore(context: Context) {
         const val KEY_PASSWORD = "password"
         const val KEY_ANONYMOUS = "anonymous"
         const val KEY_DISPLAY_NAME = "displayName"
+        const val KEY_SECURE = "secure"
     }
 }

@@ -1,0 +1,4 @@
+Cloud FOSS: akun Nextcloud dengan login flow v2 via peramban dan app password (TLS).
+Jelajahi, unggah, unduh, ganti nama, dan hapus berkas di server Nextcloud milikmu.
+Arsip ZIP berpassword (AES-256) langsung dari peramban berkas.
+Modul baru :data-cloud, 100% perangkat lunak bebas (GPL-3.0-only).

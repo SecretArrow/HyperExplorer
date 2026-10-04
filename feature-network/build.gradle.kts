@@ -45,6 +45,10 @@ dependencies {
     implementation(project(":core-model"))
     implementation(project(":core-common"))
 
+    // Konstruktor NextcloudLoginFlow mengekspos okhttp3.OkHttpClient — modul ini
+    // butuh tipe tersebut di classpath kompilasi (pemanggilan default argumen).
+    implementation(libs.okhttp)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)

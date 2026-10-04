@@ -28,4 +28,10 @@
     <string name="media_discard_message">You have unsaved changes. Discard?</string>
     <string name="media_discard_confirm">Discard</string>
     <string name="media_cancel">Cancel</string>
+    <string name="player_error_missing">File cannot be played because it is missing</string>
+    <string name="player_error_generic">Playback failed</string>
+    <string name="player_close">Close</string>
+    <string name="player_play">Play</string>
+    <string name="player_pause">Pause</string>
+    <string name="player_buffering">Buffering…</string>
 </resources>

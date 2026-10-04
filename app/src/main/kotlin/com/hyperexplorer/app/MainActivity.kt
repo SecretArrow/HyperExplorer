@@ -71,6 +71,7 @@ import com.hyperexplorer.feature.apps.AppsState
 import com.hyperexplorer.feature.apps.ui.AppsScreen
 import com.hyperexplorer.feature.browser.BrowserScreen
 import com.hyperexplorer.feature.browser.BrowserState
+import com.hyperexplorer.feature.media.player.MediaPlayerScreen
 import com.hyperexplorer.feature.media.ui.ImageViewerScreen
 import com.hyperexplorer.feature.media.ui.TextEditorScreen
 import com.hyperexplorer.feature.media.viewer.ViewerRoute
@@ -82,6 +83,7 @@ import com.hyperexplorer.feature.settings.ThemeMode
 import com.hyperexplorer.feature.settings.ThemePrefs
 import com.hyperexplorer.feature.settings.ui.SettingsScreen
 import com.hyperexplorer.feature.tools.ui.StorageAnalyzerScreen
+import com.hyperexplorer.feature.tools.vault.ui.VaultScreen
 import com.hyperexplorer.feature.tools.zip.ZipEngine
 import com.hyperexplorer.feature.transfer.ui.FtpServerScreen
 import kotlinx.coroutines.CoroutineScope
@@ -106,10 +108,17 @@ private enum class NetworkSection(val labelRes: Int) {
     LOCATIONS(R.string.app_network_section_locations),
 }
 
+/** Seksi pada tab Storage: analisis penyimpanan atau vault terenkripsi. */
+private enum class StorageSection(val labelRes: Int) {
+    ANALYZER(R.string.app_storage_section_analyzer),
+    VAULT(R.string.app_storage_section_vault),
+}
+
 class MainActivity : AppCompatActivity() {
     private var hasStorageAccess by mutableStateOf(false)
     private var screen by mutableStateOf(Screen.BROWSER)
     private var networkSection by mutableStateOf(NetworkSection.SERVER)
+    private var storageSection by mutableStateOf(StorageSection.ANALYZER)
     private var viewer by mutableStateOf<ViewerRoute?>(null)
     private var themeMode by mutableStateOf(ThemeMode.SYSTEM)
     private var languageMode by mutableStateOf(LanguageMode.SYSTEM)
@@ -118,6 +127,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appsState: AppsState
     private lateinit var themePrefs: ThemePrefs
     private lateinit var languagePrefs: LanguagePrefs
+    private lateinit var vaultDir: File
 
     private val zipEngine = ZipEngine()
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -136,6 +146,7 @@ class MainActivity : AppCompatActivity() {
 
         val trashDir = File(filesDir, "trash").apply { mkdirs() }
         val repository = FileRepository(trashDir)
+        vaultDir = File(filesDir, "vault")
         val root = Environment.getExternalStorageDirectory() ?: filesDir
         browserState = BrowserState(repository, root)
         appsState = AppsState(this)
@@ -171,6 +182,8 @@ class MainActivity : AppCompatActivity() {
         when (route) {
             is ViewerRoute.Image -> ImageViewerScreen(path = route.path, onClose = { viewer = null })
             is ViewerRoute.Text -> TextEditorScreen(path = route.path, onClose = { viewer = null })
+            is ViewerRoute.Video -> MediaPlayerScreen(path = route.path, isVideo = true, onClose = { viewer = null })
+            is ViewerRoute.Audio -> MediaPlayerScreen(path = route.path, isVideo = false, onClose = { viewer = null })
             null -> MainScaffold()
         }
     }
@@ -203,7 +216,7 @@ class MainActivity : AppCompatActivity() {
                             onZip = { zipSelected() },
                         )
                     Screen.APPS -> AppsScreen(state = appsState)
-                    Screen.STORAGE -> StorageAnalyzerScreen(root = storageRoot())
+                    Screen.STORAGE -> StorageHub()
                     Screen.NETWORK -> NetworkHub()
                     Screen.SETTINGS ->
                         SettingsScreen(
@@ -249,6 +262,37 @@ class MainActivity : AppCompatActivity() {
             when (networkSection) {
                 NetworkSection.SERVER -> FtpServerScreen(rootDir = storageRoot())
                 NetworkSection.LOCATIONS -> NetworkLocationsScreen(modifier = Modifier.fillMaxSize())
+            }
+        }
+    }
+
+    /** Hub tab Storage: pemilih seksi di atas (analisis / vault) + konten seksi aktif. */
+    @Composable
+    private fun StorageHub() {
+        Column(modifier = Modifier.fillMaxSize()) {
+            SingleChoiceSegmentedButtonRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                val sections = StorageSection.entries
+                sections.forEachIndexed { index, section ->
+                    SegmentedButton(
+                        selected = storageSection == section,
+                        onClick = { storageSection = section },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = sections.size),
+                        label = { Text(text = stringResource(section.labelRes)) },
+                    )
+                }
+            }
+            when (storageSection) {
+                StorageSection.ANALYZER -> StorageAnalyzerScreen(root = storageRoot())
+                StorageSection.VAULT ->
+                    VaultScreen(
+                        vaultDir = vaultDir,
+                        onOpenFile = { openDecryptedFile(it) },
+                    )
             }
         }
     }
@@ -316,12 +360,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openWith(node: FileNode) {
-        val file = File(node.path)
+        openWithFile(File(node.path), node.name)
+    }
+
+    /** Buka berkas hasil dekripsi vault dengan penampil internal atau aplikasi eksternal. */
+    private fun openDecryptedFile(file: File) {
+        val route = ViewerRouter.routeFor(file.path)
+        if (route != null) {
+            viewer = route
+        } else {
+            openWithFile(file, file.name)
+        }
+    }
+
+    private fun openWithFile(file: File, displayName: String) {
         if (!file.isFile) return
         val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
         val mime =
             MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(node.name.substringAfterLast('.', "").lowercase(Locale.ROOT))
+                .getMimeTypeFromExtension(displayName.substringAfterLast('.', "").lowercase(Locale.ROOT))
                 ?: "application/octet-stream"
         val intent =
             Intent(Intent.ACTION_VIEW)

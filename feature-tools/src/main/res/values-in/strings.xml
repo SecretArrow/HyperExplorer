@@ -40,4 +40,45 @@
     <string name="tools_duplicates_title">Kemungkinan duplikat</string>
     <string name="tools_no_duplicates">Tidak ada duplikat terdeteksi</string>
     <string name="tools_duplicate_group">%1$s · %2$d berkas</string>
+
+    <!-- Layar vault terenkripsi (VaultScreen). -->
+    <string name="vault_title">Vault terenkripsi</string>
+    <string name="vault_empty">Belum ada berkas terkunci. Impor berkas untuk mengenkripsinya.</string>
+    <string name="vault_import_hint">Jalur lengkap berkas yang akan diimpor</string>
+    <string name="vault_import_button">Impor</string>
+    <string name="vault_import_delete_source">Hapus asli setelah impor</string>
+    <string name="vault_open">Buka</string>
+    <string name="vault_export">Ekspor</string>
+    <string name="vault_verify">Verifikasi</string>
+    <string name="vault_rename">Ganti nama</string>
+    <string name="vault_rename_hint">Nama baru</string>
+    <string name="vault_delete">Hapus</string>
+    <string name="vault_delete_confirm_title">Hapus permanen?</string>
+    <string name="vault_delete_confirm_text">Salinan terenkripsi ini akan dimusnahkan. Tidak bisa dibatalkan.</string>
+    <string name="vault_confirm">Hapus</string>
+    <string name="vault_cancel">Batal</string>
+    <string name="vault_retry">Coba lagi</string>
+    <string name="vault_busy_import">Mengenkripsi…</string>
+    <string name="vault_busy_export">Mendekripsi…</string>
+    <string name="vault_busy_delete">Menghapus…</string>
+    <string name="vault_busy_verify">Memverifikasi…</string>
+    <string name="vault_busy_rename">Mengganti nama…</string>
+    <string name="vault_busy_open">Menyiapkan…</string>
+    <string name="vault_done_import">Terkunci: %1$s</string>
+    <string name="vault_done_export">Diekspor ke %1$s</string>
+    <string name="vault_done_delete">Terhapus: %1$s</string>
+    <string name="vault_done_rename">Diganti nama: %1$s</string>
+    <string name="vault_done_verify">Integritas OK</string>
+    <string name="vault_done_open">Membuka…</string>
+    <string name="vault_error_invalid_input">Masukan tidak valid</string>
+    <string name="vault_error_source_missing">Sumber tidak ditemukan</string>
+    <string name="vault_error_entry_not_found">Entri tidak ditemukan</string>
+    <string name="vault_error_corrupt">Berkas rusak atau diubah</string>
+    <string name="vault_error_index_corrupt">Indeks vault tidak terbaca</string>
+    <string name="vault_error_io">Operasi penyimpanan gagal</string>
+    <string name="vault_error_key">Kunci enkripsi tidak tersedia</string>
+    <string name="vault_name_err_blank">Nama tidak boleh kosong</string>
+    <string name="vault_name_err_illegal_char">Nama mengandung karakter terlarang</string>
+    <string name="vault_name_err_reserved">Nama ini dipakai sistem</string>
+    <string name="vault_name_err_too_long">Nama terlalu panjang (maks 255 byte)</string>
 </resources>

@@ -44,8 +44,13 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:feature-browser` | Android lib | `BrowserState` (state holder) + `BrowserScreen` (Compose UI) |
 | `:data-remote` | Kotlin JVM | Klien jaringan (network clients) FTP/SFTP/SMB/WebDAV: commons-net/sshj/SMBJ/OkHttp |
 | `:feature-network` | Android lib | UI koneksi jaringan (connections UI) + penyimpanan kredensial terenkripsi (encrypted store) |
+| `:feature-transfer` | Android lib | Server FTP lokal (RFC 959 subset, auth wajib, auto-off) + layar kontrol |
+| `:feature-media` | Android lib | Penampil gambar/teks + pemutar audio/video (Media3 ExoPlayer) |
+| `:feature-tools` | Android lib | Analisis penyimpanan, ZIP engine, vault terenkripsi AES-256-GCM |
+| `:feature-apps` | Android lib | Manajer aplikasi + backup APK |
+| `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kebijakan privasi |
 
-Rencana modul berikutnya: `:data-cloud` (Drive/Dropbox/OneDrive).
+Rencana modul berikutnya: `:data-cloud` (Nextcloud/Drive/Dropbox/OneDrive).
 
 ## Fitur Saat Ini (scaffold MVP)
 
@@ -56,6 +61,9 @@ Rencana modul berikutnya: `:data-cloud` (Drive/Dropbox/OneDrive).
 - Banner permintaan akses "All files" (MANAGE_EXTERNAL_STORAGE) sesuai kebijakan Play
 - Tema Material 3 + dynamic color + dark mode
 - Network locations — browse & manage SMB / FTP / SFTP / WebDAV connections with encrypted credentials
+- Encrypted vault — file locking/unlocking with AES-256-GCM (Android Keystore), integrity verification,
+  documented container format (no lock-in), per-file random data key wrapped by a device key
+- Audio/video player (Media3 ExoPlayer) with graceful error & missing-file handling
 
 ## CI/CD (GitHub Actions)
 
@@ -100,14 +108,16 @@ Set secrets repo berikut agar APK/AAB ditandatangani; tanpa itu hasilnya unsigne
 
 ## Roadmap
 
-Lihat `fileman.md` Bagian 9 (blueprint lengkap): klien jaringan (SMB2/3, FTP/FTPS, SFTP, WebDAV),
-multi-cloud dengan OAuth resmi, vault terenkripsi AES-256 di Android Keystore, transfer PC dengan
-autentikasi wajib + auto-off, analisis penyimpanan, manajer aplikasi, pemutar media, dukungan TV/layar besar,
-serta distribusi **F-Droid** dengan build reproducible.
+Lihat `fileman.md` Bagian 9 (blueprint lengkap). Sudah tuntas: klien jaringan (SMB2/3, FTP, SFTP, WebDAV),
+vault terenkripsi AES-256 di Android Keystore, pemutar media, transfer PC dengan autentikasi wajib + auto-off,
+analisis penyimpanan, manajer aplikasi. Berikutnya: `:data-cloud` (Nextcloud/OAuth), sinkronisasi,
+dukungan TV/layar besar, serta distribusi **F-Droid** dengan build reproducible.
 
 ## Keamanan & Kepatuhan
 
 - Recycle bin ber-metadata → hapus bisa dipulihkan (tidak ada hapus permanen tanpa konfirmasi)
+- Vault: enkripsi AES-256-GCM, DEK acak per berkas di-wrap kunci perangkat (Android Keystore), AAD mengikat
+  DEK ke identitas entri (anti-swap), verifikasi integritas, format kontainer terdokumentasi (anti lock-in)
 - Tidak ada telemetry, tidak ada server jaringan yang menyala diam-diam
 - Kebijakan yang dipatuhi: Google Play User Data & Device and Network Abuse, UU PDP No. 27/2022
 

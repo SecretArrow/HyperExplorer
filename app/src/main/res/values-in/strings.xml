@@ -27,6 +27,8 @@
     <string name="app_tab_settings">Pengaturan</string>
     <string name="app_network_section_server">Server FTP</string>
     <string name="app_network_section_locations">Lokasi Jaringan</string>
+    <string name="app_storage_section_analyzer">Analisis</string>
+    <string name="app_storage_section_vault">Vault</string>
     <string name="app_zip_created">Arsip dibuat: %1$s</string>
     <string name="app_zip_failed">Gagal membuat arsip ZIP</string>
     <string name="app_default_archive_name">arsip</string>

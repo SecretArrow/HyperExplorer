@@ -28,4 +28,10 @@
     <string name="media_discard_message">Ada perubahan belum disimpan. Buang?</string>
     <string name="media_discard_confirm">Buang</string>
     <string name="media_cancel">Batal</string>
+    <string name="player_error_missing">Berkas tidak dapat diputar karena hilang</string>
+    <string name="player_error_generic">Pemutaran gagal</string>
+    <string name="player_close">Tutup</string>
+    <string name="player_play">Putar</string>
+    <string name="player_pause">Jeda</string>
+    <string name="player_buffering">Memuat…</string>
 </resources>

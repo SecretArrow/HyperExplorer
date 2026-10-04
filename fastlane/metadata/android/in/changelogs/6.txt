@@ -1,0 +1,2 @@
+Vault terenkripsi: kunci berkas dengan AES-256-GCM (Android Keystore), verifikasi integritas, tanpa lock-in.
+Pemutar audio/video bawaan (Media3).

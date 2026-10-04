@@ -54,7 +54,76 @@ class ViewerRouterTest {
 
     @Test
     fun `unknown extensions return null`() {
-        assertNull(ViewerRouter.routeFor("video.mp4"))
+        // Catatan Task 8-c: asersi lama "video.mp4" -> null dipindah ke test video karena
+        // sejak varian Video/Audio ditambahkan, "video.mp4" dipetakan ke ViewerRoute.Video.
         assertNull(ViewerRouter.routeFor("x.PDF"))
+    }
+
+    @Test
+    fun `video extensions route to video player`() {
+        val mp4 = ViewerRouter.routeFor("video.mp4")
+        assertTrue(mp4 is ViewerRoute.Video)
+        assertEquals("video.mp4", (mp4 as ViewerRoute.Video).path)
+
+        val uppercaseMp4 = ViewerRouter.routeFor("MOVIE.MP4")
+        assertTrue(uppercaseMp4 is ViewerRoute.Video)
+
+        val webm = ViewerRouter.routeFor("a.webm")
+        assertTrue(webm is ViewerRoute.Video)
+    }
+
+    @Test
+    fun `dot inside folder name does not break video routing`() {
+        val nested = ViewerRouter.routeFor("/sdcard/Download/a.b/film.mkv")
+        assertTrue(nested is ViewerRoute.Video)
+        assertEquals("/sdcard/Download/a.b/film.mkv", (nested as ViewerRoute.Video).path)
+    }
+
+    @Test
+    fun `audio extensions route to audio player`() {
+        val mp3 = ViewerRouter.routeFor("lagu.mp3")
+        assertTrue(mp3 is ViewerRoute.Audio)
+        assertEquals("lagu.mp3", (mp3 as ViewerRoute.Audio).path)
+
+        val uppercaseFlac = ViewerRouter.routeFor("audio.FLAC")
+        assertTrue(uppercaseFlac is ViewerRoute.Audio)
+
+        val m4a = ViewerRouter.routeFor("x.m4a")
+        assertTrue(m4a is ViewerRoute.Audio)
+    }
+
+    @Test
+    fun `trailing dot returns null`() {
+        assertNull(ViewerRouter.routeFor("file."))
+    }
+
+    @Test
+    fun `dotfile with unknown extension returns null`() {
+        assertNull(ViewerRouter.routeFor(".profile"))
+    }
+
+    @Test
+    fun `blank paths return null`() {
+        assertNull(ViewerRouter.routeFor(""))
+        assertNull(ViewerRouter.routeFor("   "))
+    }
+
+    @Test
+    fun `unknown non media extension still returns null`() {
+        assertNull(ViewerRouter.routeFor("dokumen.xyz"))
+    }
+
+    @Test
+    fun `text routing regression unchanged`() {
+        val text = ViewerRouter.routeFor("catatan.txt")
+        assertTrue(text is ViewerRoute.Text)
+        assertEquals("catatan.txt", (text as ViewerRoute.Text).path)
+    }
+
+    @Test
+    fun `image routing regression unchanged`() {
+        val image = ViewerRouter.routeFor("foto.jpg")
+        assertTrue(image is ViewerRoute.Image)
+        assertEquals("foto.jpg", (image as ViewerRoute.Image).path)
     }
 }

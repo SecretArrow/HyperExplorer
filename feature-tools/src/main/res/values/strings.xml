@@ -40,4 +40,45 @@
     <string name="tools_duplicates_title">Possible duplicates</string>
     <string name="tools_no_duplicates">No duplicates detected</string>
     <string name="tools_duplicate_group">%1$s · %2$d files</string>
+
+    <!-- Layar vault terenkripsi (VaultScreen). -->
+    <string name="vault_title">Encrypted vault</string>
+    <string name="vault_empty">No locked files yet. Import a file to encrypt it in place.</string>
+    <string name="vault_import_hint">Full path of file to import</string>
+    <string name="vault_import_button">Import</string>
+    <string name="vault_import_delete_source">Remove original after import</string>
+    <string name="vault_open">Open</string>
+    <string name="vault_export">Export</string>
+    <string name="vault_verify">Verify</string>
+    <string name="vault_rename">Rename</string>
+    <string name="vault_rename_hint">New name</string>
+    <string name="vault_delete">Delete</string>
+    <string name="vault_delete_confirm_title">Delete permanently?</string>
+    <string name="vault_delete_confirm_text">This encrypted copy will be destroyed. This cannot be undone.</string>
+    <string name="vault_confirm">Delete</string>
+    <string name="vault_cancel">Cancel</string>
+    <string name="vault_retry">Retry</string>
+    <string name="vault_busy_import">Encrypting…</string>
+    <string name="vault_busy_export">Decrypting…</string>
+    <string name="vault_busy_delete">Deleting…</string>
+    <string name="vault_busy_verify">Verifying…</string>
+    <string name="vault_busy_rename">Renaming…</string>
+    <string name="vault_busy_open">Preparing…</string>
+    <string name="vault_done_import">Locked: %1$s</string>
+    <string name="vault_done_export">Exported to %1$s</string>
+    <string name="vault_done_delete">Deleted: %1$s</string>
+    <string name="vault_done_rename">Renamed: %1$s</string>
+    <string name="vault_done_verify">Integrity OK</string>
+    <string name="vault_done_open">Opening…</string>
+    <string name="vault_error_invalid_input">Invalid input</string>
+    <string name="vault_error_source_missing">Source not found</string>
+    <string name="vault_error_entry_not_found">Entry not found</string>
+    <string name="vault_error_corrupt">File is corrupted or tampered</string>
+    <string name="vault_error_index_corrupt">Vault index is unreadable</string>
+    <string name="vault_error_io">Storage operation failed</string>
+    <string name="vault_error_key">Encryption key unavailable</string>
+    <string name="vault_name_err_blank">Name cannot be empty</string>
+    <string name="vault_name_err_illegal_char">Name contains illegal characters</string>
+    <string name="vault_name_err_reserved">This name is reserved</string>
+    <string name="vault_name_err_too_long">Name is too long (max 255 bytes)</string>
 </resources>

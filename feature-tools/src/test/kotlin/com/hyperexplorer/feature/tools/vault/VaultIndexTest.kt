@@ -101,7 +101,7 @@ class VaultIndexTest {
     fun `byte sisa setelah entri ditolak`() {
         val indexFile = validIndex()
 
-        indexFile.appendBytes(0.toByte())
+        indexFile.appendBytes(byteArrayOf(0))
 
         expectFormatError(indexFile, "sisa")
     }

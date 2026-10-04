@@ -365,7 +365,10 @@ class VaultControllerTest {
     }
 
     /** Menyiapkan satu entri vault langsung lewat [VaultEngine] (tanpa controller). */
-    private fun seedVaultEntry(fileName: String, content: ByteArray): VaultEntry {
+    private fun seedVaultEntry(
+        fileName: String,
+        content: ByteArray,
+    ): VaultEntry {
         val source = File(sourceDir, fileName).apply { writeBytes(content) }
         val result = seedEngine.importFile(source, deleteSource = false)
         return when (result) {

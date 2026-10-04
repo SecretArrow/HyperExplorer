@@ -115,10 +115,11 @@ internal object VaultIndex {
                 throw VaultIndexFormatException("ukuran berkas negatif pada entri \"$id\": $sizeBytes")
             }
             val addedAtEpochMs = input.readLong()
-            val wrapMethod = when (val wrapMethodId = input.readUnsignedByte()) {
-                VaultFormat.WRAP_METHOD_KEYSTORE -> WrapMethod.KEYSTORE
-                else -> throw VaultIndexFormatException("wrap method tidak dikenal: $wrapMethodId (entri \"$id\")")
-            }
+            val wrapMethod =
+                when (val wrapMethodId = input.readUnsignedByte()) {
+                    VaultFormat.WRAP_METHOD_KEYSTORE -> WrapMethod.KEYSTORE
+                    else -> throw VaultIndexFormatException("wrap method tidak dikenal: $wrapMethodId (entri \"$id\")")
+                }
             entries += VaultEntry(id, storedFileName, originalName, originalPath, mimeType, sizeBytes, addedAtEpochMs, wrapMethod)
         }
         val leftover = input.available()
@@ -138,7 +139,10 @@ internal object VaultIndex {
      * u16 dari `writeUTF` (data tidak mungkin dienkode ke format ini).
      * @throws IOException bila I/O tingkat sistem berkas gagal.
      */
-    internal fun writeAtomic(target: File, entries: List<VaultEntry>) {
+    internal fun writeAtomic(
+        target: File,
+        entries: List<VaultEntry>,
+    ) {
         val parent = target.parentFile
         if (parent == null || (!parent.isDirectory && !parent.mkdirs())) {
             throw IOException("direktori induk indeks tidak tersedia: ${target.path}")
@@ -202,7 +206,10 @@ internal object VaultIndex {
      *
      * @throws IOException bila penyalinan atau rename gagal.
      */
-    internal fun restore(backup: File, target: File) {
+    internal fun restore(
+        backup: File,
+        target: File,
+    ) {
         val parent = target.parentFile
         if (parent == null || (!parent.isDirectory && !parent.mkdirs())) {
             throw IOException("direktori induk indeks tidak tersedia: ${target.path}")
@@ -227,13 +234,17 @@ internal object VaultIndex {
         }
     }
 
-    private fun checkWritableString(value: String, field: String) {
+    private fun checkWritableString(
+        value: String,
+        field: String,
+    ) {
         if (value.length > MAX_UTF_CHARS) {
             throw VaultIndexFormatException("kolom $field terlalu panjang: ${value.length} karakter (batas $MAX_UTF_CHARS)")
         }
     }
 
-    private fun wrapMethodId(method: WrapMethod): Int = when (method) {
-        WrapMethod.KEYSTORE -> VaultFormat.WRAP_METHOD_KEYSTORE
-    }
+    private fun wrapMethodId(method: WrapMethod): Int =
+        when (method) {
+            WrapMethod.KEYSTORE -> VaultFormat.WRAP_METHOD_KEYSTORE
+        }
 }

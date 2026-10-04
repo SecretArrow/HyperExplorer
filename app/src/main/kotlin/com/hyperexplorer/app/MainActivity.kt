@@ -373,7 +373,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openWithFile(file: File, displayName: String) {
+    private fun openWithFile(
+        file: File,
+        displayName: String,
+    ) {
         if (!file.isFile) return
         val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
         val mime =

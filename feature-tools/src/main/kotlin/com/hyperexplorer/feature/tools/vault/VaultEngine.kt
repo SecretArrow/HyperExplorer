@@ -61,7 +61,6 @@ import javax.crypto.spec.SecretKeySpec
  * @property keyProvider penyedia pembungkusan DEK, mis. [AndroidKeystoreKeyProvider].
  */
 class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyProvider) {
-
     private val indexFile = File(vaultDir, VaultIndex.INDEX_FILE_NAME)
     private val secureRandom = SecureRandom()
 
@@ -70,7 +69,10 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * penghapusan sumber BUKAN kegagalan impor ([ImportOutcome.sourceDeleted] = false).
      */
     @Synchronized
-    fun importFile(src: File, deleteSource: Boolean): VaultResult<ImportOutcome> {
+    fun importFile(
+        src: File,
+        deleteSource: Boolean,
+    ): VaultResult<ImportOutcome> {
         if (!src.exists()) return VaultResult.Err(VaultError.SourceMissing(src.path))
         if (src.isDirectory) return VaultResult.Err(VaultError.InvalidInput("sumber adalah direktori, bukan berkas: ${src.path}"))
         val nameError = VaultNames.validate(src.name)
@@ -85,11 +87,12 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
         val blobTmp = File(vaultDir, storedFileName + TEMP_FILE_SUFFIX)
         val blob = File(vaultDir, storedFileName)
         val dek = ByteArray(DEK_SIZE_BYTES).also { secureRandom.nextBytes(it) }
-        val wrapped = try {
-            keyProvider.wrapDek(dek, id.toByteArray(Charsets.UTF_8))
-        } catch (e: GeneralSecurityException) {
-            return VaultResult.Err(VaultError.KeyUnavailable("pembungkusan DEK gagal: ${causeText(e)}"))
-        }
+        val wrapped =
+            try {
+                keyProvider.wrapDek(dek, id.toByteArray(Charsets.UTF_8))
+            } catch (e: GeneralSecurityException) {
+                return VaultResult.Err(VaultError.KeyUnavailable("pembungkusan DEK gagal: ${causeText(e)}"))
+            }
         if (!vaultDir.isDirectory && !vaultDir.mkdirs()) {
             return VaultResult.Err(VaultError.IoFailure("membuat direktori vault", "gagal membuat ${vaultDir.path}"))
         }
@@ -102,29 +105,31 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
             blobTmp.delete()
             return VaultResult.Err(VaultError.IoFailure("menulis blob $storedFileName", causeText(e)))
         }
-        val entries = try {
-            readEntries()
-        } catch (e: VaultIndexFormatException) {
-            discardBlob(blobTmp, blob)
-            return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
-        } catch (e: IOException) {
-            discardBlob(blobTmp, blob)
-            return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
-        }
+        val entries =
+            try {
+                readEntries()
+            } catch (e: VaultIndexFormatException) {
+                discardBlob(blobTmp, blob)
+                return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
+            } catch (e: IOException) {
+                discardBlob(blobTmp, blob)
+                return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
+            }
         if (entries.any { it.id == id }) {
             discardBlob(blobTmp, blob)
             return VaultResult.Err(VaultError.IoFailure("komit entri vault", "id entri bentrok: $id sudah terdaftar di indeks"))
         }
-        val newEntry = VaultEntry(
-            id = id,
-            storedFileName = storedFileName,
-            originalName = src.name,
-            originalPath = src.absolutePath,
-            mimeType = MIME_TYPE_V1,
-            sizeBytes = src.length(),
-            addedAtEpochMs = System.currentTimeMillis(),
-            wrapMethod = WrapMethod.KEYSTORE,
-        )
+        val newEntry =
+            VaultEntry(
+                id = id,
+                storedFileName = storedFileName,
+                originalName = src.name,
+                originalPath = src.absolutePath,
+                mimeType = MIME_TYPE_V1,
+                sizeBytes = src.length(),
+                addedAtEpochMs = System.currentTimeMillis(),
+                wrapMethod = WrapMethod.KEYSTORE,
+            )
         try {
             VaultIndex.writeAtomic(indexFile, entries + newEntry)
         } catch (e: VaultIndexFormatException) {
@@ -145,13 +150,14 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * indeks utama dipulihkan (self-heal) dan isinya dikembalikan.
      */
     @Synchronized
-    fun listEntries(): VaultResult<List<VaultEntry>> = try {
-        VaultResult.Ok(readEntries())
-    } catch (e: VaultIndexFormatException) {
-        VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
-    } catch (e: IOException) {
-        VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
-    }
+    fun listEntries(): VaultResult<List<VaultEntry>> =
+        try {
+            VaultResult.Ok(readEntries())
+        } catch (e: VaultIndexFormatException) {
+            VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
+        } catch (e: IOException) {
+            VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
+        }
 
     /**
      * Mengekspor entri [id] ke [destDir] dengan nama aslinya. Konflik nama
@@ -161,20 +167,27 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * - [ConflictStrategy.SKIP]: target lama dikembalikan apa adanya TANPA perubahan apa pun.
      */
     @Synchronized
-    fun exportEntry(id: String, destDir: File, conflict: ConflictStrategy): VaultResult<File> {
+    fun exportEntry(
+        id: String,
+        destDir: File,
+        conflict: ConflictStrategy,
+    ): VaultResult<File> {
         if (!destDir.exists()) return VaultResult.Err(VaultError.InvalidInput("direktori tujuan tidak ada: ${destDir.path}"))
         if (!destDir.isDirectory) return VaultResult.Err(VaultError.InvalidInput("tujuan bukan direktori: ${destDir.path}"))
-        val (entry, blob) = when (val resolved = resolveEntryBlob(id)) {
-            is VaultResult.Ok -> resolved.value
-            is VaultResult.Err -> return resolved
-        }
-        val target = when (val resolution = resolveExportTarget(entry, destDir, conflict)) {
-            is VaultResult.Ok -> when (resolution.value) {
-                is ExportTargetResolution.Proceed -> resolution.value.target
-                is ExportTargetResolution.Skip -> return VaultResult.Ok(resolution.value.target)
+        val (entry, blob) =
+            when (val resolved = resolveEntryBlob(id)) {
+                is VaultResult.Ok -> resolved.value
+                is VaultResult.Err -> return resolved
             }
-            is VaultResult.Err -> return resolution
-        }
+        val target =
+            when (val resolution = resolveExportTarget(entry, destDir, conflict)) {
+                is VaultResult.Ok ->
+                    when (resolution.value) {
+                        is ExportTargetResolution.Proceed -> resolution.value.target
+                        is ExportTargetResolution.Skip -> return VaultResult.Ok(resolution.value.target)
+                    }
+                is VaultResult.Err -> return resolution
+            }
         return decryptToTemporary(entry, blob, target, "mengekspor entri ${entry.storedFileName}")
     }
 
@@ -184,14 +197,18 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * Pemanggil bertanggung jawab membersihkan cache; jangan simpan rahasia di cache ini.
      */
     @Synchronized
-    fun openDecrypted(id: String, cacheDir: File): VaultResult<File> {
+    fun openDecrypted(
+        id: String,
+        cacheDir: File,
+    ): VaultResult<File> {
         if (!cacheDir.isDirectory && !cacheDir.mkdirs()) {
             return VaultResult.Err(VaultError.IoFailure("menyiapkan direktori cache", "gagal membuat ${cacheDir.path}"))
         }
-        val (entry, blob) = when (val resolved = resolveEntryBlob(id)) {
-            is VaultResult.Ok -> resolved.value
-            is VaultResult.Err -> return resolved
-        }
+        val (entry, blob) =
+            when (val resolved = resolveEntryBlob(id)) {
+                is VaultResult.Ok -> resolved.value
+                is VaultResult.Err -> return resolved
+            }
         val target = File(cacheDir, CACHE_FILE_PREFIX + entry.id + "_" + entry.originalName)
         return decryptToTemporary(entry, blob, target, "menulis berkas cache terdekripsi")
     }
@@ -203,13 +220,14 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      */
     @Synchronized
     fun deleteEntry(id: String): VaultResult<Unit> {
-        val entries = try {
-            readEntries()
-        } catch (e: VaultIndexFormatException) {
-            return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
-        } catch (e: IOException) {
-            return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
-        }
+        val entries =
+            try {
+                readEntries()
+            } catch (e: VaultIndexFormatException) {
+                return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
+            } catch (e: IOException) {
+                return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
+            }
         val entry = entries.firstOrNull { it.id == id } ?: return VaultResult.Err(VaultError.EntryNotFound(id))
         val blob = File(vaultDir, entry.storedFileName)
         if (blob.exists() && !blob.delete()) {
@@ -234,10 +252,11 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      */
     @Synchronized
     fun verifyEntry(id: String): VaultResult<Unit> {
-        val (entry, blob) = when (val resolved = resolveEntryBlob(id)) {
-            is VaultResult.Ok -> resolved.value
-            is VaultResult.Err -> return resolved
-        }
+        val (entry, blob) =
+            when (val resolved = resolveEntryBlob(id)) {
+                is VaultResult.Ok -> resolved.value
+                is VaultResult.Err -> return resolved
+            }
         val sink = NullByteSink()
         try {
             val count = decryptStreaming(entry, blob, sink)
@@ -269,18 +288,22 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * blob TIDAK berubah (id permanen); hanya `originalName` di indeks yang diperbarui.
      */
     @Synchronized
-    fun renameEntry(id: String, newName: String): VaultResult<VaultEntry> {
+    fun renameEntry(
+        id: String,
+        newName: String,
+    ): VaultResult<VaultEntry> {
         val nameError = VaultNames.validate(newName)
         if (nameError != null) {
             return VaultResult.Err(VaultError.InvalidInput("nama baru tidak valid (${describe(nameError)}): $newName"))
         }
-        val entries = try {
-            readEntries()
-        } catch (e: VaultIndexFormatException) {
-            return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
-        } catch (e: IOException) {
-            return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
-        }
+        val entries =
+            try {
+                readEntries()
+            } catch (e: VaultIndexFormatException) {
+                return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
+            } catch (e: IOException) {
+                return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
+            }
         val entry = entries.firstOrNull { it.id == id } ?: return VaultResult.Err(VaultError.EntryNotFound(id))
         if (entry.originalName.equals(newName, ignoreCase = true)) {
             return VaultResult.Err(
@@ -307,7 +330,11 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
         data class Skip(val target: File) : ExportTargetResolution
     }
 
-    private fun resolveExportTarget(entry: VaultEntry, destDir: File, conflict: ConflictStrategy): VaultResult<ExportTargetResolution> {
+    private fun resolveExportTarget(
+        entry: VaultEntry,
+        destDir: File,
+        conflict: ConflictStrategy,
+    ): VaultResult<ExportTargetResolution> {
         val direct = File(destDir, entry.originalName)
         if (!direct.exists()) return VaultResult.Ok(ExportTargetResolution.Proceed(direct))
         return when (conflict) {
@@ -348,17 +375,18 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
     private fun tryReadBackup(primary: Exception): List<VaultEntry> {
         val backup = indexBackupFile
         if (!backup.exists()) throw primary
-        val recovered = try {
-            VaultIndex.read(backup)
-        } catch (e: Exception) {
-            when (e) {
-                is IOException, is VaultIndexFormatException -> throw VaultIndexFormatException(
-                    "indeks utama dan cadangan sama-sama tidak terbaca; " +
-                        "utama (${indexFile.path}): ${causeText(primary)}; cadangan (${backup.path}): ${causeText(e)}",
-                )
-                else -> throw e
+        val recovered =
+            try {
+                VaultIndex.read(backup)
+            } catch (e: Exception) {
+                when (e) {
+                    is IOException, is VaultIndexFormatException -> throw VaultIndexFormatException(
+                        "indeks utama dan cadangan sama-sama tidak terbaca; " +
+                            "utama (${indexFile.path}): ${causeText(primary)}; cadangan (${backup.path}): ${causeText(e)}",
+                    )
+                    else -> throw e
+                }
             }
-        }
         VaultIndex.restore(backup, indexFile)
         return recovered
     }
@@ -368,13 +396,14 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
 
     /** Mengambil entri [id] + blob-nya; memetakan kegagalan indeks/keberadaan blob. */
     private fun resolveEntryBlob(id: String): VaultResult<Pair<VaultEntry, File>> {
-        val entries = try {
-            readEntries()
-        } catch (e: VaultIndexFormatException) {
-            return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
-        } catch (e: IOException) {
-            return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
-        }
+        val entries =
+            try {
+                readEntries()
+            } catch (e: VaultIndexFormatException) {
+                return VaultResult.Err(VaultError.IndexCorrupt(causeText(e)))
+            } catch (e: IOException) {
+                return VaultResult.Err(VaultError.IoFailure("membaca indeks vault", causeText(e)))
+            }
         val entry = entries.firstOrNull { it.id == id } ?: return VaultResult.Err(VaultError.EntryNotFound(id))
         val blob = File(vaultDir, entry.storedFileName)
         if (!blob.isFile) return VaultResult.Err(VaultError.CorruptEntry(id, "blob hilang dari vault: ${entry.storedFileName}"))
@@ -385,7 +414,12 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
     }
 
     /** Dekripsi [entry] ke berkas sementara lalu rename atomik ke [finalTarget]. */
-    private fun decryptToTemporary(entry: VaultEntry, blob: File, finalTarget: File, operation: String): VaultResult<File> {
+    private fun decryptToTemporary(
+        entry: VaultEntry,
+        blob: File,
+        finalTarget: File,
+        operation: String,
+    ): VaultResult<File> {
         val tmp = temporaryFileFor(finalTarget)
         try {
             val count = FileOutputStream(tmp).use { out -> decryptStreaming(entry, blob, out) }
@@ -431,7 +465,11 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * ke [sink] dengan buffer [VaultFormat.STREAM_BUFFER_SIZE]; mengembalikan
      * jumlah byte payload yang tertulis (tanpa metadata).
      */
-    private fun decryptStreaming(entry: VaultEntry, blob: File, sink: OutputStream): Long {
+    private fun decryptStreaming(
+        entry: VaultEntry,
+        blob: File,
+        sink: OutputStream,
+    ): Long {
         DataInputStream(BufferedInputStream(FileInputStream(blob), VaultFormat.STREAM_BUFFER_SIZE)).use { input ->
             val header = readBlobHeader(input, blob.length())
             val aad = entry.id.toByteArray(Charsets.UTF_8)
@@ -468,7 +506,10 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * struktur dilempar sebagai [VaultBlobFormatException] agar dipetakan ke
      * [VaultError.CorruptEntry].
      */
-    private fun readBlobHeader(input: DataInputStream, blobSize: Long): BlobHeader {
+    private fun readBlobHeader(
+        input: DataInputStream,
+        blobSize: Long,
+    ): BlobHeader {
         if (blobSize < HEADER_SIZE_BYTES) {
             throw VaultBlobFormatException("berkas terpotong: $blobSize byte < header $HEADER_SIZE_BYTES byte")
         }
@@ -503,7 +544,10 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
     }
 
     /** Membaca satu string metadata u16-panjang dari plaintext (guard anti-OOM). */
-    private fun readMetaString(input: DataInputStream, field: String): String {
+    private fun readMetaString(
+        input: DataInputStream,
+        field: String,
+    ): String {
         val length = input.readUnsignedShort()
         if (length > VaultFormat.MAX_META_STRING_CHARS) {
             throw VaultBlobFormatException(
@@ -525,7 +569,14 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
      * lalu plaintext `[u16 nama | nama | u16 mime | mime | payload]` terenkripsi
      * GCM dengan AAD = id entri.
      */
-    private fun writeBlob(target: File, id: String, dek: ByteArray, wrapped: ByteArray, originalName: String, source: File) {
+    private fun writeBlob(
+        target: File,
+        id: String,
+        dek: ByteArray,
+        wrapped: ByteArray,
+        originalName: String,
+        source: File,
+    ) {
         val nonce = ByteArray(VaultFormat.CONTENT_NONCE_SIZE).also { secureRandom.nextBytes(it) }
         val nameBytes = originalName.toByteArray(Charsets.UTF_8)
         val mimeBytes = MIME_TYPE_V1.toByteArray(Charsets.UTF_8)
@@ -556,14 +607,18 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
         }
     }
 
-    private fun writeU16(out: OutputStream, value: Int) {
+    private fun writeU16(
+        out: OutputStream,
+        value: Int,
+    ) {
         out.write(value ushr 8 and 0xFF)
         out.write(value and 0xFF)
     }
 
-    private fun wrapMethodId(method: WrapMethod): Int = when (method) {
-        WrapMethod.KEYSTORE -> VaultFormat.WRAP_METHOD_KEYSTORE
-    }
+    private fun wrapMethodId(method: WrapMethod): Int =
+        when (method) {
+            WrapMethod.KEYSTORE -> VaultFormat.WRAP_METHOD_KEYSTORE
+        }
 
     /** Versi bernomor bebas pertama: "nama (1).ext", "nama (2).ext", dst. */
     private fun findNumberedVariant(target: File): File {
@@ -592,7 +647,10 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
     }
 
     /** Kompensasi impor: hapus blob hasil percobaan; best-effort, error utama dipertahankan. */
-    private fun discardBlob(blobTmp: File, blob: File) {
+    private fun discardBlob(
+        blobTmp: File,
+        blob: File,
+    ) {
         blobTmp.delete()
         blob.delete()
     }
@@ -609,12 +667,13 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
 
     private fun causeText(e: Exception): String = e.message?.takeIf { it.isNotBlank() } ?: e.javaClass.simpleName
 
-    private fun describe(error: VaultNameError): String = when (error) {
-        VaultNameError.BLANK -> "nama kosong atau hanya spasi"
-        VaultNameError.ILLEGAL_CHAR -> "memuat karakter terlarang '/', '\\', atau NUL"
-        VaultNameError.RESERVED -> "nama \".\" dan \"..\" terlarang"
-        VaultNameError.TOO_LONG -> "melebihi ${VaultNames.MAX_NAME_BYTES} byte UTF-8"
-    }
+    private fun describe(error: VaultNameError): String =
+        when (error) {
+            VaultNameError.BLANK -> "nama kosong atau hanya spasi"
+            VaultNameError.ILLEGAL_CHAR -> "memuat karakter terlarang '/', '\\', atau NUL"
+            VaultNameError.RESERVED -> "nama \".\" dan \"..\" terlarang"
+            VaultNameError.TOO_LONG -> "melebihi ${VaultNames.MAX_NAME_BYTES} byte UTF-8"
+        }
 
     private class BlobHeader(val contentNonce: ByteArray, val wrappedDek: ByteArray)
 
@@ -627,7 +686,11 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
             count++
         }
 
-        override fun write(b: ByteArray, off: Int, len: Int) {
+        override fun write(
+            b: ByteArray,
+            off: Int,
+            len: Int,
+        ) {
             count += len
         }
     }

@@ -107,14 +107,18 @@ class VaultController(
      * INVALID_INPUT dan membiarkan state apa adanya. [deleteSource] diteruskan ke
      * engine untuk menghapus berkas asli setelah terenkripsi.
      */
-    fun importFrom(rawPath: String, deleteSource: Boolean) {
+    fun importFrom(
+        rawPath: String,
+        deleteSource: Boolean,
+    ) {
         val trimmedPath = rawPath.trim()
         if (trimmedPath.isEmpty()) {
-            _messages.value = VaultUiMessage(
-                success = null,
-                error = VaultUiError(kind = VaultErrorKind.INVALID_INPUT, detail = BLANK_PATH_DETAIL),
-                detailArg = null,
-            )
+            _messages.value =
+                VaultUiMessage(
+                    success = null,
+                    error = VaultUiError(kind = VaultErrorKind.INVALID_INPUT, detail = BLANK_PATH_DETAIL),
+                    detailArg = null,
+                )
             return
         }
         if (!beginOp(VaultBusyOp.IMPORT)) return
@@ -138,7 +142,10 @@ class VaultController(
      * Mengekspor entri [id] ke [destDir] dengan strategi konflik RENAME; pesan
      * sukses berisi path berkas hasil ekspor.
      */
-    fun exportTo(id: String, destDir: File) {
+    fun exportTo(
+        id: String,
+        destDir: File,
+    ) {
         if (!beginOp(VaultBusyOp.EXPORT)) return
         scope.launch(ioDispatcher) {
             try {
@@ -199,14 +206,18 @@ class VaultController(
      * [VaultNames.validate] dijalankan sebelum guard state dan tanpa menyentuh
      * engine: nama tidak valid mengirim pesan INVALID_INPUT ber-detail jenis galat.
      */
-    fun renameEntry(id: String, newName: String) {
+    fun renameEntry(
+        id: String,
+        newName: String,
+    ) {
         val nameError = VaultNames.validate(newName)
         if (nameError != null) {
-            _messages.value = VaultUiMessage(
-                success = null,
-                error = VaultUiError(kind = VaultErrorKind.INVALID_INPUT, detail = nameError.name),
-                detailArg = null,
-            )
+            _messages.value =
+                VaultUiMessage(
+                    success = null,
+                    error = VaultUiError(kind = VaultErrorKind.INVALID_INPUT, detail = nameError.name),
+                    detailArg = null,
+                )
             return
         }
         if (!beginOp(VaultBusyOp.RENAME)) return
@@ -231,7 +242,11 @@ class VaultController(
      * OPENED, lalu mengeksekusi [onReady] dengan berkas hasil di Dispatchers.Main
      * (bukan di thread I/O) agar pemanggil boleh menyentuh API UI.
      */
-    fun openEntry(id: String, cacheDir: File, onReady: (File) -> Unit) {
+    fun openEntry(
+        id: String,
+        cacheDir: File,
+        onReady: (File) -> Unit,
+    ) {
         if (!beginOp(VaultBusyOp.OPEN)) return
         scope.launch(ioDispatcher) {
             try {
@@ -280,7 +295,10 @@ class VaultController(
         }
     }
 
-    private fun emitSuccess(success: VaultSuccess, detailArg: String?) {
+    private fun emitSuccess(
+        success: VaultSuccess,
+        detailArg: String?,
+    ) {
         _messages.value = VaultUiMessage(success = success, error = null, detailArg = detailArg)
     }
 
@@ -292,7 +310,10 @@ class VaultController(
      * Membungkus pemanggilan engine: hasil Err diteruskan apa adanya, pengecualian
      * tak terduga dikonversi menjadi galat IO ber-detail informatif (bukan ditelan).
      */
-    private fun <T> runEngine(operation: String, block: () -> VaultResult<T>): VaultResult<T> =
+    private fun <T> runEngine(
+        operation: String,
+        block: () -> VaultResult<T>,
+    ): VaultResult<T> =
         try {
             block()
         } catch (t: Throwable) {
@@ -300,29 +321,36 @@ class VaultController(
         }
 
     /** Detail informatif untuk kegagalan tak terduga, tanpa materi rahasia. */
-    private fun unexpectedDetail(operation: String, t: Throwable): String =
-        "operasi $operation gagal tak terduga: ${t.message ?: NO_MESSAGE_DETAIL}"
+    private fun unexpectedDetail(
+        operation: String,
+        t: Throwable,
+    ): String = "operasi $operation gagal tak terduga: ${t.message ?: NO_MESSAGE_DETAIL}"
 
-    private fun unexpectedFailure(operation: String, t: Throwable): VaultUiMessage = VaultUiMessage(
-        success = null,
-        error = VaultUiError(kind = VaultErrorKind.IO, detail = unexpectedDetail(operation, t)),
-        detailArg = null,
-    )
+    private fun unexpectedFailure(
+        operation: String,
+        t: Throwable,
+    ): VaultUiMessage =
+        VaultUiMessage(
+            success = null,
+            error = VaultUiError(kind = VaultErrorKind.IO, detail = unexpectedDetail(operation, t)),
+            detailArg = null,
+        )
 
     /**
      * Pemetaan ekshaustif [VaultError] -> [VaultUiError]. Detail memakai pesan asli
      * engine; untuk IoFailure field `cause` sudah memuat kalimat informatif dari
      * engine atau dari [runEngine].
      */
-    private fun VaultError.toUiError(): VaultUiError = when (this) {
-        is VaultError.InvalidInput -> VaultUiError(kind = VaultErrorKind.INVALID_INPUT, detail = reason)
-        is VaultError.SourceMissing -> VaultUiError(kind = VaultErrorKind.SOURCE_MISSING, detail = path)
-        is VaultError.EntryNotFound -> VaultUiError(kind = VaultErrorKind.ENTRY_NOT_FOUND, detail = id)
-        is VaultError.CorruptEntry -> VaultUiError(kind = VaultErrorKind.CORRUPT, detail = detail)
-        is VaultError.IndexCorrupt -> VaultUiError(kind = VaultErrorKind.INDEX_CORRUPT, detail = detail)
-        is VaultError.IoFailure -> VaultUiError(kind = VaultErrorKind.IO, detail = cause)
-        is VaultError.KeyUnavailable -> VaultUiError(kind = VaultErrorKind.KEY, detail = detail)
-    }
+    private fun VaultError.toUiError(): VaultUiError =
+        when (this) {
+            is VaultError.InvalidInput -> VaultUiError(kind = VaultErrorKind.INVALID_INPUT, detail = reason)
+            is VaultError.SourceMissing -> VaultUiError(kind = VaultErrorKind.SOURCE_MISSING, detail = path)
+            is VaultError.EntryNotFound -> VaultUiError(kind = VaultErrorKind.ENTRY_NOT_FOUND, detail = id)
+            is VaultError.CorruptEntry -> VaultUiError(kind = VaultErrorKind.CORRUPT, detail = detail)
+            is VaultError.IndexCorrupt -> VaultUiError(kind = VaultErrorKind.INDEX_CORRUPT, detail = detail)
+            is VaultError.IoFailure -> VaultUiError(kind = VaultErrorKind.IO, detail = cause)
+            is VaultError.KeyUnavailable -> VaultUiError(kind = VaultErrorKind.KEY, detail = detail)
+        }
 
     private companion object {
         const val OP_LOAD_LIST = "muat daftar"

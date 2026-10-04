@@ -38,10 +38,11 @@ class VaultIndexTest {
 
     @Test
     fun `tulis lalu baca kembali menghasilkan entri identik`() {
-        val entries = listOf(
-            entry("a1b2c3d4", "laporan-ñ.txt", addedAt = 1_700_000_000_000),
-            entry("e5f6a7b8", "foto liburan.png", addedAt = 1_700_000_000_001),
-        )
+        val entries =
+            listOf(
+                entry("a1b2c3d4", "laporan-ñ.txt", addedAt = 1_700_000_000_000),
+                entry("e5f6a7b8", "foto liburan.png", addedAt = 1_700_000_000_001),
+            )
         val indexFile = File(tmp.root, VaultIndex.INDEX_FILE_NAME)
 
         VaultIndex.writeAtomic(indexFile, entries)
@@ -53,10 +54,11 @@ class VaultIndexTest {
 
     @Test
     fun `string kosong pada metadata tetap valid`() {
-        val entries = listOf(
-            entry("kosong1", "nama.txt", originalPath = "", mimeType = ""),
-            entry("kosong2", "", addedAt = 1_700_000_000_002),
-        )
+        val entries =
+            listOf(
+                entry("kosong1", "nama.txt", originalPath = "", mimeType = ""),
+                entry("kosong2", "", addedAt = 1_700_000_000_002),
+            )
         val indexFile = File(tmp.root, VaultIndex.INDEX_FILE_NAME)
 
         VaultIndex.writeAtomic(indexFile, entries)
@@ -112,7 +114,10 @@ class VaultIndexTest {
     }
 
     /** Memastikan [VaultIndex.read] gagal dengan alasan yang menyebut [detail]. */
-    private fun expectFormatError(indexFile: File, detail: String) {
+    private fun expectFormatError(
+        indexFile: File,
+        detail: String,
+    ) {
         try {
             VaultIndex.read(indexFile)
             throw AssertionError("read seharusnya gagal untuk ${indexFile.path}")
@@ -131,14 +136,15 @@ class VaultIndexTest {
         addedAt: Long = 1_700_000_000_000,
         originalPath: String = "/sumber/$name",
         mimeType: String = "application/octet-stream",
-    ): VaultEntry = VaultEntry(
-        id = id,
-        storedFileName = "$id.hve",
-        originalName = name,
-        originalPath = originalPath,
-        mimeType = mimeType,
-        sizeBytes = 42L,
-        addedAtEpochMs = addedAt,
-        wrapMethod = WrapMethod.KEYSTORE,
-    )
+    ): VaultEntry =
+        VaultEntry(
+            id = id,
+            storedFileName = "$id.hve",
+            originalName = name,
+            originalPath = originalPath,
+            mimeType = mimeType,
+            sizeBytes = 42L,
+            addedAtEpochMs = addedAt,
+            wrapMethod = WrapMethod.KEYSTORE,
+        )
 }

@@ -111,11 +111,12 @@ fun VaultScreen(
 
     LaunchedEffect(message) {
         val current = message ?: return@LaunchedEffect
-        val text = when {
-            current.success != null -> successText(context, current, current.success)
-            current.error != null -> errorText(context, current.error)
-            else -> null
-        }
+        val text =
+            when {
+                current.success != null -> successText(context, current, current.success)
+                current.error != null -> errorText(context, current.error)
+                else -> null
+            }
         if (text != null) {
             Toast.makeText(context, text, Toast.LENGTH_LONG).show()
         }
@@ -428,59 +429,72 @@ private fun FailedPane(
 }
 
 /** Teks toast sukses; pesan ber-argumen memakai [VaultUiMessage.detailArg]. */
-private fun successText(context: Context, message: VaultUiMessage, success: VaultSuccess): String {
+private fun successText(
+    context: Context,
+    message: VaultUiMessage,
+    success: VaultSuccess,
+): String {
     val resId = successRes(success)
     return when (success) {
         VaultSuccess.IMPORTED,
         VaultSuccess.EXPORTED,
         VaultSuccess.DELETED,
-        VaultSuccess.RENAMED -> context.getString(resId, message.detailArg ?: "")
+        VaultSuccess.RENAMED,
+        -> context.getString(resId, message.detailArg ?: "")
         VaultSuccess.VERIFIED,
-        VaultSuccess.OPENED -> context.getString(resId)
+        VaultSuccess.OPENED,
+        -> context.getString(resId)
     }
 }
 
 /** Teks toast galat: label jenis galat + detail asli bila ada. */
-private fun errorText(context: Context, error: VaultUiError): String {
+private fun errorText(
+    context: Context,
+    error: VaultUiError,
+): String {
     val base = context.getString(errorRes(error.kind))
     return if (error.detail.isBlank()) base else "$base: ${error.detail}"
 }
 
 /** Pemetaan ekshaustif jenis sukses ke string `vault_done_*`. */
-private fun successRes(success: VaultSuccess): Int = when (success) {
-    VaultSuccess.IMPORTED -> R.string.vault_done_import
-    VaultSuccess.EXPORTED -> R.string.vault_done_export
-    VaultSuccess.DELETED -> R.string.vault_done_delete
-    VaultSuccess.RENAMED -> R.string.vault_done_rename
-    VaultSuccess.VERIFIED -> R.string.vault_done_verify
-    VaultSuccess.OPENED -> R.string.vault_done_open
-}
+private fun successRes(success: VaultSuccess): Int =
+    when (success) {
+        VaultSuccess.IMPORTED -> R.string.vault_done_import
+        VaultSuccess.EXPORTED -> R.string.vault_done_export
+        VaultSuccess.DELETED -> R.string.vault_done_delete
+        VaultSuccess.RENAMED -> R.string.vault_done_rename
+        VaultSuccess.VERIFIED -> R.string.vault_done_verify
+        VaultSuccess.OPENED -> R.string.vault_done_open
+    }
 
 /** Pemetaan ekshaustif jenis galat ke string `vault_error_*`. */
-private fun errorRes(kind: VaultErrorKind): Int = when (kind) {
-    VaultErrorKind.INVALID_INPUT -> R.string.vault_error_invalid_input
-    VaultErrorKind.SOURCE_MISSING -> R.string.vault_error_source_missing
-    VaultErrorKind.ENTRY_NOT_FOUND -> R.string.vault_error_entry_not_found
-    VaultErrorKind.CORRUPT -> R.string.vault_error_corrupt
-    VaultErrorKind.INDEX_CORRUPT -> R.string.vault_error_index_corrupt
-    VaultErrorKind.IO -> R.string.vault_error_io
-    VaultErrorKind.KEY -> R.string.vault_error_key
-}
+private fun errorRes(kind: VaultErrorKind): Int =
+    when (kind) {
+        VaultErrorKind.INVALID_INPUT -> R.string.vault_error_invalid_input
+        VaultErrorKind.SOURCE_MISSING -> R.string.vault_error_source_missing
+        VaultErrorKind.ENTRY_NOT_FOUND -> R.string.vault_error_entry_not_found
+        VaultErrorKind.CORRUPT -> R.string.vault_error_corrupt
+        VaultErrorKind.INDEX_CORRUPT -> R.string.vault_error_index_corrupt
+        VaultErrorKind.IO -> R.string.vault_error_io
+        VaultErrorKind.KEY -> R.string.vault_error_key
+    }
 
 /** Pemetaan ekshaustif operasi sibuk ke string `vault_busy_*`. */
-private fun busyRes(op: VaultBusyOp): Int = when (op) {
-    VaultBusyOp.IMPORT -> R.string.vault_busy_import
-    VaultBusyOp.EXPORT -> R.string.vault_busy_export
-    VaultBusyOp.DELETE -> R.string.vault_busy_delete
-    VaultBusyOp.VERIFY -> R.string.vault_busy_verify
-    VaultBusyOp.RENAME -> R.string.vault_busy_rename
-    VaultBusyOp.OPEN -> R.string.vault_busy_open
-}
+private fun busyRes(op: VaultBusyOp): Int =
+    when (op) {
+        VaultBusyOp.IMPORT -> R.string.vault_busy_import
+        VaultBusyOp.EXPORT -> R.string.vault_busy_export
+        VaultBusyOp.DELETE -> R.string.vault_busy_delete
+        VaultBusyOp.VERIFY -> R.string.vault_busy_verify
+        VaultBusyOp.RENAME -> R.string.vault_busy_rename
+        VaultBusyOp.OPEN -> R.string.vault_busy_open
+    }
 
 /** Pemetaan ekshaustif galat penamaan ke string `vault_name_err_*`. */
-private fun nameErrorRes(error: VaultNameError): Int = when (error) {
-    VaultNameError.BLANK -> R.string.vault_name_err_blank
-    VaultNameError.ILLEGAL_CHAR -> R.string.vault_name_err_illegal_char
-    VaultNameError.RESERVED -> R.string.vault_name_err_reserved
-    VaultNameError.TOO_LONG -> R.string.vault_name_err_too_long
-}
+private fun nameErrorRes(error: VaultNameError): Int =
+    when (error) {
+        VaultNameError.BLANK -> R.string.vault_name_err_blank
+        VaultNameError.ILLEGAL_CHAR -> R.string.vault_name_err_illegal_char
+        VaultNameError.RESERVED -> R.string.vault_name_err_reserved
+        VaultNameError.TOO_LONG -> R.string.vault_name_err_too_long
+    }

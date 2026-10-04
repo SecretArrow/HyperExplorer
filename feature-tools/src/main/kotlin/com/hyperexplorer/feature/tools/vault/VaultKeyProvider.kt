@@ -42,7 +42,10 @@ fun interface VaultKeyProvider {
      * @throws GeneralSecurityException bila pembungkusan gagal (kunci tidak
      * tersedia, algoritma tidak didukung, atau verifikasi tag gagal).
      */
-    fun wrapDek(dek: ByteArray, aad: ByteArray): ByteArray
+    fun wrapDek(
+        dek: ByteArray,
+        aad: ByteArray,
+    ): ByteArray
 
     /**
      * Membuka [wrapped] DEK yang dibungkus dengan AAD [aad].
@@ -50,7 +53,10 @@ fun interface VaultKeyProvider {
      * @throws GeneralSecurityException bila tag atau AAD tidak cocok (termasuk
      * [javax.crypto.AEADBadTagException]) sehingga DEK tidak dapat dipulihkan.
      */
-    fun unwrapDek(wrapped: ByteArray, aad: ByteArray): ByteArray
+    fun unwrapDek(
+        wrapped: ByteArray,
+        aad: ByteArray,
+    ): ByteArray
 }
 
 /**
@@ -67,7 +73,10 @@ class SoftwareKeyProvider(private val secret: ByteArray) : VaultKeyProvider {
 
     private val secureRandom = SecureRandom()
 
-    override fun wrapDek(dek: ByteArray, aad: ByteArray): ByteArray {
+    override fun wrapDek(
+        dek: ByteArray,
+        aad: ByteArray,
+    ): ByteArray {
         val nonce = ByteArray(VaultFormat.WRAP_NONCE_SIZE).also { secureRandom.nextBytes(it) }
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(secret, KEY_ALGORITHM), GCMParameterSpec(VaultFormat.GCM_TAG_BITS, nonce))
@@ -76,7 +85,10 @@ class SoftwareKeyProvider(private val secret: ByteArray) : VaultKeyProvider {
         return nonce + encrypted
     }
 
-    override fun unwrapDek(wrapped: ByteArray, aad: ByteArray): ByteArray {
+    override fun unwrapDek(
+        wrapped: ByteArray,
+        aad: ByteArray,
+    ): ByteArray {
         val minimumSize = VaultFormat.WRAP_NONCE_SIZE + VaultFormat.GCM_TAG_BITS / 8
         if (wrapped.size < minimumSize) {
             throw GeneralSecurityException(

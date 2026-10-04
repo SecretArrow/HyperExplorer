@@ -20,7 +20,6 @@
 package com.hyperexplorer.feature.tools.vault
 
 import com.hyperexplorer.core.common.ConflictStrategy
-import kotlin.random.Random
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -31,6 +30,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import kotlin.random.Random
 
 /**
  * Uji [VaultEngine] murni JVM dengan [SoftwareKeyProvider]: roundtrip impor-ekspor
@@ -60,10 +60,11 @@ class VaultEngineTest {
         val content = Random(42).nextBytes(50_000)
 
         val outcome = importEntry("rahasia.bin", content, deleteSource = false)
-        val exported = valueOf(
-            engine.exportEntry(outcome.entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
-            "ekspor roundtrip",
-        )
+        val exported =
+            valueOf(
+                engine.exportEntry(outcome.entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
+                "ekspor roundtrip",
+            )
 
         assertFalse("sumber tidak boleh dihapus", outcome.sourceDeleted)
         assertArrayEquals("isi ekspor harus identik byte-per-byte", content, exported.readBytes())
@@ -104,10 +105,11 @@ class VaultEngineTest {
     @Test
     fun `berkas nol byte dapat diimpor dan diekspor utuh`() {
         val outcome = importEntry("kosong.bin", ByteArray(0))
-        val exported = valueOf(
-            engine.exportEntry(outcome.entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
-            "ekspor berkas kosong",
-        )
+        val exported =
+            valueOf(
+                engine.exportEntry(outcome.entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
+                "ekspor berkas kosong",
+            )
 
         assertEquals(0L, outcome.entry.sizeBytes)
         assertEquals(0, exported.length())
@@ -204,10 +206,11 @@ class VaultEngineTest {
         val content = Random(42).nextBytes(2_000_000)
 
         val outcome = importEntry("besar.bin", content)
-        val exported = valueOf(
-            engine.exportEntry(outcome.entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
-            "ekspor 2MB",
-        )
+        val exported =
+            valueOf(
+                engine.exportEntry(outcome.entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
+                "ekspor 2MB",
+            )
 
         assertEquals("ukuran plaintext harus tercatat tepat", 2_000_000L, outcome.entry.sizeBytes)
         assertArrayEquals("roundtrip 2MB harus identik (buffer 8KB dipakai berulang)", content, exported.readBytes())
@@ -219,10 +222,11 @@ class VaultEngineTest {
     fun `ekspor sukses mempertahankan nama asli berkas`() {
         val entry = importEntry("laporan keuangan.txt", "angka".toByteArray()).entry
 
-        val exported = valueOf(
-            engine.exportEntry(entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
-            "ekspor sukses",
-        )
+        val exported =
+            valueOf(
+                engine.exportEntry(entry.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
+                "ekspor sukses",
+            )
 
         assertEquals("nama asli harus dipertahankan", entry.originalName, exported.name)
         assertEquals("angka", exported.readText())
@@ -277,9 +281,10 @@ class VaultEngineTest {
         val entry = importEntry("catatan.txt", "isi".toByteArray()).entry
         val destDir = tmp.newFolder("ekspor")
 
-        val names = (1..3).map { run ->
-            valueOf(engine.exportEntry(entry.id, destDir, ConflictStrategy.RENAME), "ekspor ke-$run").name
-        }
+        val names =
+            (1..3).map { run ->
+                valueOf(engine.exportEntry(entry.id, destDir, ConflictStrategy.RENAME), "ekspor ke-$run").name
+            }
 
         assertEquals(listOf("catatan.txt", "catatan (1).txt", "catatan (2).txt"), names)
     }
@@ -458,10 +463,11 @@ class VaultEngineTest {
         val freshEngine = VaultEngine(vaultDir, SoftwareKeyProvider(ByteArray(32) { it.toByte() }))
 
         val entries = valueOf(freshEngine.listEntries(), "listEntries engine baru")
-        val exported = valueOf(
-            freshEngine.exportEntry(second.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
-            "ekspor engine baru",
-        )
+        val exported =
+            valueOf(
+                freshEngine.exportEntry(second.id, tmp.newFolder("ekspor"), ConflictStrategy.RENAME),
+                "ekspor engine baru",
+            )
 
         assertEquals("kedua entri harus terbaca lintas instance", setOf(first.id, second.id), entries.map { it.id }.toSet())
         assertArrayEquals("engine baru harus dapat mendekripsi", "dua".toByteArray(), exported.readBytes())
@@ -496,10 +502,11 @@ class VaultEngineTest {
         val listError = errorOf(engine.listEntries(), "listEntries indeks rusak total")
         assertTrue("harus IndexCorrupt, aktual: $listError", listError is VaultError.IndexCorrupt)
 
-        val importError = errorOf(
-            engine.importFile(File(sourceDir, "ketiga.txt").apply { writeText("3") }, deleteSource = false),
-            "impor saat indeks rusak",
-        )
+        val importError =
+            errorOf(
+                engine.importFile(File(sourceDir, "ketiga.txt").apply { writeText("3") }, deleteSource = false),
+                "impor saat indeks rusak",
+            )
         assertTrue("impor harus fail-closed, aktual: $importError", importError is VaultError.IndexCorrupt)
 
         assertArrayEquals("blob pertama tidak boleh disentuh", blob1, blobOf(first).readBytes())
@@ -519,18 +526,26 @@ class VaultEngineTest {
     }
 
     /** Membuat berkas sumber bernama [name] berisi [content] lalu mengimpornya. */
-    private fun importEntry(name: String, content: ByteArray, deleteSource: Boolean = false): ImportOutcome {
+    private fun importEntry(
+        name: String,
+        content: ByteArray,
+        deleteSource: Boolean = false,
+    ): ImportOutcome {
         val source = File(sourceDir, name).apply { writeBytes(content) }
         return valueOf(engine.importFile(source, deleteSource), "impor $name")
     }
 
     /** Mengambil nilai [VaultResult.Ok] atau menggagalkan uji bila hasilnya Err. */
-    private fun <T> valueOf(result: VaultResult<T>, context: String): T =
-        (result as? VaultResult.Ok)?.value ?: throw AssertionError("$context seharusnya sukses, aktual: $result")
+    private fun <T> valueOf(
+        result: VaultResult<T>,
+        context: String,
+    ): T = (result as? VaultResult.Ok)?.value ?: throw AssertionError("$context seharusnya sukses, aktual: $result")
 
     /** Mengambil [VaultError] dari [VaultResult.Err] atau menggagalkan uji bila hasilnya Ok. */
-    private fun errorOf(result: VaultResult<*>, context: String): VaultError =
-        (result as? VaultResult.Err)?.error ?: throw AssertionError("$context seharusnya gagal, aktual: $result")
+    private fun errorOf(
+        result: VaultResult<*>,
+        context: String,
+    ): VaultError = (result as? VaultResult.Err)?.error ?: throw AssertionError("$context seharusnya gagal, aktual: $result")
 
     /** Daftar entri saat ini; gagalkan uji bila listEntries gagal. */
     private fun entriesNow(): List<VaultEntry> = valueOf(engine.listEntries(), "listEntries")
@@ -545,14 +560,16 @@ class VaultEngineTest {
     private fun blobOf(entry: VaultEntry): File = File(vaultDir, entry.storedFileName)
 
     /** Menulis ulang blob milik [entry] dengan byte hasil [transform]. */
-    private fun mutateBlob(entry: VaultEntry, transform: (ByteArray) -> ByteArray) {
+    private fun mutateBlob(
+        entry: VaultEntry,
+        transform: (ByteArray) -> ByteArray,
+    ) {
         val blob = blobOf(entry)
         blob.writeBytes(transform(blob.readBytes()))
     }
 
     /** Panjang wrapped DEK di header blob: u16 big-endian pada offset 18..19. */
-    private fun wrappedDekLength(bytes: ByteArray): Int =
-        ((bytes[18].toInt() and 0xFF) shl 8) or (bytes[19].toInt() and 0xFF)
+    private fun wrappedDekLength(bytes: ByteArray): Int = ((bytes[18].toInt() and 0xFF) shl 8) or (bytes[19].toInt() and 0xFF)
 
     /** Menegaskan [name] valid menurut [VaultNames] (bantuan kasus 255 byte). */
     private fun assertNullValidate(name: String) {

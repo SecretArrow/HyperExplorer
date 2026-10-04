@@ -40,43 +40,46 @@ import javax.crypto.spec.GCMParameterSpec
  * dalam keystore, sehingga format blob tetap standar dan portabel.
  */
 class AndroidKeystoreKeyProvider(private val alias: String = "hyper_vault_kek") : VaultKeyProvider {
-
     /**
      * Mengambil kunci AES-256 GCM dari AndroidKeyStore, atau membuatnya bila belum ada.
      *
      * @throws GeneralSecurityException bila keystore tidak dapat dibaca/dibuat atau
      * entri dengan [alias] ternyata bukan kunci AES.
      */
-    private fun obtainKey(): SecretKey = try {
-        val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
-        keyStore.load(null)
-        val existing = keyStore.getEntry(alias, null)
-        if (existing is KeyStore.SecretKeyEntry) {
-            val key = existing.secretKey
-            if (key.algorithm != KeyProperties.KEY_ALGORITHM_AES) {
-                throw GeneralSecurityException(
-                    "entri '$alias' di AndroidKeyStore bukan kunci AES (algoritma: ${key.algorithm})",
+    private fun obtainKey(): SecretKey =
+        try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+            val existing = keyStore.getEntry(alias, null)
+            if (existing is KeyStore.SecretKeyEntry) {
+                val key = existing.secretKey
+                if (key.algorithm != KeyProperties.KEY_ALGORITHM_AES) {
+                    throw GeneralSecurityException(
+                        "entri '$alias' di AndroidKeyStore bukan kunci AES (algoritma: ${key.algorithm})",
+                    )
+                }
+                key
+            } else {
+                val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER)
+                generator.init(
+                    KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                        .setKeySize(KEY_SIZE_BITS)
+                        .build(),
                 )
+                generator.generateKey()
             }
-            key
-        } else {
-            val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER)
-            generator.init(
-                KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setKeySize(KEY_SIZE_BITS)
-                    .build(),
-            )
-            generator.generateKey()
+        } catch (e: IOException) {
+            throw GeneralSecurityException("AndroidKeyStore tidak dapat dibaca: ${e.message ?: e.javaClass.simpleName}", e)
+        } catch (e: KeyStoreException) {
+            throw GeneralSecurityException("AndroidKeyStore tidak dapat diakses: ${e.message ?: e.javaClass.simpleName}", e)
         }
-    } catch (e: IOException) {
-        throw GeneralSecurityException("AndroidKeyStore tidak dapat dibaca: ${e.message ?: e.javaClass.simpleName}", e)
-    } catch (e: KeyStoreException) {
-        throw GeneralSecurityException("AndroidKeyStore tidak dapat diakses: ${e.message ?: e.javaClass.simpleName}", e)
-    }
 
-    override fun wrapDek(dek: ByteArray, aad: ByteArray): ByteArray {
+    override fun wrapDek(
+        dek: ByteArray,
+        aad: ByteArray,
+    ): ByteArray {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         // Tanpa IV eksplisit: AndroidKeyStore menghasilkan cipher.iv 12 byte sendiri.
         cipher.init(Cipher.ENCRYPT_MODE, obtainKey())
@@ -85,7 +88,10 @@ class AndroidKeystoreKeyProvider(private val alias: String = "hyper_vault_kek") 
         return cipher.iv + encrypted
     }
 
-    override fun unwrapDek(wrapped: ByteArray, aad: ByteArray): ByteArray {
+    override fun unwrapDek(
+        wrapped: ByteArray,
+        aad: ByteArray,
+    ): ByteArray {
         val minimumSize = VaultFormat.WRAP_NONCE_SIZE + VaultFormat.GCM_TAG_BITS / 8
         if (wrapped.size < minimumSize) {
             throw GeneralSecurityException(

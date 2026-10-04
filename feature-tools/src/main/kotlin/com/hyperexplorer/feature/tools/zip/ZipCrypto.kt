@@ -111,7 +111,9 @@ class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
                 val parameters =
                     ZipParameters().apply {
                         compressionMethod = CompressionMethod.DEFLATE
-                        encryptFiles = true
+                        // Setter eksplisit: getter Java "isEncryptFiles()" menghasilkan properti
+                        // Kotlin bernama "isEncryptFiles" (bukan "encryptFiles").
+                        setEncryptFiles(true)
                         encryptionMethod = EncryptionMethod.AES
                         aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
                         isIncludeRootFolder = true // entri direktori induk ikut tercatat di arsip

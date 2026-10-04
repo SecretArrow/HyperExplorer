@@ -173,7 +173,9 @@ class NextcloudLoginFlowTest {
         }
 
     @Test
-    fun `awaitCredentials rejects non positive timeout and too small interval`() =
+    fun `awaitCredentials rejects non positive timeout and too small interval`() {
+        // Badan blok (bukan ekspresi): assertThrows mengembalikan nilai — method JUnit
+        // wajib bertipe void agar kelas tidak ditolak (InvalidTestClassError).
         runBlocking {
             val flow = flow()
             assertThrows(IllegalArgumentException::class.java) {
@@ -183,6 +185,7 @@ class NextcloudLoginFlowTest {
                 runBlocking { flow.awaitCredentials(start(), timeoutMs = 1_000L, intervalMs = 50L) }
             }
         }
+    }
 
     @Test
     fun `server url without scheme gets https prefix and trailing slash removed`() {

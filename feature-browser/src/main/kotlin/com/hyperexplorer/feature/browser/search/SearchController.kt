@@ -19,7 +19,6 @@
 
 package com.hyperexplorer.feature.browser.search
 
-import kotlin.jvm.Volatile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.jvm.Volatile
 
 /**
  * Pengendali UI pencarian indeks: membangun indeks pada [root] via

@@ -48,7 +48,7 @@ fun windowWidthFor(widthDp: Int): WindowWidth =
  */
 data class BrowserLayoutSpec(
     val isGrid: Boolean,
-    val gridColumns: Int, // bermakna bila isGrid; selalu 1 bila list
+    val gridColumns: Int,
 )
 
 /**

@@ -100,6 +100,18 @@ class BrowserState(
         refresh()
     }
 
+    /**
+     * Navigasi langsung ke direktori [path] (dipakai hasil pencarian); diabaikan
+     * bila target tidak ada atau bukan direktori agar state browser tidak pernah
+     * menunjuk lokasi yang tidak valid.
+     */
+    fun openPath(path: String) {
+        val target = File(path)
+        if (!target.isDirectory) return
+        _ui.update { it.copy(current = target, selectionMode = false, selection = emptySet()) }
+        refresh()
+    }
+
     fun up() {
         val parent = _ui.value.current.parentFile ?: return
         _ui.update { it.copy(current = parent, selectionMode = false, selection = emptySet()) }

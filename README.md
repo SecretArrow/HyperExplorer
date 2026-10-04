@@ -52,7 +52,7 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:feature-sync` | Android lib | Sinkronisasi folder lokal↔remote satu arah (push/pull), WorkManager periodic, engine + worker + UI |
 | `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kunci aplikasi biometrik, kebijakan privasi |
 
-Modul berikutnya di roadmap: `:feature-sync` (sinkronisasi folder via WorkManager).
+Modul berikutnya di roadmap: dukungan TV/layar besar.
 
 ## Fitur Saat Ini (scaffold MVP)
 
@@ -74,6 +74,9 @@ Modul berikutnya di roadmap: `:feature-sync` (sinkronisasi folder via WorkManage
 - Biometric app lock (fingerprint/face/device credential) — lock on launch and on return
   from background; fail-closed with a documented escape hatch
 - ZIP extraction from the browser, including password-protected archives (AES-256)
+- Indexed file search — build a local index with scan budget (entries/depth/time), search by name
+  (case-insensitive substring), filter by category/size/date, tap a result to open the file or jump
+  to its folder in the browser; index persists atomically and self-heals when corrupted
 
 ## CI/CD (GitHub Actions)
 
@@ -120,8 +123,9 @@ Set secrets repo berikut agar APK/AAB ditandatangani; tanpa itu hasilnya unsigne
 
 Lihat `fileman.md` Bagian 9 (blueprint lengkap). Sudah tuntas: klien jaringan (SMB2/3, FTP, SFTP, WebDAV),
 vault terenkripsi AES-256 di Android Keystore, pemutar media, transfer PC dengan autentikasi wajib + auto-off,
-analisis penyimpanan, manajer aplikasi. Berikutnya: `:data-cloud` (Nextcloud/OAuth), sinkronisasi,
-dukungan TV/layar besar, serta distribusi **F-Droid** dengan build reproducible.
+analisis penyimpanan, manajer aplikasi, cloud FOSS Nextcloud (Login flow v2), sinkronisasi folder (WorkManager),
+kunci aplikasi biometrik, ekstraksi ZIP berpassword, dan pencarian berkas berbasis indeks.
+Berikutnya: dukungan TV/layar besar serta distribusi **F-Droid** dengan build reproducible.
 
 ## Keamanan & Kepatuhan
 

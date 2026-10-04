@@ -40,4 +40,31 @@
         <item quantity="one">%1$d dipilih</item>
         <item quantity="other">%1$d dipilih</item>
     </plurals>
+
+    <string name="search_title">Pencarian</string>
+    <string name="search_cd_back">Kembali</string>
+    <string name="search_cd_search">Cari</string>
+    <string name="search_cd_rebuild">Bangun ulang indeks</string>
+    <string name="search_query_hint">Nama berkas atau folder</string>
+    <string name="search_indexing">Membangun indeks…</string>
+    <string name="search_index_count">Indeks: %1$d entri</string>
+    <string name="search_index_skipped">Dilewati: %1$d</string>
+    <string name="search_index_truncated">Indeks tidak lengkap (batas tercapai)</string>
+    <string name="search_rebuild">Bangun ulang</string>
+    <string name="search_error_empty">Indeks kosong. Bangun indeks dulu.</string>
+    <string name="search_error_index">Gagal membangun indeks.</string>
+    <string name="search_error_load">Gagal memuat indeks tersimpan.</string>
+    <string name="search_retry">Coba lagi</string>
+    <string name="search_no_results">Tidak ada hasil</string>
+    <string name="search_results_summary">Ditemukan %1$d kecocokan</string>
+    <string name="search_results_truncated">Ditemukan %1$d kecocokan (menampilkan %2$d pertama)</string>
+    <string name="search_cat_folder">Folder</string>
+    <string name="search_cat_image">Gambar</string>
+    <string name="search_cat_video">Video</string>
+    <string name="search_cat_audio">Audio</string>
+    <string name="search_cat_document">Dokumen</string>
+    <string name="search_cat_archive">Arsip</string>
+    <string name="search_cat_apk">APK</string>
+    <string name="search_cat_other">Lainnya</string>
+    <string name="browser_cd_search">Cari</string>
 </resources>

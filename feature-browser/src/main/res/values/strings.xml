@@ -40,4 +40,31 @@
         <item quantity="one">%1$d selected</item>
         <item quantity="other">%1$d selected</item>
     </plurals>
+
+    <string name="search_title">Search</string>
+    <string name="search_cd_back">Back</string>
+    <string name="search_cd_search">Search</string>
+    <string name="search_cd_rebuild">Rebuild index</string>
+    <string name="search_query_hint">File or folder name</string>
+    <string name="search_indexing">Building index…</string>
+    <string name="search_index_count">Index: %1$d items</string>
+    <string name="search_index_skipped">Skipped: %1$d</string>
+    <string name="search_index_truncated">Index incomplete (limit reached)</string>
+    <string name="search_rebuild">Rebuild</string>
+    <string name="search_error_empty">Index is empty. Build the index first.</string>
+    <string name="search_error_index">Failed to build index.</string>
+    <string name="search_error_load">Failed to load saved index.</string>
+    <string name="search_retry">Retry</string>
+    <string name="search_no_results">No results</string>
+    <string name="search_results_summary">Found %1$d matches</string>
+    <string name="search_results_truncated">Found %1$d matches (showing first %2$d)</string>
+    <string name="search_cat_folder">Folders</string>
+    <string name="search_cat_image">Images</string>
+    <string name="search_cat_video">Videos</string>
+    <string name="search_cat_audio">Audio</string>
+    <string name="search_cat_document">Documents</string>
+    <string name="search_cat_archive">Archives</string>
+    <string name="search_cat_apk">APKs</string>
+    <string name="search_cat_other">Other</string>
+    <string name="browser_cd_search">Search</string>
 </resources>

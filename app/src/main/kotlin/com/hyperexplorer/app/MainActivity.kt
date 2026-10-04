@@ -78,6 +78,8 @@ import com.hyperexplorer.feature.apps.AppsState
 import com.hyperexplorer.feature.apps.ui.AppsScreen
 import com.hyperexplorer.feature.browser.BrowserScreen
 import com.hyperexplorer.feature.browser.BrowserState
+import com.hyperexplorer.feature.browser.search.IndexedEntry
+import com.hyperexplorer.feature.browser.search.SearchScreen
 import com.hyperexplorer.feature.media.player.MediaPlayerScreen
 import com.hyperexplorer.feature.media.ui.ImageViewerScreen
 import com.hyperexplorer.feature.media.ui.TextEditorScreen
@@ -138,6 +140,7 @@ class MainActivity : AppCompatActivity() {
     private var zipDialogVisible by mutableStateOf(false)
     private var pendingZipPassword by mutableStateOf<CharArray?>(null)
     private var extractTarget by mutableStateOf<File?>(null)
+    private var searchOpen by mutableStateOf(false)
     private var appLockEnabled by mutableStateOf(false)
     private var needsLock by mutableStateOf(false)
 
@@ -228,6 +231,16 @@ class MainActivity : AppCompatActivity() {
             )
             return
         }
+        // Layar pencarian penuh: menutupi seluruh scaffold, kembali ke tab asal saat ditutup.
+        if (searchOpen) {
+            SearchScreen(
+                root = storageRoot(),
+                indexFile = File(filesDir, "search-index.bin"),
+                onOpen = { entry -> openSearchResult(entry) },
+                onClose = { searchOpen = false },
+            )
+            return
+        }
         val route = viewer
         when (route) {
             is ViewerRoute.Image -> ImageViewerScreen(path = route.path, onClose = { viewer = null })
@@ -296,6 +309,7 @@ class MainActivity : AppCompatActivity() {
                             onRequestStorageAccess = { requestStorageAccess() },
                             onOpenFile = { openFile(it) },
                             onZip = { zipDialogVisible = true },
+                            onSearch = { searchOpen = true },
                         )
                     Screen.APPS -> AppsScreen(state = appsState)
                     Screen.STORAGE -> StorageHub()
@@ -455,6 +469,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun openWith(node: FileNode) {
         openWithFile(File(node.path), node.name)
+    }
+
+    /**
+     * Buka hasil pencarian: folder -> navigasi browser ke lokasinya; berkas -> pembuka
+     * berkas biasa. Bila target sudah tidak ada (indeks basi), tampilkan toast dan biarkan
+     * layar pencarian tetap terbuka agar pengguna tidak kehilangan konteks hasil.
+     */
+    private fun openSearchResult(entry: IndexedEntry) {
+        val target = File(entry.path)
+        if (!target.exists()) {
+            Toast.makeText(this, getString(R.string.app_search_result_missing), Toast.LENGTH_SHORT).show()
+            return
+        }
+        searchOpen = false
+        if (target.isDirectory) {
+            browserState.openPath(entry.path)
+            screen = Screen.BROWSER
+        } else {
+            openFile(FileNode.from(target))
+        }
     }
 
     /** Buka berkas hasil dekripsi vault dengan penampil internal atau aplikasi eksternal. */

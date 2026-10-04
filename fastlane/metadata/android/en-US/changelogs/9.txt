@@ -1,0 +1,1 @@
+New: file search with index - search by name, filter by category, size, and date (Files tab, magnifier icon).

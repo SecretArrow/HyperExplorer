@@ -49,4 +49,5 @@
     <string name="app_extract_wrong_password">Wrong password or unsafe archive entry</string>
     <string name="app_extract_target_exists">Destination folder already exists: %1$s</string>
     <string name="app_default_archive_name">archive</string>
+    <string name="app_search_result_missing">File no longer exists</string>
 </resources>

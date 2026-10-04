@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -72,6 +73,7 @@ fun BrowserScreen(
     onRequestStorageAccess: () -> Unit,
     onOpenFile: (FileNode) -> Unit,
     onZip: (() -> Unit)? = null,
+    onSearch: (() -> Unit)? = null,
 ) {
     val ui by state.ui.collectAsState()
     val clipboard by state.clipboard.collectAsState()
@@ -103,6 +105,11 @@ fun BrowserScreen(
                     }
                     IconButton(onClick = { showNewFolderDialog = true }) {
                         Icon(Icons.Filled.Create, contentDescription = stringResource(R.string.browser_new_folder))
+                    }
+                    if (onSearch != null) {
+                        IconButton(onClick = onSearch) {
+                            Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.browser_cd_search))
+                        }
                     }
                     IconButton(onClick = { state.refresh() }) {
                         Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.browser_cd_refresh))

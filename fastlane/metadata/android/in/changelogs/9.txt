@@ -1,0 +1,1 @@
+Baru: pencarian berkas dengan indeks - cari nama, filter kategori, ukuran, dan tanggal (tab Berkas, ikon kaca pembesar).

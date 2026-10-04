@@ -38,19 +38,10 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 900
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          # PENTING: runner mengeksekusi skrip PER BARIS — hindari blok multi-baris
+          # (until/do/done). Setiap baris harus mandiri; retry instal via || { sleep; install; }.
           script: |
-            set -e
-            attempt=1
-            max=3
-            until adb install -g -t app/build/outputs/apk/debug/app-debug.apk; do
-              if [ "$attempt" -ge "$max" ]; then
-                echo "::error::adb install gagal setelah $max percobaan"
-                exit 1
-              fi
-              echo "Percobaan instal #$attempt gagal (umumnya INSTALL_FAILED_VERIFICATION_FAILURE sementara di emulator) - mencoba lagi dalam 20 detik..."
-              attempt=$((attempt+1))
-              sleep 20
-            done
+            adb install -g -t app/build/outputs/apk/debug/app-debug.apk || { sleep 20; adb install -g -t app/build/outputs/apk/debug/app-debug.apk; } || { sleep 20; adb install -g -t app/build/outputs/apk/debug/app-debug.apk; }
             adb shell appops set com.hyperexplorer.app MANAGE_EXTERNAL_STORAGE allow
             ./gradlew connectedDebugAndroidTest --stacktrace
 

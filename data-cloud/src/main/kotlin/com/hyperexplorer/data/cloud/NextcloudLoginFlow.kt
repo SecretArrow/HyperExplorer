@@ -98,18 +98,19 @@ class NextcloudLoginFlow(
      *   field wajib hilang/kosong, atau terjadi kegagalan jaringan.
      * @throws CancellationException diteruskan (tidak ditelan).
      */
-    suspend fun start(): LoginFlowStart = withContext(Dispatchers.IO) {
-        val request =
-            buildRequest("$serverUrl$LOGIN_FLOW_PATH") {
-                post(FormBody.Builder().add("app", APP_NAME).build())
+    suspend fun start(): LoginFlowStart =
+        withContext(Dispatchers.IO) {
+            val request =
+                buildRequest("$serverUrl$LOGIN_FLOW_PATH") {
+                    post(FormBody.Builder().add("app", APP_NAME).build())
+                }
+            execute(request, OP_START).use { response ->
+                if (response.code != HTTP_OK) {
+                    throw IOException("Nextcloud login flow start failed: HTTP ${response.code}")
+                }
+                parseStartResponse(readBody(response, OP_START))
             }
-        execute(request, OP_START).use { response ->
-            if (response.code != HTTP_OK) {
-                throw IOException("Nextcloud login flow start failed: HTTP ${response.code}")
-            }
-            parseStartResponse(readBody(response, OP_START))
         }
-    }
 
     /**
      * Polling satu kali status sesi lewat `POST [LoginFlowStart.pollEndpoint]`
@@ -122,23 +123,24 @@ class NextcloudLoginFlow(
      *   body kosong, JSON rusak, atau field kredensial hilang/kosong.
      * @throws IllegalArgumentException bila [LoginFlowStart.pollToken] kosong.
      */
-    suspend fun poll(start: LoginFlowStart): NextcloudCredentials? = withContext(Dispatchers.IO) {
-        if (start.pollToken.isBlank()) {
-            throw IllegalArgumentException("Nextcloud login flow: pollToken is blank; call start() first")
-        }
-        val request =
-            buildRequest(start.pollEndpoint) {
-                post(FormBody.Builder().add("token", start.pollToken).build())
+    suspend fun poll(start: LoginFlowStart): NextcloudCredentials? =
+        withContext(Dispatchers.IO) {
+            if (start.pollToken.isBlank()) {
+                throw IllegalArgumentException("Nextcloud login flow: pollToken is blank; call start() first")
             }
-        execute(request, OP_POLL).use { response ->
-            when (response.code) {
-                HTTP_OK -> parsePollResponse(readBody(response, OP_POLL))
-                HTTP_ACCEPTED -> null
-                HTTP_NOT_FOUND -> throw IOException("Nextcloud login flow expired (HTTP 404)")
-                else -> throw IOException("Nextcloud login flow poll failed: HTTP ${response.code}")
+            val request =
+                buildRequest(start.pollEndpoint) {
+                    post(FormBody.Builder().add("token", start.pollToken).build())
+                }
+            execute(request, OP_POLL).use { response ->
+                when (response.code) {
+                    HTTP_OK -> parsePollResponse(readBody(response, OP_POLL))
+                    HTTP_ACCEPTED -> null
+                    HTTP_NOT_FOUND -> throw IOException("Nextcloud login flow expired (HTTP 404)")
+                    else -> throw IOException("Nextcloud login flow poll failed: HTTP ${response.code}")
+                }
             }
         }
-    }
 
     /**
      * Polling berulang sampai kredensial tersedia, timeout habis, atau coroutine dibatalkan.

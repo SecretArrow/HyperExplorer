@@ -64,115 +64,125 @@ class NextcloudLoginFlowTest {
     private fun startPayload(): String =
         """{"poll":{"token":"$TOKEN","endpoint":"${start().pollEndpoint}"},"login":"${start().loginUrl}"}"""
 
-    private fun pollPayload(): String =
-        """{"server":"https://cloud.example.com/nextcloud","loginName":"andi","appPassword":"secret-abc"}"""
+    private fun pollPayload(): String = """{"server":"https://cloud.example.com/nextcloud","loginName":"andi","appPassword":"secret-abc"}"""
 
     @Test
-    fun `start success returns login flow start with correct fields`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(200).setBody(startPayload()))
-        val loginFlowStart = flow().start()
-        assertEquals(TOKEN, loginFlowStart.pollToken)
-        assertEquals(server.url("/index.php/login/v2/poll").toString(), loginFlowStart.pollEndpoint)
-        assertEquals(server.url("/login").toString(), loginFlowStart.loginUrl)
-        val recorded = server.takeRequest()
-        assertEquals("/index.php/login/v2", recorded.path)
-        assertEquals("POST", recorded.method)
-        assertEquals("app=Hyper%20Explorer", recorded.body.readUtf8())
-        assertEquals("application/json", recorded.getHeader("Accept"))
-        assertEquals("application/x-www-form-urlencoded", recorded.getHeader("Content-Type"))
-    }
+    fun `start success returns login flow start with correct fields`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(200).setBody(startPayload()))
+            val loginFlowStart = flow().start()
+            assertEquals(TOKEN, loginFlowStart.pollToken)
+            assertEquals(server.url("/index.php/login/v2/poll").toString(), loginFlowStart.pollEndpoint)
+            assertEquals(server.url("/login").toString(), loginFlowStart.loginUrl)
+            val recorded = server.takeRequest()
+            assertEquals("/index.php/login/v2", recorded.path)
+            assertEquals("POST", recorded.method)
+            assertEquals("app=Hyper%20Explorer", recorded.body.readUtf8())
+            assertEquals("application/json", recorded.getHeader("Accept"))
+            assertEquals("application/x-www-form-urlencoded", recorded.getHeader("Content-Type"))
+        }
 
     @Test
-    fun `start with non-200 response throws IOException`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(500))
-        val e = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
-        assertEquals("Nextcloud login flow start failed: HTTP 500", e.message)
-    }
+    fun `start with non-200 response throws IOException`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(500))
+            val e = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
+            assertEquals("Nextcloud login flow start failed: HTTP 500", e.message)
+        }
 
     @Test
-    fun `start with broken json throws IOException`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(200).setBody("not-json{{"))
-        val e = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
-        assertTrue("Unexpected message: ${e.message}", e.message!!.contains("invalid JSON"))
-    }
+    fun `start with broken json throws IOException`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(200).setBody("not-json{{"))
+            val e = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
+            assertTrue("Unexpected message: ${e.message}", e.message!!.contains("invalid JSON"))
+        }
 
     @Test
-    fun `start with missing or blank fields throws IOException`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(200).setBody("""{"poll":{"token":"t","endpoint":"e"}}"""))
-        val missing = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
-        assertTrue("Unexpected message: ${missing.message}", missing.message!!.contains("invalid JSON"))
-        server.enqueue(MockResponse().setResponseCode(200).setBody("""{"poll":{"token":"","endpoint":"e"},"login":"u"}"""))
-        val blank = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
-        assertTrue("Unexpected message: ${blank.message}", blank.message!!.contains("poll.token"))
-    }
+    fun `start with missing or blank fields throws IOException`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(200).setBody("""{"poll":{"token":"t","endpoint":"e"}}"""))
+            val missing = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
+            assertTrue("Unexpected message: ${missing.message}", missing.message!!.contains("invalid JSON"))
+            server.enqueue(MockResponse().setResponseCode(200).setBody("""{"poll":{"token":"","endpoint":"e"},"login":"u"}"""))
+            val blank = assertThrows(IOException::class.java) { runBlocking { flow().start() } }
+            assertTrue("Unexpected message: ${blank.message}", blank.message!!.contains("poll.token"))
+        }
 
     @Test
-    fun `poll success returns credentials and sends token`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(200).setBody(pollPayload()))
-        val credentials = flow().poll(start())
-        assertNotNull(credentials)
-        assertEquals("https://cloud.example.com/nextcloud", credentials!!.server)
-        assertEquals("andi", credentials.loginName)
-        assertEquals("secret-abc", credentials.appPassword)
-        val recorded = server.takeRequest()
-        assertEquals("/index.php/login/v2/poll", recorded.path)
-        assertEquals("POST", recorded.method)
-        assertEquals("token=tok-123", recorded.body.readUtf8())
-        assertEquals("application/json", recorded.getHeader("Accept"))
-    }
+    fun `poll success returns credentials and sends token`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(200).setBody(pollPayload()))
+            val credentials = flow().poll(start())
+            assertNotNull(credentials)
+            assertEquals("https://cloud.example.com/nextcloud", credentials!!.server)
+            assertEquals("andi", credentials.loginName)
+            assertEquals("secret-abc", credentials.appPassword)
+            val recorded = server.takeRequest()
+            assertEquals("/index.php/login/v2/poll", recorded.path)
+            assertEquals("POST", recorded.method)
+            assertEquals("token=tok-123", recorded.body.readUtf8())
+            assertEquals("application/json", recorded.getHeader("Accept"))
+        }
 
     @Test
-    fun `poll with 202 returns null while waiting for approval`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(202))
-        assertNull(flow().poll(start()))
-    }
+    fun `poll with 202 returns null while waiting for approval`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(202))
+            assertNull(flow().poll(start()))
+        }
 
     @Test
-    fun `poll with 404 throws expired IOException`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(404))
-        val e = assertThrows(IOException::class.java) { runBlocking { flow().poll(start()) } }
-        assertTrue("Unexpected message: ${e.message}", e.message!!.contains("expired"))
-    }
+    fun `poll with 404 throws expired IOException`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(404))
+            val e = assertThrows(IOException::class.java) { runBlocking { flow().poll(start()) } }
+            assertTrue("Unexpected message: ${e.message}", e.message!!.contains("expired"))
+        }
 
     @Test
-    fun `poll with unexpected status throws IOException with status code`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(503))
-        val e = assertThrows(IOException::class.java) { runBlocking { flow().poll(start()) } }
-        assertEquals("Nextcloud login flow poll failed: HTTP 503", e.message)
-    }
+    fun `poll with unexpected status throws IOException with status code`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(503))
+            val e = assertThrows(IOException::class.java) { runBlocking { flow().poll(start()) } }
+            assertEquals("Nextcloud login flow poll failed: HTTP 503", e.message)
+        }
 
     @Test
-    fun `awaitCredentials polls queue 202 202 200 then returns credentials`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(202))
-        server.enqueue(MockResponse().setResponseCode(202))
-        server.enqueue(MockResponse().setResponseCode(200).setBody(pollPayload()))
-        // Catatan: brief tugas menyebut interval 50 ms, namun kontrak API fail-fast
-        // memvalidasi intervalMs >= 250 (MIN_INTERVAL_MS); 250 ms tetap nilai pendek.
-        val credentials = flow().awaitCredentials(start(), timeoutMs = 5_000L, intervalMs = 250L)
-        assertNotNull(credentials)
-        assertEquals("secret-abc", credentials!!.appPassword)
-        assertEquals(3, server.requestCount)
-    }
+    fun `awaitCredentials polls queue 202 202 200 then returns credentials`() =
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(202))
+            server.enqueue(MockResponse().setResponseCode(202))
+            server.enqueue(MockResponse().setResponseCode(200).setBody(pollPayload()))
+            // Catatan: brief tugas menyebut interval 50 ms, namun kontrak API fail-fast
+            // memvalidasi intervalMs >= 250 (MIN_INTERVAL_MS); 250 ms tetap nilai pendek.
+            val credentials = flow().awaitCredentials(start(), timeoutMs = 5_000L, intervalMs = 250L)
+            assertNotNull(credentials)
+            assertEquals("secret-abc", credentials!!.appPassword)
+            assertEquals(3, server.requestCount)
+        }
 
     @Test
-    fun `awaitCredentials returns null after short timeout when never approved`() = runBlocking {
-        server.dispatcher =
-            object : Dispatcher() {
-                override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setResponseCode(202)
+    fun `awaitCredentials returns null after short timeout when never approved`() =
+        runBlocking {
+            server.dispatcher =
+                object : Dispatcher() {
+                    override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setResponseCode(202)
+                }
+            assertNull(flow().awaitCredentials(start(), timeoutMs = 500L, intervalMs = 250L))
+        }
+
+    @Test
+    fun `awaitCredentials rejects non positive timeout and too small interval`() =
+        runBlocking {
+            val flow = flow()
+            assertThrows(IllegalArgumentException::class.java) {
+                runBlocking { flow.awaitCredentials(start(), timeoutMs = 0L) }
             }
-        assertNull(flow().awaitCredentials(start(), timeoutMs = 500L, intervalMs = 250L))
-    }
-
-    @Test
-    fun `awaitCredentials rejects non positive timeout and too small interval`() = runBlocking {
-        val flow = flow()
-        assertThrows(IllegalArgumentException::class.java) {
-            runBlocking { flow.awaitCredentials(start(), timeoutMs = 0L) }
+            assertThrows(IllegalArgumentException::class.java) {
+                runBlocking { flow.awaitCredentials(start(), timeoutMs = 1_000L, intervalMs = 50L) }
+            }
         }
-        assertThrows(IllegalArgumentException::class.java) {
-            runBlocking { flow.awaitCredentials(start(), timeoutMs = 1_000L, intervalMs = 50L) }
-        }
-    }
 
     @Test
     fun `server url without scheme gets https prefix and trailing slash removed`() {

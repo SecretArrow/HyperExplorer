@@ -95,8 +95,9 @@ class ZipCryptoTest {
             val sources = createSourceTree(tmp.newFolder("source"))
             val targetZip = File(tmp.root, "not-created.zip")
 
-            val exception = runCatching { engine.zipFilesEncrypted(sources, targetZip, CharArray(0)) }
-                .exceptionOrNull()
+            val exception =
+                runCatching { engine.zipFilesEncrypted(sources, targetZip, CharArray(0)) }
+                    .exceptionOrNull()
 
             assertTrue(exception is IllegalArgumentException)
             assertEquals("Password is required for encrypted ZIP", exception?.message)
@@ -121,8 +122,9 @@ class ZipCryptoTest {
             val sources = createSourceTree(tmp.newFolder("source"))
             val targetZip = File(tmp.root, "not-created-either.zip")
 
-            val exception = runCatching { engine.zipFilesEncrypted(sources, targetZip, "   ".toCharArray()) }
-                .exceptionOrNull()
+            val exception =
+                runCatching { engine.zipFilesEncrypted(sources, targetZip, "   ".toCharArray()) }
+                    .exceptionOrNull()
 
             assertTrue(exception is IllegalArgumentException)
             assertEquals("Password is required for encrypted ZIP", exception?.message)

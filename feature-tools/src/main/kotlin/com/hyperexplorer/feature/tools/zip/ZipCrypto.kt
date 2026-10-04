@@ -56,7 +56,6 @@ import java.util.zip.ZipOutputStream
  * Semua I/O berjalan di [dispatcher] agar UI tidak terblokir.
  */
 class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
-
     /**
      * Mengompresi [sources] menjadi arsip ZIP terenkripsi [targetZip].
      *
@@ -91,11 +90,12 @@ class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
             }
             try {
                 targetZip.parentFile?.mkdirs()
-                val orderedSources = sources.asSequence()
-                    .filter { it.absolutePath != targetZip.absolutePath }
-                    .filter { it.exists() }
-                    .sortedBy { it.name }
-                    .toList()
+                val orderedSources =
+                    sources.asSequence()
+                        .filter { it.absolutePath != targetZip.absolutePath }
+                        .filter { it.exists() }
+                        .sortedBy { it.name }
+                        .toList()
                 val files = orderedSources.filter { it.isFile }
                 val folders = orderedSources.filter { it.isDirectory }
 
@@ -108,13 +108,14 @@ class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
                     return@withContext Result.success(targetZip)
                 }
 
-                val parameters = ZipParameters().apply {
-                    compressionMethod = CompressionMethod.DEFLATE
-                    encryptFiles = true
-                    encryptionMethod = EncryptionMethod.AES
-                    aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
-                    isIncludeRootFolder = true // entri direktori induk ikut tercatat di arsip
-                }
+                val parameters =
+                    ZipParameters().apply {
+                        compressionMethod = CompressionMethod.DEFLATE
+                        encryptFiles = true
+                        encryptionMethod = EncryptionMethod.AES
+                        aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
+                        isIncludeRootFolder = true // entri direktori induk ikut tercatat di arsip
+                    }
                 ZipFile(targetZip).use { zip ->
                     zip.setPassword(password)
                     if (files.isNotEmpty()) {
@@ -185,8 +186,9 @@ class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
                             )
                         }
                         val resolvedPath = File(targetDir, entryName).canonicalPath
-                        val insideTarget = resolvedPath == targetPath ||
-                            resolvedPath.startsWith(targetPath + File.separator)
+                        val insideTarget =
+                            resolvedPath == targetPath ||
+                                resolvedPath.startsWith(targetPath + File.separator)
                         if (!insideTarget) {
                             return@withContext Result.failure(
                                 SecurityException("Entri zip menunjuk ke luar folder tujuan: $entryName"),

@@ -35,7 +35,7 @@ import javax.crypto.spec.SecretKeySpec
  * Kontrak bentuk keluaran: `[12 byte nonce | ciphertext + tag GCM]`, dengan
  * AAD = id entri UTF-8 sehingga wrapped DEK terikat pada entri tertentu.
  */
-fun interface VaultKeyProvider {
+interface VaultKeyProvider {
     /**
      * Membungkus [dek] (tepat 32 byte, AES-256) menggunakan AAD [aad].
      *

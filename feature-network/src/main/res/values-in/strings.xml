@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Mode daftar sambungan -->
+    <string name="network_title">Sambungan tersimpan</string>
+    <string name="network_no_connections">Belum ada sambungan tersimpan</string>
+    <string name="network_add_location">Tambah lokasi</string>
+    <string name="network_edit_connection">Edit sambungan</string>
+    <string name="network_edit">Edit</string>
+    <string name="network_delete">Hapus</string>
+    <string name="network_delete_connection_title">Hapus sambungan</string>
+    <string name="network_delete_confirm">Hapus %1$s?</string>
+    <string name="network_cd_more">Opsi lainnya</string>
+
+    <!-- Form tambah/ubah sambungan -->
+    <string name="network_protocol">Protokol</string>
+    <string name="network_protocol_ftp">FTP</string>
+    <string name="network_protocol_sftp">SFTP</string>
+    <string name="network_protocol_smb">SMB</string>
+    <string name="network_protocol_webdav">WebDAV</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Port</string>
+    <string name="network_share">Share</string>
+    <string name="network_base_path">Path dasar</string>
+    <string name="network_username">Nama pengguna</string>
+    <string name="network_password">Kata sandi</string>
+    <string name="network_show_password">Tampilkan kata sandi</string>
+    <string name="network_hide_password">Sembunyikan kata sandi</string>
+    <string name="network_test_connection">Uji koneksi</string>
+    <string name="network_test_success">Koneksi berhasil</string>
+    <string name="network_test_failed">Koneksi gagal: %1$s</string>
+    <string name="network_cancel">Batal</string>
+    <string name="network_save">Simpan</string>
+    <string name="network_error_host_required">Host wajib diisi</string>
+    <string name="network_error_port_invalid">Port harus antara 1 dan 65535</string>
+
+    <!-- Mode browsing -->
+    <string name="network_up">Naik</string>
+    <string name="network_cd_refresh">Segarkan</string>
+    <string name="network_close">Tutup</string>
+    <string name="network_empty_folder">Folder kosong</string>
+    <string name="network_error_read_folder">Folder tak dapat dibaca</string>
+    <string name="network_error_connect">Tidak dapat tersambung ke server</string>
+    <string name="network_error_delete">Gagal menghapus</string>
+    <string name="network_error_rename">Gagal mengganti nama</string>
+    <string name="network_error_download">Gagal mengunduh</string>
+    <string name="network_error_mkdir">Gagal membuat folder</string>
+    <string name="network_error_reason">Penyebab: %1$s</string>
+    <string name="network_retry">Coba lagi</string>
+    <string name="network_cd_download">Unduh</string>
+    <string name="network_download_success">Berhasil diunduh ke %1$s</string>
+    <string name="network_rename">Ganti nama</string>
+    <string name="network_new_name">Nama baru</string>
+    <string name="network_new_folder">Folder baru</string>
+    <string name="network_folder_name">Nama folder</string>
+    <string name="network_create">Buat</string>
+</resources>

@@ -30,8 +30,10 @@ jobs:
       - name: Jalankan test di emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          # Image AOSP ATD (Android Test Development): boot jauh lebih cepat & stabil di CI
+          # daripada google_apis penuh (mengatasi "adb device offline / boot timeout" berulang).
+          api-level: 30
+          target: aosp_atd
           arch: x86_64
           disable-animations: true
           emulator-boot-timeout: 900

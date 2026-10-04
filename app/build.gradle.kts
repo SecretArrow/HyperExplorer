@@ -20,8 +20,8 @@ android {
         applicationId = "com.hyperexplorer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.3.0"
+        versionCode = 5
+        versionName = "0.4.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -75,6 +75,7 @@ dependencies {
     implementation(project(":feature-tools"))
     implementation(project(":feature-media"))
     implementation(project(":feature-transfer"))
+    implementation(project(":feature-network"))
     implementation(project(":feature-apps"))
     implementation(project(":feature-settings"))
 

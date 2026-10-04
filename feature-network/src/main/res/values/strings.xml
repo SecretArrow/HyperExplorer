@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Mode daftar sambungan -->
+    <string name="network_title">Saved connections</string>
+    <string name="network_no_connections">No saved connections yet</string>
+    <string name="network_add_location">Add location</string>
+    <string name="network_edit_connection">Edit connection</string>
+    <string name="network_edit">Edit</string>
+    <string name="network_delete">Delete</string>
+    <string name="network_delete_connection_title">Delete connection</string>
+    <string name="network_delete_confirm">Delete %1$s?</string>
+    <string name="network_cd_more">More options</string>
+
+    <!-- Form tambah/ubah sambungan -->
+    <string name="network_protocol">Protocol</string>
+    <string name="network_protocol_ftp">FTP</string>
+    <string name="network_protocol_sftp">SFTP</string>
+    <string name="network_protocol_smb">SMB</string>
+    <string name="network_protocol_webdav">WebDAV</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Port</string>
+    <string name="network_share">Share</string>
+    <string name="network_base_path">Base path</string>
+    <string name="network_username">Username</string>
+    <string name="network_password">Password</string>
+    <string name="network_show_password">Show password</string>
+    <string name="network_hide_password">Hide password</string>
+    <string name="network_test_connection">Test connection</string>
+    <string name="network_test_success">Connection successful</string>
+    <string name="network_test_failed">Connection failed: %1$s</string>
+    <string name="network_cancel">Cancel</string>
+    <string name="network_save">Save</string>
+    <string name="network_error_host_required">Host is required</string>
+    <string name="network_error_port_invalid">Port must be between 1 and 65535</string>
+
+    <!-- Mode browsing -->
+    <string name="network_up">Go up</string>
+    <string name="network_cd_refresh">Refresh</string>
+    <string name="network_close">Close</string>
+    <string name="network_empty_folder">Folder is empty</string>
+    <string name="network_error_read_folder">Folder cannot be read</string>
+    <string name="network_error_connect">Cannot connect to server</string>
+    <string name="network_error_delete">Failed to delete</string>
+    <string name="network_error_rename">Failed to rename</string>
+    <string name="network_error_download">Failed to download</string>
+    <string name="network_error_mkdir">Failed to create folder</string>
+    <string name="network_error_reason">Reason: %1$s</string>
+    <string name="network_retry">Retry</string>
+    <string name="network_cd_download">Download</string>
+    <string name="network_download_success">Downloaded to %1$s</string>
+    <string name="network_rename">Rename</string>
+    <string name="network_new_name">New name</string>
+    <string name="network_new_folder">New folder</string>
+    <string name="network_folder_name">Folder name</string>
+    <string name="network_create">Create</string>
+</resources>

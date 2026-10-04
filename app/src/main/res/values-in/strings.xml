@@ -23,8 +23,10 @@
     <string name="app_tab_files">Berkas</string>
     <string name="app_tab_apps">Aplikasi</string>
     <string name="app_tab_storage">Penyimpanan</string>
-    <string name="app_tab_ftp">FTP</string>
+    <string name="app_tab_network">Jaringan</string>
     <string name="app_tab_settings">Pengaturan</string>
+    <string name="app_network_section_server">Server FTP</string>
+    <string name="app_network_section_locations">Lokasi Jaringan</string>
     <string name="app_zip_created">Arsip dibuat: %1$s</string>
     <string name="app_zip_failed">Gagal membuat arsip ZIP</string>
     <string name="app_default_archive_name">arsip</string>

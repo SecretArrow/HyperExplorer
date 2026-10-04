@@ -42,9 +42,10 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:core-ui` | Android lib | Tema Material 3 (dynamic color), komponen `FileRow`, `EmptyState` |
 | `:data-local` | Kotlin JVM | `FileOperations` (copy/move/delete/rename), `FileRepository` + recycle bin ber-metadata |
 | `:feature-browser` | Android lib | `BrowserState` (state holder) + `BrowserScreen` (Compose UI) |
+| `:data-remote` | Kotlin JVM | Klien jaringan (network clients) FTP/SFTP/SMB/WebDAV: commons-net/sshj/SMBJ/OkHttp |
+| `:feature-network` | Android lib | UI koneksi jaringan (connections UI) + penyimpanan kredensial terenkripsi (encrypted store) |
 
-Rencana modul berikutnya: `:data-remote` (SMB/FTP/SFTP/WebDAV), `:data-cloud` (Drive/Dropbox/OneDrive),
-`:feature-transfer`, `:feature-network`, `:feature-media`, `:feature-tools`, `:feature-settings`.
+Rencana modul berikutnya: `:data-cloud` (Drive/Dropbox/OneDrive).
 
 ## Fitur Saat Ini (scaffold MVP)
 
@@ -54,6 +55,7 @@ Rencana modul berikutnya: `:data-remote` (SMB/FTP/SFTP/WebDAV), `:data-cloud` (D
 - Buka berkas dengan aplikasi lain (FileProvider)
 - Banner permintaan akses "All files" (MANAGE_EXTERNAL_STORAGE) sesuai kebijakan Play
 - Tema Material 3 + dynamic color + dark mode
+- Network locations — browse & manage SMB / FTP / SFTP / WebDAV connections with encrypted credentials
 
 ## CI/CD (GitHub Actions)
 
@@ -62,7 +64,7 @@ Semua build dijalankan di CI — **tidak ada build lokal**. Pipeline dirancang h
 | Workflow | Pemicu | Isi |
 |---|---|---|
 | **CI** | push `main` / PR | 3 job paralel: lint (ktlint + Android lint), unit test semua modul, build debug APK |
-| **E2E** | push `main` / manual | Instrumented test di emulator Android 14 (API 34) |
+| **E2E** | push `main` / manual | Instrumented test di emulator Android 11 (API 30, image `aosp_atd`) |
 | **Release** | tag `v*` / manual | Build APK+AAB release, buat GitHub Release + changelog otomatis |
 | **Auto Fix** | CI gagal / manual | `ktlintFormat` otomatis, commit & push hasil perbaikan |
 

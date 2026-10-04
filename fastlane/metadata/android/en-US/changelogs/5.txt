@@ -1,0 +1,1 @@
+Network locations: browse SMB, FTP, SFTP and WebDAV servers; encrypted credentials

@@ -36,6 +36,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
@@ -47,6 +50,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,6 +60,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.LocaleListCompat
@@ -68,6 +75,7 @@ import com.hyperexplorer.feature.media.ui.ImageViewerScreen
 import com.hyperexplorer.feature.media.ui.TextEditorScreen
 import com.hyperexplorer.feature.media.viewer.ViewerRoute
 import com.hyperexplorer.feature.media.viewer.ViewerRouter
+import com.hyperexplorer.feature.network.NetworkLocationsScreen
 import com.hyperexplorer.feature.settings.LanguageMode
 import com.hyperexplorer.feature.settings.LanguagePrefs
 import com.hyperexplorer.feature.settings.ThemeMode
@@ -88,13 +96,20 @@ private enum class Screen(val labelRes: Int) {
     BROWSER(R.string.app_tab_files),
     APPS(R.string.app_tab_apps),
     STORAGE(R.string.app_tab_storage),
-    FTP(R.string.app_tab_ftp),
+    NETWORK(R.string.app_tab_network),
     SETTINGS(R.string.app_tab_settings),
+}
+
+/** Seksi pada tab Network: server FTP lokal atau lokasi jaringan tersimpan. */
+private enum class NetworkSection(val labelRes: Int) {
+    SERVER(R.string.app_network_section_server),
+    LOCATIONS(R.string.app_network_section_locations),
 }
 
 class MainActivity : AppCompatActivity() {
     private var hasStorageAccess by mutableStateOf(false)
     private var screen by mutableStateOf(Screen.BROWSER)
+    private var networkSection by mutableStateOf(NetworkSection.SERVER)
     private var viewer by mutableStateOf<ViewerRoute?>(null)
     private var themeMode by mutableStateOf(ThemeMode.SYSTEM)
     private var languageMode by mutableStateOf(LanguageMode.SYSTEM)
@@ -189,7 +204,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     Screen.APPS -> AppsScreen(state = appsState)
                     Screen.STORAGE -> StorageAnalyzerScreen(root = storageRoot())
-                    Screen.FTP -> FtpServerScreen(rootDir = storageRoot())
+                    Screen.NETWORK -> NetworkHub()
                     Screen.SETTINGS ->
                         SettingsScreen(
                             currentMode = themeMode,
@@ -211,12 +226,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Hub tab Network: pemilih seksi di atas (server FTP / lokasi jaringan) + konten seksi aktif. */
+    @Composable
+    private fun NetworkHub() {
+        Column(modifier = Modifier.fillMaxSize()) {
+            SingleChoiceSegmentedButtonRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                val sections = NetworkSection.entries
+                sections.forEachIndexed { index, section ->
+                    SegmentedButton(
+                        selected = networkSection == section,
+                        onClick = { networkSection = section },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = sections.size),
+                        label = { Text(text = stringResource(section.labelRes)) },
+                    )
+                }
+            }
+            when (networkSection) {
+                NetworkSection.SERVER -> FtpServerScreen(rootDir = storageRoot())
+                NetworkSection.LOCATIONS -> NetworkLocationsScreen(modifier = Modifier.fillMaxSize())
+            }
+        }
+    }
+
     private fun Screen.icon() =
         when (this) {
             Screen.BROWSER -> Icons.Filled.Folder
             Screen.APPS -> Icons.Filled.Apps
             Screen.STORAGE -> Icons.Filled.PieChart
-            Screen.FTP -> Icons.Filled.Computer
+            Screen.NETWORK -> Icons.Filled.Computer
             Screen.SETTINGS -> Icons.Filled.Settings
         }
 

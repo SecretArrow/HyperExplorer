@@ -60,7 +60,7 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Buat GitHub Release + changelog otomatis
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.rel.outputs.tag }}
           name: Hyper Explorer ${{ steps.rel.outputs.tag }}

@@ -46,7 +46,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import com.hyperexplorer.core.ui.components.EmptyState
+import com.hyperexplorer.feature.media.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -81,7 +83,7 @@ fun ImageViewerScreen(
                 title = { Text(text = path.substringAfterLast('/')) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Filled.Close, contentDescription = "Tutup")
+                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.media_cd_close))
                     }
                 },
                 colors =
@@ -101,7 +103,7 @@ fun ImageViewerScreen(
                 ) {
                     CircularProgressIndicator()
                 }
-            bitmap == null -> EmptyState(message = "Tidak dapat memuat gambar", modifier = Modifier.padding(padding))
+            bitmap == null -> EmptyState(message = stringResource(R.string.media_error_load_image), modifier = Modifier.padding(padding))
             else -> {
                 val decoded = bitmap
                 if (decoded != null) {

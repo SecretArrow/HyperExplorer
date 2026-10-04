@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string name="browser_title">Hyper Explorer</string>
+    <string name="browser_cd_up">Naik</string>
+    <string name="browser_cd_paste">Tempel</string>
+    <string name="browser_cd_selection_mode">Mode seleksi</string>
+    <string name="browser_new_folder">Folder baru</string>
+    <string name="browser_cd_refresh">Segarkan</string>
+    <string name="browser_empty_folder">Folder kosong</string>
+    <string name="browser_folder_name_label">Nama folder</string>
+    <string name="browser_create">Buat</string>
+    <string name="browser_cancel">Batal</string>
+    <string name="browser_storage_access_message">Berikan akses semua berkas agar file manager bekerja penuh.</string>
+    <string name="browser_allow">Izinkan</string>
+    <string name="browser_cd_delete">Hapus</string>
+    <string name="browser_cd_copy">Salin</string>
+    <string name="browser_cd_cut">Potong</string>
+    <string name="browser_cd_zip">Kompres ZIP</string>
+    <string name="browser_error_read_folder">Tidak dapat membaca folder</string>
+
+    <plurals name="browser_selected_count">
+        <item quantity="one">%1$d dipilih</item>
+        <item quantity="other">%1$d dipilih</item>
+    </plurals>
+</resources>

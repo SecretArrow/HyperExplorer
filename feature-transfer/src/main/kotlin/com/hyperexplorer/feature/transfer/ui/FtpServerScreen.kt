@@ -54,10 +54,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.hyperexplorer.feature.transfer.R
 import com.hyperexplorer.feature.transfer.ftp.FtpConfig
 import com.hyperexplorer.feature.transfer.ftp.FtpService
 import java.io.File
@@ -81,21 +83,21 @@ fun FtpServerScreen(
     var username by remember { mutableStateOf("hyper") }
     var password by remember { mutableStateOf(randomPassword()) }
     var showPassword by remember { mutableStateOf(false) }
-    var validationError by remember { mutableStateOf<String?>(null) }
+    var validationError by remember { mutableStateOf<Int?>(null) }
 
     fun validateInput(): Boolean {
         val port = portText.trim().toIntOrNull()
         return when {
             port == null || (port != 0 && (port < 1024 || port > 65535)) -> {
-                validationError = "Port harus 0 (acak) atau angka 1024 sampai 65535"
+                validationError = R.string.transfer_error_port
                 false
             }
             username.isBlank() -> {
-                validationError = "Nama pengguna tidak boleh kosong"
+                validationError = R.string.transfer_error_username_empty
                 false
             }
             password.isBlank() -> {
-                validationError = "Kata sandi tidak boleh kosong"
+                validationError = R.string.transfer_error_password_empty
                 false
             }
             else -> {
@@ -143,14 +145,14 @@ fun FtpServerScreen(
                 .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(text = "Server FTP", style = MaterialTheme.typography.titleLarge)
+        Text(text = stringResource(R.string.transfer_title), style = MaterialTheme.typography.titleLarge)
 
         StatusCard(running = running, serverError = serverError, port = serverPort)
 
         OutlinedTextField(
             value = portText,
             onValueChange = { portText = it.filter { character -> character.isDigit() } },
-            label = { Text(text = "Port") },
+            label = { Text(text = stringResource(R.string.transfer_port_label)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             enabled = !running,
@@ -159,7 +161,7 @@ fun FtpServerScreen(
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text(text = "Nama pengguna") },
+            label = { Text(text = stringResource(R.string.transfer_username_label)) },
             singleLine = true,
             enabled = !running,
             modifier = Modifier.fillMaxWidth(),
@@ -167,7 +169,7 @@ fun FtpServerScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text(text = "Kata sandi") },
+            label = { Text(text = stringResource(R.string.transfer_password_label)) },
             singleLine = true,
             enabled = !running,
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
@@ -175,16 +177,21 @@ fun FtpServerScreen(
                 IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(
                         imageVector = if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = if (showPassword) "Sembunyikan kata sandi" else "Tampilkan kata sandi",
+                        contentDescription =
+                            if (showPassword) {
+                                stringResource(R.string.transfer_hide_password)
+                            } else {
+                                stringResource(R.string.transfer_show_password)
+                            },
                     )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
         )
 
-        validationError?.let { message ->
+        validationError?.let { messageRes ->
             Text(
-                text = message,
+                text = stringResource(messageRes),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -199,7 +206,7 @@ fun FtpServerScreen(
                 contentDescription = null,
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = if (running) "Berhenti" else "Mulai")
+            Text(text = stringResource(if (running) R.string.transfer_stop else R.string.transfer_start))
         }
 
         UsageCard()
@@ -214,6 +221,7 @@ private fun StatusCard(
     port: Int,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -221,12 +229,17 @@ private fun StatusCard(
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = if (running) "Berjalan di ${FtpService.localIpText()}:$port" else "Tidak aktif",
+                text =
+                    if (running) {
+                        stringResource(R.string.transfer_status_running, FtpService.localIpText(context), port)
+                    } else {
+                        stringResource(R.string.transfer_status_inactive)
+                    },
                 style = MaterialTheme.typography.titleMedium,
             )
             if (serverError != null) {
                 Text(
-                    text = "Alasan berhenti: $serverError",
+                    text = stringResource(R.string.transfer_stopped_reason, serverError),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -239,13 +252,9 @@ private fun StatusCard(
 private fun UsageCard(modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium, tonalElevation = 2.dp) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(text = "Cara pakai", style = MaterialTheme.typography.titleSmall)
+            Text(text = stringResource(R.string.transfer_usage_title), style = MaterialTheme.typography.titleSmall)
             Text(
-                text =
-                    "1) Pastikan ponsel dan komputer terhubung ke jaringan Wi-Fi yang sama.\n" +
-                        "2) Gunakan nama pengguna dan kata sandi yang kuat.\n" +
-                        "3) Di komputer, buka ftp://<ip>:<port> lewat file manager atau klien FTP.\n" +
-                        "4) Server mati otomatis setelah beberapa waktu tanpa koneksi.",
+                text = stringResource(R.string.transfer_usage_steps),
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -260,9 +269,7 @@ private fun SecurityWarningCard(modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.errorContainer,
     ) {
         Text(
-            text =
-                "Server hanya boleh diaktifkan di jaringan tepercaya. " +
-                    "Autentikasi wajib dan server mati otomatis saat idle.",
+            text = stringResource(R.string.transfer_security_warning),
             modifier = Modifier.padding(16.dp),
             style = MaterialTheme.typography.bodySmall,
         )

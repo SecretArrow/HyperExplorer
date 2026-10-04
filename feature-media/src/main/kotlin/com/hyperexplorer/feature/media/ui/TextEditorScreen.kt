@@ -48,11 +48,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperexplorer.core.ui.components.EmptyState
+import com.hyperexplorer.feature.media.R
 import com.hyperexplorer.feature.media.text.TextFileIO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -108,7 +110,7 @@ fun TextEditorScreen(
                     Column {
                         Text(text = path.substringAfterLast('/'))
                         if (isDirty) {
-                            Text(text = "Disunting", style = MaterialTheme.typography.bodySmall)
+                            Text(text = stringResource(R.string.media_modified), style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 },
@@ -124,10 +126,10 @@ fun TextEditorScreen(
                         },
                         enabled = isDirty && !saving,
                     ) {
-                        Icon(Icons.Filled.Save, contentDescription = "Simpan")
+                        Icon(Icons.Filled.Save, contentDescription = stringResource(R.string.media_cd_save))
                     }
                     IconButton(onClick = { if (isDirty) showDiscardDialog = true else onClose() }) {
-                        Icon(Icons.Filled.Close, contentDescription = "Tutup")
+                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.media_cd_close))
                     }
                 },
             )
@@ -142,15 +144,13 @@ fun TextEditorScreen(
                     CircularProgressIndicator()
                 }
             loadFailed ->
-                EmptyState(message = "Tidak dapat membuka berkas teks", modifier = Modifier.padding(padding))
+                EmptyState(message = stringResource(R.string.media_error_open_text), modifier = Modifier.padding(padding))
             else ->
                 Column(modifier = Modifier.fillMaxSize().padding(padding)) {
                     if (truncated) {
                         Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.errorContainer) {
                             Text(
-                                text =
-                                    "Berkas terlalu besar — hanya 1 MB pertama dimuat. " +
-                                        "Menyimpan akan menimpa bagian yang tidak dimuat.",
+                                text = stringResource(R.string.media_truncated_warning),
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 style = MaterialTheme.typography.bodySmall,
                             )
@@ -178,18 +178,18 @@ fun TextEditorScreen(
     if (showDiscardDialog) {
         AlertDialog(
             onDismissRequest = { showDiscardDialog = false },
-            title = { Text(text = "Buang perubahan?") },
-            text = { Text(text = "Ada perubahan belum disimpan. Buang?") },
+            title = { Text(text = stringResource(R.string.media_discard_title)) },
+            text = { Text(text = stringResource(R.string.media_discard_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         showDiscardDialog = false
                         onClose()
                     },
-                ) { Text(text = "Buang") }
+                ) { Text(text = stringResource(R.string.media_discard_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDiscardDialog = false }) { Text(text = "Batal") }
+                TextButton(onClick = { showDiscardDialog = false }) { Text(text = stringResource(R.string.media_cancel)) }
             },
         )
     }

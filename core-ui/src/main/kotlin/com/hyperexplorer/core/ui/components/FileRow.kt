@@ -45,10 +45,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hyperexplorer.core.model.FileCategory
 import com.hyperexplorer.core.model.FileNode
+import com.hyperexplorer.core.ui.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -67,9 +69,10 @@ private fun iconFor(category: FileCategory): ImageVector =
         FileCategory.OTHER -> Icons.AutoMirrored.Filled.InsertDriveFile
     }
 
+@Composable
 private fun subtitleFor(node: FileNode): String =
     if (node.isDirectory) {
-        "Folder"
+        stringResource(R.string.core_folder)
     } else {
         node.humanSize() + " · " + DATE_FORMAT.format(Date(node.lastModified))
     }

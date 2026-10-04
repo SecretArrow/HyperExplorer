@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Hyper Explorer - a free and open source file manager for Android.
+ * Copyright (C) 2025-2026 Hyper Explorer contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Layar analisis penyimpanan (StorageAnalyzerScreen). -->
+    <string name="tools_title">Storage analysis</string>
+    <string name="tools_refresh">Refresh</string>
+    <string name="tools_error_analysis_failed">Cannot analyze storage</string>
+    <string name="tools_preparing_analysis">Preparing analysis...</string>
+    <string name="tools_summary_total">Total</string>
+    <string name="tools_summary_used">Used</string>
+    <string name="tools_summary_free">Free</string>
+    <string name="tools_categories_title">Categories</string>
+    <string name="tools_no_classified_files">No classified files</string>
+    <string name="tools_category_folder">Folder</string>
+    <string name="tools_category_image">Images</string>
+    <string name="tools_category_video">Videos</string>
+    <string name="tools_category_audio">Audio</string>
+    <string name="tools_category_document">Documents</string>
+    <string name="tools_category_archive">Archives</string>
+    <string name="tools_category_apk">Apps (APK)</string>
+    <string name="tools_category_other">Other</string>
+    <string name="tools_largest_files_title">Largest files</string>
+    <string name="tools_duplicates_title">Possible duplicates</string>
+    <string name="tools_no_duplicates">No duplicates detected</string>
+    <string name="tools_duplicate_group">%1$s · %2$d files</string>
+</resources>

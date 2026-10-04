@@ -30,9 +30,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Jenis galat layar aplikasi; teksnya dipetakan ke resource string di lapisan UI. */
+enum class AppsError {
+    /** Daftar aplikasi tidak dapat dimuat. */
+    CANNOT_LOAD_LIST,
+}
+
 data class AppsUi(
     val loading: Boolean = true,
-    val error: String? = null,
+    val error: AppsError? = null,
     val apps: List<AppEntry> = emptyList(),
 )
 
@@ -64,7 +70,7 @@ class AppsState(
                 }
             _ui.update { state ->
                 if (apps == null) {
-                    state.copy(loading = false, apps = emptyList(), error = "Tidak dapat membaca daftar aplikasi")
+                    state.copy(loading = false, apps = emptyList(), error = AppsError.CANNOT_LOAD_LIST)
                 } else {
                     state.copy(loading = false, apps = apps, error = null)
                 }

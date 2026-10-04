@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Hyper Explorer - a free and open source file manager for Android.
+ * Copyright (C) 2025-2026 Hyper Explorer contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Layar analisis penyimpanan (StorageAnalyzerScreen). -->
+    <string name="tools_title">Analisis Penyimpanan</string>
+    <string name="tools_refresh">Segarkan</string>
+    <string name="tools_error_analysis_failed">Tidak dapat menganalisis penyimpanan</string>
+    <string name="tools_preparing_analysis">Menyiapkan analisis...</string>
+    <string name="tools_summary_total">Total</string>
+    <string name="tools_summary_used">Terpakai</string>
+    <string name="tools_summary_free">Bebas</string>
+    <string name="tools_categories_title">Kategori</string>
+    <string name="tools_no_classified_files">Tidak ada berkas terklasifikasi</string>
+    <string name="tools_category_folder">Folder</string>
+    <string name="tools_category_image">Gambar</string>
+    <string name="tools_category_video">Video</string>
+    <string name="tools_category_audio">Audio</string>
+    <string name="tools_category_document">Dokumen</string>
+    <string name="tools_category_archive">Arsip</string>
+    <string name="tools_category_apk">Aplikasi (APK)</string>
+    <string name="tools_category_other">Lainnya</string>
+    <string name="tools_largest_files_title">20 berkas terbesar</string>
+    <string name="tools_duplicates_title">Kemungkinan duplikat</string>
+    <string name="tools_no_duplicates">Tidak ada duplikat terdeteksi</string>
+    <string name="tools_duplicate_group">%1$s · %2$d berkas</string>
+</resources>

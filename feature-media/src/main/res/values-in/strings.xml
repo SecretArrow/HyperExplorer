@@ -18,15 +18,14 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <resources>
-    <!-- Smoke test meng-assert teks ini: JANGAN diubah. -->
-    <string name="app_name">Hyper Explorer</string>
-
-    <string name="app_tab_files">Files</string>
-    <string name="app_tab_apps">Apps</string>
-    <string name="app_tab_storage">Storage</string>
-    <string name="app_tab_ftp">FTP</string>
-    <string name="app_tab_settings">Settings</string>
-    <string name="app_zip_created">Archive created: %1$s</string>
-    <string name="app_zip_failed">Failed to create ZIP archive</string>
-    <string name="app_default_archive_name">archive</string>
+    <string name="media_cd_close">Tutup</string>
+    <string name="media_error_load_image">Tidak dapat memuat gambar</string>
+    <string name="media_modified">Disunting</string>
+    <string name="media_cd_save">Simpan</string>
+    <string name="media_error_open_text">Tidak dapat membuka berkas teks</string>
+    <string name="media_truncated_warning">Berkas terlalu besar — hanya 1 MB pertama dimuat. Menyimpan akan menimpa bagian yang tidak dimuat.</string>
+    <string name="media_discard_title">Buang perubahan?</string>
+    <string name="media_discard_message">Ada perubahan belum disimpan. Buang?</string>
+    <string name="media_discard_confirm">Buang</string>
+    <string name="media_cancel">Batal</string>
 </resources>

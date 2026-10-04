@@ -22,25 +22,25 @@ package com.hyperexplorer.feature.settings
 import androidx.annotation.StringRes
 
 /**
- * Pilihan tema aplikasi. Nilai tersimpan sebagai ordinal di SharedPreferences.
+ * Pilihan bahasa aplikasi. Nilai tersimpan sebagai ordinal di SharedPreferences.
  */
-enum class ThemeMode {
+enum class LanguageMode {
     SYSTEM,
-    LIGHT,
-    DARK,
+    ENGLISH,
+    INDONESIAN,
     ;
 
     /** Resource label yang tampil di layar pengaturan (dilokalkan via stringResource). */
     @StringRes
     fun labelRes(): Int =
         when (this) {
-            SYSTEM -> R.string.settings_theme_system
-            LIGHT -> R.string.settings_theme_light
-            DARK -> R.string.settings_theme_dark
+            SYSTEM -> R.string.settings_language_system
+            ENGLISH -> R.string.settings_language_english
+            INDONESIAN -> R.string.settings_language_indonesian
         }
 
     companion object {
         /** Aman terhadap ordinal lama/tak valid: selalu kembali ke SYSTEM. */
-        fun fromOrdinal(value: Int): ThemeMode = entries.getOrElse(value) { SYSTEM }
+        fun fromOrdinal(value: Int): LanguageMode = entries.getOrElse(value) { SYSTEM }
     }
 }

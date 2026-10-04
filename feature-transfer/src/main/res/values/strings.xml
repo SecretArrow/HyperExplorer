@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Hyper Explorer - a free and open source file manager for Android.
+ * Copyright (C) 2025-2026 Hyper Explorer contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Layar server FTP (FtpServerScreen). -->
+    <string name="transfer_title">FTP server</string>
+    <string name="transfer_port_label">Port</string>
+    <string name="transfer_username_label">Username</string>
+    <string name="transfer_password_label">Password</string>
+    <string name="transfer_show_password">Show password</string>
+    <string name="transfer_hide_password">Hide password</string>
+    <string name="transfer_start">Start</string>
+    <string name="transfer_stop">Stop</string>
+    <string name="transfer_status_running">Running at %1$s:%2$d</string>
+    <string name="transfer_status_inactive">Inactive</string>
+    <string name="transfer_stopped_reason">Stop reason: %1$s</string>
+    <string name="transfer_error_port">Port must be 0 (random) or a number from 1024 to 65535</string>
+    <string name="transfer_error_username_empty">Username cannot be empty</string>
+    <string name="transfer_error_password_empty">Password cannot be empty</string>
+    <string name="transfer_usage_title">How to use</string>
+    <string name="transfer_usage_steps">1) Make sure your phone and computer are connected to the same Wi-Fi network.\n2) Use a strong username and password.\n3) On your computer, open ftp://&lt;ip&gt;:&lt;port&gt; in a file manager or FTP client.\n4) The server turns off automatically after some time without a connection.</string>
+    <string name="transfer_security_warning">Only enable the server on a trusted network. Authentication is required and the server turns off automatically when idle.</string>
+    <!-- Notifikasi foreground service (FtpService). -->
+    <string name="transfer_notification_channel_name">FTP transfer</string>
+    <string name="transfer_notification_channel_description">Status of the FTP server for file transfer</string>
+    <string name="transfer_notification_title">FTP server active</string>
+    <string name="transfer_notification_content">%1$s:%2$s — user %3$s</string>
+    <string name="transfer_unknown_host">unknown</string>
+</resources>

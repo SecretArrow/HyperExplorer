@@ -51,12 +51,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.core.ui.components.EmptyState
 import com.hyperexplorer.feature.apps.AppEntry
 import com.hyperexplorer.feature.apps.AppManager
 import com.hyperexplorer.feature.apps.AppsState
+import com.hyperexplorer.feature.apps.R
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -75,10 +77,10 @@ fun AppsScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Aplikasi") },
+                title = { Text(text = stringResource(R.string.apps_title)) },
                 actions = {
                     IconButton(onClick = { state.refresh() }) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Segarkan")
+                        Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.apps_cd_refresh))
                     }
                 },
             )
@@ -89,16 +91,18 @@ fun AppsScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
             when {
-                ui.error != null -> EmptyState(message = ui.error ?: "")
-                ui.apps.isEmpty() -> EmptyState(message = "Tidak ada aplikasi")
+                ui.error != null -> EmptyState(message = stringResource(R.string.apps_error_load_list))
+                ui.apps.isEmpty() -> EmptyState(message = stringResource(R.string.apps_empty))
                 else ->
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(ui.apps, key = { it.packageName }) { app ->
+                            val cannotOpenApp = stringResource(R.string.apps_error_launch)
+                            val backupFailedMessage = stringResource(R.string.apps_backup_failed)
                             AppRow(
                                 app = app,
                                 onClick = {
                                     if (!AppManager.launch(context, app.packageName)) {
-                                        Toast.makeText(context, "Tidak dapat membuka aplikasi", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, cannotOpenApp, Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 onBackup = {
@@ -112,8 +116,8 @@ fun AppsScreen(
                                         onBackupDone(result)
                                         val message =
                                             result.fold(
-                                                onSuccess = { file -> "APK dicadangkan ke ${file.absolutePath}" },
-                                                onFailure = { "Gagal mencadangkan APK" },
+                                                onSuccess = { file -> context.getString(R.string.apps_backup_success, file.absolutePath) },
+                                                onFailure = { backupFailedMessage },
                                             )
                                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                                     }
@@ -165,7 +169,7 @@ private fun AppRow(
                 if (app.isSystem) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sistem",
+                        text = stringResource(R.string.apps_badge_system),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.tertiary,
                     )
@@ -173,10 +177,10 @@ private fun AppRow(
             }
         }
         IconButton(onClick = onBackup) {
-            Icon(Icons.Filled.Save, contentDescription = "Cadangkan APK")
+            Icon(Icons.Filled.Save, contentDescription = stringResource(R.string.apps_cd_backup))
         }
         IconButton(onClick = onUninstall) {
-            Icon(Icons.Filled.Delete, contentDescription = "Hapus aplikasi")
+            Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.apps_cd_uninstall))
         }
     }
 }

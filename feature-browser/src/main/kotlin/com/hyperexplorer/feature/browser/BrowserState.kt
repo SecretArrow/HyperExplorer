@@ -34,12 +34,18 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 
+/** Jenis galat layar browser; teksnya dipetakan ke resource string di lapisan UI. */
+enum class BrowserError {
+    /** Isi folder saat ini tidak dapat dibaca. */
+    CANNOT_READ_FOLDER,
+}
+
 data class UiState(
     val root: File,
     val current: File,
     val items: List<FileNode> = emptyList(),
     val loading: Boolean = false,
-    val error: String? = null,
+    val error: BrowserError? = null,
     val selectionMode: Boolean = false,
     val selection: Set<String> = emptySet(),
 )
@@ -79,7 +85,7 @@ class BrowserState(
                 }
             _ui.update { state ->
                 if (items == null) {
-                    state.copy(loading = false, items = emptyList(), error = "Tidak dapat membaca folder")
+                    state.copy(loading = false, items = emptyList(), error = BrowserError.CANNOT_READ_FOLDER)
                 } else {
                     state.copy(loading = false, items = items, error = null)
                 }

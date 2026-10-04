@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Hyper Explorer - a free and open source file manager for Android.
+ * Copyright (C) 2025-2026 Hyper Explorer contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Layar server FTP (FtpServerScreen). -->
+    <string name="transfer_title">Server FTP</string>
+    <string name="transfer_port_label">Port</string>
+    <string name="transfer_username_label">Nama pengguna</string>
+    <string name="transfer_password_label">Kata sandi</string>
+    <string name="transfer_show_password">Tampilkan kata sandi</string>
+    <string name="transfer_hide_password">Sembunyikan kata sandi</string>
+    <string name="transfer_start">Mulai</string>
+    <string name="transfer_stop">Berhenti</string>
+    <string name="transfer_status_running">Berjalan di %1$s:%2$d</string>
+    <string name="transfer_status_inactive">Tidak aktif</string>
+    <string name="transfer_stopped_reason">Alasan berhenti: %1$s</string>
+    <string name="transfer_error_port">Port harus 0 (acak) atau angka 1024 sampai 65535</string>
+    <string name="transfer_error_username_empty">Nama pengguna tidak boleh kosong</string>
+    <string name="transfer_error_password_empty">Kata sandi tidak boleh kosong</string>
+    <string name="transfer_usage_title">Cara pakai</string>
+    <string name="transfer_usage_steps">1) Pastikan ponsel dan komputer terhubung ke jaringan Wi-Fi yang sama.\n2) Gunakan nama pengguna dan kata sandi yang kuat.\n3) Di komputer, buka ftp://&lt;ip&gt;:&lt;port&gt; lewat file manager atau klien FTP.\n4) Server mati otomatis setelah beberapa waktu tanpa koneksi.</string>
+    <string name="transfer_security_warning">Server hanya boleh diaktifkan di jaringan tepercaya. Autentikasi wajib dan server mati otomatis saat idle.</string>
+    <!-- Notifikasi foreground service (FtpService). -->
+    <string name="transfer_notification_channel_name">Transfer FTP</string>
+    <string name="transfer_notification_channel_description">Status server FTP untuk transfer berkas</string>
+    <string name="transfer_notification_title">Server FTP aktif</string>
+    <string name="transfer_notification_content">%1$s:%2$s — pengguna %3$s</string>
+    <string name="transfer_unknown_host">tidak diketahui</string>
+</resources>

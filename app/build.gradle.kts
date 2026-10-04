@@ -20,8 +20,8 @@ android {
         applicationId = "com.hyperexplorer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2.0"
+        versionCode = 4
+        versionName = "0.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -79,6 +79,7 @@ dependencies {
     implementation(project(":feature-settings"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

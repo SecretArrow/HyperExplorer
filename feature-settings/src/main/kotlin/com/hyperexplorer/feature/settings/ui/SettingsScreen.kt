@@ -42,7 +42,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hyperexplorer.feature.settings.LanguageMode
+import com.hyperexplorer.feature.settings.R
 import com.hyperexplorer.feature.settings.ThemeMode
 
 private const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -52,20 +55,22 @@ private const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 fun SettingsScreen(
     currentMode: ThemeMode,
     onSelectMode: (ThemeMode) -> Unit,
+    currentLanguage: LanguageMode,
+    onSelectLanguage: (LanguageMode) -> Unit,
     appVersion: String,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text(text = "Pengaturan") })
+            TopAppBar(title = { Text(text = stringResource(R.string.settings_title)) })
         },
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item { SectionTitle(text = "Tema") }
+            item { SectionTitle(text = stringResource(R.string.settings_section_theme)) }
             items(ThemeMode.entries) { mode ->
                 ThemeOptionRow(
                     mode = mode,
@@ -73,12 +78,20 @@ fun SettingsScreen(
                     onSelect = { onSelectMode(mode) },
                 )
             }
-            item { SectionTitle(text = "Tentang") }
+            item { SectionTitle(text = stringResource(R.string.settings_section_language)) }
+            items(LanguageMode.entries) { mode ->
+                LanguageOptionRow(
+                    mode = mode,
+                    selected = mode == currentLanguage,
+                    onSelect = { onSelectLanguage(mode) },
+                )
+            }
+            item { SectionTitle(text = stringResource(R.string.settings_section_about)) }
             item { AboutCard(appVersion = appVersion) }
-            item { SectionTitle(text = "Privasi") }
+            item { SectionTitle(text = stringResource(R.string.settings_section_privacy)) }
             item {
                 Text(
-                    text = "Aplikasi ini tidak mengumpulkan data apa pun. Semua proses berjalan di perangkat.",
+                    text = stringResource(R.string.settings_privacy_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
@@ -113,7 +126,23 @@ private fun ThemeOptionRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(selected = selected, onClick = onSelect)
-        Text(text = mode.label(), style = MaterialTheme.typography.bodyLarge)
+        Text(text = stringResource(mode.labelRes()), style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+private fun LanguageOptionRow(
+    mode: LanguageMode,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().clickable(onClick = onSelect),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = onSelect)
+        Text(text = stringResource(mode.labelRes()), style = MaterialTheme.typography.bodyLarge)
     }
 }
 
@@ -125,13 +154,16 @@ private fun AboutCard(
     val context = LocalContext.current
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(text = "Hyper Explorer $appVersion", style = MaterialTheme.typography.titleMedium)
             Text(
-                text = "Pengelola berkas 100% perangkat lunak bebas.",
+                text = stringResource(R.string.settings_about_name_version, appVersion),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Text(
+                text = stringResource(R.string.settings_about_tagline),
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                text = "Lisensi: GNU GPL v3 — tanpa iklan, tanpa pelacakan, tanpa layanan berpemilik.",
+                text = stringResource(R.string.settings_about_license),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -141,7 +173,7 @@ private fun AboutCard(
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GPL_URL)))
                     }
                 },
-            ) { Text(text = "Baca lisensi (gnu.org)") }
+            ) { Text(text = stringResource(R.string.settings_about_read_license)) }
         }
     }
 }

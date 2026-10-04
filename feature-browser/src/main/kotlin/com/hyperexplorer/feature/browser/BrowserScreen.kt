@@ -57,6 +57,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.core.ui.components.EmptyState
@@ -79,31 +81,31 @@ fun BrowserScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = if (ui.current == ui.root) "Hyper Explorer" else ui.current.name) },
+                title = { Text(text = if (ui.current == ui.root) stringResource(R.string.browser_title) else ui.current.name) },
                 navigationIcon = {
                     if (ui.current != ui.root) {
                         IconButton(onClick = { state.up() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Naik")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.browser_cd_up))
                         }
                     }
                 },
                 actions = {
                     if (clipboard != null) {
                         IconButton(onClick = { state.paste() }) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = "Tempel")
+                            Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(R.string.browser_cd_paste))
                         }
                     }
                     IconButton(onClick = { state.setSelectionMode(!ui.selectionMode) }) {
                         Icon(
                             if (ui.selectionMode) Icons.Filled.Close else Icons.Filled.CheckCircle,
-                            contentDescription = "Mode seleksi",
+                            contentDescription = stringResource(R.string.browser_cd_selection_mode),
                         )
                     }
                     IconButton(onClick = { showNewFolderDialog = true }) {
-                        Icon(Icons.Filled.Create, contentDescription = "Folder baru")
+                        Icon(Icons.Filled.Create, contentDescription = stringResource(R.string.browser_new_folder))
                     }
                     IconButton(onClick = { state.refresh() }) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Segarkan")
+                        Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.browser_cd_refresh))
                     }
                 },
             )
@@ -128,8 +130,8 @@ fun BrowserScreen(
                 StorageAccessBanner(onRequest = onRequestStorageAccess)
             }
             when {
-                ui.error != null -> EmptyState(message = ui.error ?: "")
-                ui.items.isEmpty() -> EmptyState(message = "Folder kosong")
+                ui.error != null -> EmptyState(message = stringResource(R.string.browser_error_read_folder))
+                ui.items.isEmpty() -> EmptyState(message = stringResource(R.string.browser_empty_folder))
                 else ->
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(ui.items, key = { it.path }) { node ->
@@ -153,12 +155,12 @@ fun BrowserScreen(
     if (showNewFolderDialog) {
         AlertDialog(
             onDismissRequest = { showNewFolderDialog = false },
-            title = { Text(text = "Folder baru") },
+            title = { Text(text = stringResource(R.string.browser_new_folder)) },
             text = {
                 OutlinedTextField(
                     value = folderName,
                     onValueChange = { folderName = it },
-                    label = { Text(text = "Nama folder") },
+                    label = { Text(text = stringResource(R.string.browser_folder_name_label)) },
                     singleLine = true,
                 )
             },
@@ -169,10 +171,10 @@ fun BrowserScreen(
                         folderName = ""
                         showNewFolderDialog = false
                     },
-                ) { Text(text = "Buat") }
+                ) { Text(text = stringResource(R.string.browser_create)) }
             },
             dismissButton = {
-                TextButton(onClick = { showNewFolderDialog = false }) { Text(text = "Batal") }
+                TextButton(onClick = { showNewFolderDialog = false }) { Text(text = stringResource(R.string.browser_cancel)) }
             },
         )
     }
@@ -189,11 +191,11 @@ private fun StorageAccessBanner(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Berikan akses semua berkas agar file manager bekerja penuh.",
+                text = stringResource(R.string.browser_storage_access_message),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodySmall,
             )
-            TextButton(onClick = onRequest) { Text(text = "Izinkan") }
+            TextButton(onClick = onRequest) { Text(text = stringResource(R.string.browser_allow)) }
         }
     }
 }
@@ -212,16 +214,19 @@ private fun SelectionBar(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onDelete) { Icon(Icons.Filled.Delete, contentDescription = "Hapus") }
-            IconButton(onClick = onCopy) { Icon(Icons.Filled.ContentCopy, contentDescription = "Salin") }
-            IconButton(onClick = onCut) { Icon(Icons.Filled.ContentCut, contentDescription = "Potong") }
+            IconButton(onClick = onDelete) { Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.browser_cd_delete)) }
+            IconButton(onClick = onCopy) { Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(R.string.browser_cd_copy)) }
+            IconButton(onClick = onCut) { Icon(Icons.Filled.ContentCut, contentDescription = stringResource(R.string.browser_cd_cut)) }
             if (onZip != null) {
                 IconButton(onClick = onZip) {
-                    Icon(Icons.Filled.FolderZip, contentDescription = "Kompres ZIP")
+                    Icon(Icons.Filled.FolderZip, contentDescription = stringResource(R.string.browser_cd_zip))
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            Text(text = "$count dipilih", style = MaterialTheme.typography.labelLarge)
+            Text(
+                text = pluralStringResource(R.plurals.browser_selected_count, count, count),
+                style = MaterialTheme.typography.labelLarge,
+            )
         }
     }
 }

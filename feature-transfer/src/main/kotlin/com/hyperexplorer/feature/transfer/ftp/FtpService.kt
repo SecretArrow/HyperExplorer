@@ -31,6 +31,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.hyperexplorer.feature.transfer.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -123,8 +124,13 @@ class FtpService : Service() {
 
     private fun ensureNotificationChannel() {
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(CHANNEL_ID, "Transfer FTP", NotificationManager.IMPORTANCE_DEFAULT)
-        channel.description = "Status server FTP untuk transfer berkas"
+        val channel =
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.transfer_notification_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT,
+            )
+        channel.description = getString(R.string.transfer_notification_channel_description)
         manager.createNotificationChannel(channel)
     }
 
@@ -149,8 +155,8 @@ class FtpService : Service() {
         val portText = if (port > 0) port.toString() else "…"
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_share)
-            .setContentTitle("Server FTP aktif")
-            .setContentText("$host:$portText — pengguna $username")
+            .setContentTitle(getString(R.string.transfer_notification_title))
+            .setContentText(getString(R.string.transfer_notification_content, host, portText, username))
             .setContentIntent(contentIntent)
             .setOngoing(true)
             .build()
@@ -210,7 +216,7 @@ class FtpService : Service() {
         }
 
         /** Alamat IP LAN untuk ditampilkan ke pengguna, bila tersedia. */
-        fun localIpText(): String = localIp() ?: "tidak diketahui"
+        fun localIpText(context: Context): String = localIp() ?: context.getString(R.string.transfer_unknown_host)
 
         private fun localIp(): String? {
             val interfaces =

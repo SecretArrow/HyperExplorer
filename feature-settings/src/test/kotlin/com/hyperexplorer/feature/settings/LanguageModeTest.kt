@@ -24,33 +24,33 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ThemeModeTest {
+class LanguageModeTest {
     @Test
     fun `from ordinal returns matching mode`() {
-        assertEquals(ThemeMode.SYSTEM, ThemeMode.fromOrdinal(0))
-        assertEquals(ThemeMode.LIGHT, ThemeMode.fromOrdinal(1))
-        assertEquals(ThemeMode.DARK, ThemeMode.fromOrdinal(2))
+        assertEquals(LanguageMode.SYSTEM, LanguageMode.fromOrdinal(0))
+        assertEquals(LanguageMode.ENGLISH, LanguageMode.fromOrdinal(1))
+        assertEquals(LanguageMode.INDONESIAN, LanguageMode.fromOrdinal(2))
     }
 
     @Test
     fun `from ordinal falls back to system for invalid values`() {
-        assertEquals(ThemeMode.SYSTEM, ThemeMode.fromOrdinal(-1))
-        assertEquals(ThemeMode.SYSTEM, ThemeMode.fromOrdinal(99))
-        assertEquals(ThemeMode.SYSTEM, ThemeMode.fromOrdinal(Int.MIN_VALUE))
-        assertEquals(ThemeMode.SYSTEM, ThemeMode.fromOrdinal(Int.MAX_VALUE))
+        assertEquals(LanguageMode.SYSTEM, LanguageMode.fromOrdinal(-1))
+        assertEquals(LanguageMode.SYSTEM, LanguageMode.fromOrdinal(99))
+        assertEquals(LanguageMode.SYSTEM, LanguageMode.fromOrdinal(Int.MIN_VALUE))
+        assertEquals(LanguageMode.SYSTEM, LanguageMode.fromOrdinal(Int.MAX_VALUE))
     }
 
     @Test
     fun `default stored ordinal is system`() {
-        assertEquals(ThemeMode.SYSTEM, ThemeMode.fromOrdinal(ThemeMode.SYSTEM.ordinal))
+        assertEquals(LanguageMode.SYSTEM, LanguageMode.fromOrdinal(LanguageMode.SYSTEM.ordinal))
     }
 
     @Test
     fun `label resources are distinct and valid`() {
-        val labels = ThemeMode.entries.map { it.labelRes() }
+        val labels = LanguageMode.entries.map { it.labelRes() }
         assertTrue(labels.all { it != 0 })
         assertEquals(labels.size, labels.toSet().size)
-        assertNotEquals(ThemeMode.SYSTEM.labelRes(), ThemeMode.LIGHT.labelRes())
-        assertNotEquals(ThemeMode.LIGHT.labelRes(), ThemeMode.DARK.labelRes())
+        assertNotEquals(LanguageMode.SYSTEM.labelRes(), LanguageMode.ENGLISH.labelRes())
+        assertNotEquals(LanguageMode.ENGLISH.labelRes(), LanguageMode.INDONESIAN.labelRes())
     }
 }

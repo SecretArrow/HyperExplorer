@@ -29,10 +29,12 @@ import android.os.Environment
 import android.provider.Settings
 import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -52,8 +54,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.LocaleListCompat
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.core.ui.theme.HyperExplorerTheme
 import com.hyperexplorer.data.local.FileRepository
@@ -65,6 +69,8 @@ import com.hyperexplorer.feature.media.ui.ImageViewerScreen
 import com.hyperexplorer.feature.media.ui.TextEditorScreen
 import com.hyperexplorer.feature.media.viewer.ViewerRoute
 import com.hyperexplorer.feature.media.viewer.ViewerRouter
+import com.hyperexplorer.feature.settings.LanguageMode
+import com.hyperexplorer.feature.settings.LanguagePrefs
 import com.hyperexplorer.feature.settings.ThemeMode
 import com.hyperexplorer.feature.settings.ThemePrefs
 import com.hyperexplorer.feature.settings.ui.SettingsScreen
@@ -79,23 +85,25 @@ import java.io.File
 import java.util.Locale
 
 /** Layar utama yang dapat dipilih lewat navigasi bawah. */
-private enum class Screen(val label: String) {
-    BROWSER("Berkas"),
-    APPS("Aplikasi"),
-    STORAGE("Penyimpanan"),
-    FTP("FTP"),
-    SETTINGS("Pengaturan"),
+private enum class Screen(val labelRes: Int) {
+    BROWSER(R.string.app_tab_files),
+    APPS(R.string.app_tab_apps),
+    STORAGE(R.string.app_tab_storage),
+    FTP(R.string.app_tab_ftp),
+    SETTINGS(R.string.app_tab_settings),
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private var hasStorageAccess by mutableStateOf(false)
     private var screen by mutableStateOf(Screen.BROWSER)
     private var viewer by mutableStateOf<ViewerRoute?>(null)
     private var themeMode by mutableStateOf(ThemeMode.SYSTEM)
+    private var languageMode by mutableStateOf(LanguageMode.SYSTEM)
 
     private lateinit var browserState: BrowserState
     private lateinit var appsState: AppsState
     private lateinit var themePrefs: ThemePrefs
+    private lateinit var languagePrefs: LanguagePrefs
 
     private val zipEngine = ZipEngine()
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -106,6 +114,8 @@ class MainActivity : ComponentActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Pola resmi AppCompat untuk penyimpanan bahasa kustom: terapkan SEBELUM super.onCreate().
+        AppCompatDelegate.setApplicationLocales(localesFor(LanguagePrefs(this).read()))
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         hasStorageAccess = checkStorageAccess()
@@ -117,6 +127,8 @@ class MainActivity : ComponentActivity() {
         appsState = AppsState(this)
         themePrefs = ThemePrefs(this)
         themeMode = themePrefs.read()
+        languagePrefs = LanguagePrefs(this)
+        languageMode = languagePrefs.read()
 
         setContent {
             val darkTheme =
@@ -130,6 +142,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    /** Petakan mode bahasa ke daftar locale AppCompat (SYSTEM = kosong, ikuti sistem). */
+    private fun localesFor(mode: LanguageMode): LocaleListCompat =
+        when (mode) {
+            LanguageMode.SYSTEM -> LocaleListCompat.getEmptyLocaleList()
+            LanguageMode.ENGLISH -> LocaleListCompat.forLanguageTags("en")
+            LanguageMode.INDONESIAN -> LocaleListCompat.forLanguageTags("id")
+        }
 
     @Composable
     private fun AppContent() {
@@ -152,7 +172,7 @@ class MainActivity : ComponentActivity() {
                             selected = screen == item,
                             onClick = { screen = item },
                             icon = { Icon(imageVector = item.icon(), contentDescription = null) },
-                            label = { Text(text = item.label) },
+                            label = { Text(text = stringResource(item.labelRes)) },
                         )
                     }
                 }
@@ -177,6 +197,13 @@ class MainActivity : ComponentActivity() {
                             onSelectMode = { mode ->
                                 themeMode = mode
                                 themePrefs.write(mode)
+                            },
+                            currentLanguage = languageMode,
+                            onSelectLanguage = { mode ->
+                                languageMode = mode
+                                languagePrefs.write(mode)
+                                // Memicu rekreasiasi aktivitas agar seluruh UI memakai bahasa baru.
+                                AppCompatDelegate.setApplicationLocales(localesFor(mode))
                             },
                             appVersion = appVersion(),
                         )
@@ -267,7 +294,12 @@ class MainActivity : ComponentActivity() {
         val current = browserState.ui.value.current
         val sources = browserState.ui.value.selection.map { File(it) }.filter { it.exists() }
         if (sources.isEmpty()) return
-        val archiveName = if (current == browserState.ui.value.root) "arsip" else current.name
+        val archiveName =
+            if (current == browserState.ui.value.root) {
+                getString(R.string.app_default_archive_name)
+            } else {
+                current.name
+            }
         val target = File(current, "$archiveName.zip")
         mainScope.launch {
             val result = zipEngine.zipFiles(sources, target)
@@ -275,8 +307,8 @@ class MainActivity : ComponentActivity() {
             browserState.refresh()
             val message =
                 result.fold(
-                    onSuccess = { "Arsip dibuat: ${it.name}" },
-                    onFailure = { "Gagal membuat arsip ZIP" },
+                    onSuccess = { getString(R.string.app_zip_created, it.name) },
+                    onFailure = { getString(R.string.app_zip_failed) },
                 )
             Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
         }

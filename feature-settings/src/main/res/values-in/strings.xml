@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hyper Explorer - a free and open source file manager for Android.
+  Copyright (C) 2025-2026 Hyper Explorer contributors
+
+  SPDX-License-Identifier: GPL-3.0-only
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_section_theme">Tema</string>
+    <string name="settings_theme_system">Ikuti sistem</string>
+    <string name="settings_theme_light">Terang</string>
+    <string name="settings_theme_dark">Gelap</string>
+    <string name="settings_section_language">Bahasa</string>
+    <string name="settings_language_system">Sistem</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_indonesian">Indonesia</string>
+    <string name="settings_section_about">Tentang</string>
+    <string name="settings_about_name_version">Hyper Explorer %1$s</string>
+    <string name="settings_about_tagline" formatted="false">Pengelola berkas 100% perangkat lunak bebas.</string>
+    <string name="settings_about_license">Lisensi: GNU GPL v3 — tanpa iklan, tanpa pelacakan, tanpa layanan berpemilik.</string>
+    <string name="settings_about_read_license">Baca lisensi (gnu.org)</string>
+    <string name="settings_section_privacy">Privasi</string>
+    <string name="settings_privacy_description">Aplikasi ini tidak mengumpulkan data apa pun. Semua proses berjalan di perangkat.</string>
+</resources>

@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ import com.hyperexplorer.core.model.FileCategory
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.core.ui.components.EmptyState
 import com.hyperexplorer.core.ui.components.FileRow
+import com.hyperexplorer.feature.tools.R
 import com.hyperexplorer.feature.tools.storage.StorageAnalyzer
 import com.hyperexplorer.feature.tools.storage.StorageReport
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +67,7 @@ import java.io.File
 
 data class StorageUi(
     val loading: Boolean = false,
-    val error: String? = null,
+    val error: Boolean = false,
     val report: StorageReport? = null,
 )
 
@@ -79,16 +81,17 @@ private val DISPLAY_CATEGORIES =
         FileCategory.APK,
     )
 
+@Composable
 private fun categoryLabel(category: FileCategory): String =
     when (category) {
-        FileCategory.FOLDER -> "Folder"
-        FileCategory.IMAGE -> "Gambar"
-        FileCategory.VIDEO -> "Video"
-        FileCategory.AUDIO -> "Audio"
-        FileCategory.DOCUMENT -> "Dokumen"
-        FileCategory.ARCHIVE -> "Arsip"
-        FileCategory.APK -> "Aplikasi (APK)"
-        FileCategory.OTHER -> "Lainnya"
+        FileCategory.FOLDER -> stringResource(R.string.tools_category_folder)
+        FileCategory.IMAGE -> stringResource(R.string.tools_category_image)
+        FileCategory.VIDEO -> stringResource(R.string.tools_category_video)
+        FileCategory.AUDIO -> stringResource(R.string.tools_category_audio)
+        FileCategory.DOCUMENT -> stringResource(R.string.tools_category_document)
+        FileCategory.ARCHIVE -> stringResource(R.string.tools_category_archive)
+        FileCategory.APK -> stringResource(R.string.tools_category_apk)
+        FileCategory.OTHER -> stringResource(R.string.tools_category_other)
     }
 
 /**
@@ -109,7 +112,7 @@ class StorageAnalyzerState(
     }
 
     fun refresh() {
-        _ui.update { it.copy(loading = true, error = null) }
+        _ui.update { it.copy(loading = true, error = false) }
         scope.launch {
             val report =
                 try {
@@ -119,9 +122,9 @@ class StorageAnalyzerState(
                 }
             _ui.update { state ->
                 if (report == null) {
-                    state.copy(loading = false, error = "Tidak dapat menganalisis penyimpanan")
+                    state.copy(loading = false, error = true)
                 } else {
-                    state.copy(loading = false, report = report, error = null)
+                    state.copy(loading = false, report = report, error = false)
                 }
             }
         }
@@ -142,10 +145,10 @@ fun StorageAnalyzerScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Analisis Penyimpanan") },
+                title = { Text(text = stringResource(R.string.tools_title)) },
                 actions = {
                     IconButton(onClick = { state.refresh() }) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Segarkan")
+                        Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.tools_refresh))
                     }
                 },
             )
@@ -157,8 +160,8 @@ fun StorageAnalyzerScreen(
             }
             val report = ui.report
             when {
-                ui.error != null -> EmptyState(message = ui.error ?: "")
-                report == null -> EmptyState(message = "Menyiapkan analisis...")
+                ui.error -> EmptyState(message = stringResource(R.string.tools_error_analysis_failed))
+                report == null -> EmptyState(message = stringResource(R.string.tools_preparing_analysis))
                 else -> AnalyzerContent(report = report, onOpenFile = onOpenFile)
             }
         }
@@ -177,7 +180,7 @@ private fun AnalyzerContent(
     ) {
         item { SummaryCard(report = report) }
         item { CategorySection(report = report) }
-        item { SectionTitle(text = "20 berkas terbesar") }
+        item { SectionTitle(text = stringResource(R.string.tools_largest_files_title)) }
         items(report.largestFiles, key = { it.path }) { node ->
             FileRow(
                 node = node,
@@ -199,9 +202,21 @@ private fun SummaryCard(
     Card(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                SummaryItem(label = "Total", value = FileNode.humanSize(report.totalBytes), modifier = Modifier.weight(1f))
-                SummaryItem(label = "Terpakai", value = FileNode.humanSize(usedBytes), modifier = Modifier.weight(1f))
-                SummaryItem(label = "Bebas", value = FileNode.humanSize(report.usableBytes), modifier = Modifier.weight(1f))
+                SummaryItem(
+                    label = stringResource(R.string.tools_summary_total),
+                    value = FileNode.humanSize(report.totalBytes),
+                    modifier = Modifier.weight(1f),
+                )
+                SummaryItem(
+                    label = stringResource(R.string.tools_summary_used),
+                    value = FileNode.humanSize(usedBytes),
+                    modifier = Modifier.weight(1f),
+                )
+                SummaryItem(
+                    label = stringResource(R.string.tools_summary_free),
+                    value = FileNode.humanSize(report.usableBytes),
+                    modifier = Modifier.weight(1f),
+                )
             }
             LinearProgressIndicator(
                 progress = { usedFraction },
@@ -234,10 +249,10 @@ private fun CategorySection(
 ) {
     val visibleCategories = DISPLAY_CATEGORIES.filter { (report.categorySizes[it] ?: 0L) > 0L }
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        SectionTitle(text = "Kategori", verticalPadding = 4.dp)
+        SectionTitle(text = stringResource(R.string.tools_categories_title), verticalPadding = 4.dp)
         if (visibleCategories.isEmpty()) {
             Text(
-                text = "Tidak ada berkas terklasifikasi",
+                text = stringResource(R.string.tools_no_classified_files),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -286,10 +301,10 @@ private fun DuplicateSection(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        SectionTitle(text = "Kemungkinan duplikat", verticalPadding = 4.dp)
+        SectionTitle(text = stringResource(R.string.tools_duplicates_title), verticalPadding = 4.dp)
         if (report.duplicateGroups.isEmpty()) {
             Text(
-                text = "Tidak ada duplikat terdeteksi",
+                text = stringResource(R.string.tools_no_duplicates),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -308,7 +323,7 @@ private fun DuplicateGroup(
     val groupSize = group.firstOrNull()?.let { File(it).length() } ?: 0L
     Column(modifier = modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         Text(
-            text = "${FileNode.humanSize(groupSize)} · ${group.size} berkas",
+            text = stringResource(R.string.tools_duplicate_group, FileNode.humanSize(groupSize), group.size),
             style = MaterialTheme.typography.bodyMedium,
         )
         for (path in group) {

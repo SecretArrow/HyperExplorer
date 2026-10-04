@@ -18,15 +18,14 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <resources>
-    <!-- Smoke test meng-assert teks ini: JANGAN diubah. -->
     <string name="app_name">Hyper Explorer</string>
 
-    <string name="app_tab_files">Files</string>
-    <string name="app_tab_apps">Apps</string>
-    <string name="app_tab_storage">Storage</string>
+    <string name="app_tab_files">Berkas</string>
+    <string name="app_tab_apps">Aplikasi</string>
+    <string name="app_tab_storage">Penyimpanan</string>
     <string name="app_tab_ftp">FTP</string>
-    <string name="app_tab_settings">Settings</string>
-    <string name="app_zip_created">Archive created: %1$s</string>
-    <string name="app_zip_failed">Failed to create ZIP archive</string>
-    <string name="app_default_archive_name">archive</string>
+    <string name="app_tab_settings">Pengaturan</string>
+    <string name="app_zip_created">Arsip dibuat: %1$s</string>
+    <string name="app_zip_failed">Gagal membuat arsip ZIP</string>
+    <string name="app_default_archive_name">arsip</string>
 </resources>

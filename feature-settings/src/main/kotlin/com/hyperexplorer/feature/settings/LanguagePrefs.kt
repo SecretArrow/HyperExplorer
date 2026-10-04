@@ -19,28 +19,26 @@
 
 package com.hyperexplorer.feature.settings
 
-import androidx.annotation.StringRes
+import android.content.Context
 
 /**
- * Pilihan tema aplikasi. Nilai tersimpan sebagai ordinal di SharedPreferences.
+ * Penyimpan preferensi bahasa berbasis SharedPreferences.
+ * Tanpa dependensi eksternal, tanpa jaringan: data hanya ada di perangkat.
  */
-enum class ThemeMode {
-    SYSTEM,
-    LIGHT,
-    DARK,
-    ;
+class LanguagePrefs(context: Context) {
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    /** Resource label yang tampil di layar pengaturan (dilokalkan via stringResource). */
-    @StringRes
-    fun labelRes(): Int =
-        when (this) {
-            SYSTEM -> R.string.settings_theme_system
-            LIGHT -> R.string.settings_theme_light
-            DARK -> R.string.settings_theme_dark
-        }
+    /** Baca bahasa tersimpan; default [LanguageMode.SYSTEM] bila belum pernah diset. */
+    fun read(): LanguageMode =
+        LanguageMode.fromOrdinal(prefs.getInt(KEY_LANGUAGE_MODE, LanguageMode.SYSTEM.ordinal))
 
-    companion object {
-        /** Aman terhadap ordinal lama/tak valid: selalu kembali ke SYSTEM. */
-        fun fromOrdinal(value: Int): ThemeMode = entries.getOrElse(value) { SYSTEM }
+    /** Simpan bahasa pilihan pengguna secara asinkron (apply). */
+    fun write(mode: LanguageMode) {
+        prefs.edit().putInt(KEY_LANGUAGE_MODE, mode.ordinal).apply()
+    }
+
+    private companion object {
+        const val PREFS_NAME = "hyper_settings"
+        const val KEY_LANGUAGE_MODE = "language_mode"
     }
 }

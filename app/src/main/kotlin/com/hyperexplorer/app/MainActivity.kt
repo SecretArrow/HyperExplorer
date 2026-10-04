@@ -212,8 +212,8 @@ class MainActivity : AppCompatActivity() {
     private fun AppContent() {
         if (appLockEnabled && needsLock) {
             val authenticators =
-                BiometricPrompt.Authenticators.BIOMETRIC_WEAK or
-                    BiometricPrompt.Authenticators.DEVICE_CREDENTIAL
+                BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
             val availability =
                 AppLockHelper.mapAvailability(
                     BiometricManager.from(this@MainActivity).canAuthenticate(authenticators),

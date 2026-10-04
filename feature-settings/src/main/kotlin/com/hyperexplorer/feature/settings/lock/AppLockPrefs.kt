@@ -54,8 +54,8 @@ object AppLockPrefs {
         }
     }
 
-    private companion object {
-        const val PREFS_NAME = "hyper_settings"
-        const val KEY_APP_LOCK_ENABLED = "app_lock_enabled"
-    }
+    // Catatan: object tidak boleh membungkus companion object (kesalahan kompilasi);
+    // konstanta diletakkan langsung di dalam object.
+    private const val PREFS_NAME = "hyper_settings"
+    private const val KEY_APP_LOCK_ENABLED = "app_lock_enabled"
 }

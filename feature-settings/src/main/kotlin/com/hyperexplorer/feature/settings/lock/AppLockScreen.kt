@@ -19,6 +19,7 @@
 
 package com.hyperexplorer.feature.settings.lock
 
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -143,8 +144,10 @@ fun AppLockScreen(
                     .setTitle(promptTitle)
                     .setSubtitle(promptSubtitle)
                     .setAllowedAuthenticators(
-                        BiometricPrompt.Authenticators.BIOMETRIC_WEAK or
-                            BiometricPrompt.Authenticators.DEVICE_CREDENTIAL,
+                        // 1.1.0: konstanta ada di BiometricManager.Authenticators
+                        // (BiometricPrompt.Authenticators baru ada sejak 1.2.0).
+                        BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL,
                     )
                     .build()
                 // DEVICE_CREDENTIAL menyediakan batal/kredensial bawaan → tanpa setNegativeButtonText.

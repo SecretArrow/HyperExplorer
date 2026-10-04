@@ -157,7 +157,8 @@ class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
                 val failedDirs = mutableSetOf<String>()
                 // (a) folder lokal hilang di remote: buat PER LEVEL ("a" lalu "a/b").
                 for (rel in localDirs.keys) {
-                    createdDirectories += ensureRemoteDirs(rel, root, remoteDirs, failedDirs, failures)
+                    createdDirectories +=
+                        ensureRemoteDirs(rel, root, fs, remoteDirs, failedDirs, failures)
                 }
                 // (b) berkas lokal baru/berubah diunggah;
                 // (c) berkas remote yang TIDAK ada lokal DIBIARKAN (non-destruktif).
@@ -337,6 +338,7 @@ class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
     private suspend fun ensureRemoteDirs(
         relDir: String,
         root: String,
+        fs: RemoteFileSystem,
         remoteDirs: MutableMap<String, RemoteEntry>,
         failedDirs: MutableSet<String>,
         failures: MutableList<String>,

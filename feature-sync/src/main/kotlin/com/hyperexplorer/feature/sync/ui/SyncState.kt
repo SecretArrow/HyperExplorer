@@ -309,7 +309,10 @@ class SyncState(
      * stack exception TIDAK dicatat karena dapat memuat data pasangan (SyncPair.toString
      * menyertakan RemoteConnection beserta kredensialnya).
      */
-    private fun logSafely(operation: String, t: Throwable) {
+    private fun logSafely(
+        operation: String,
+        t: Throwable,
+    ) {
         Log.w(TAG, "$operation failed: ${t.javaClass.simpleName}")
     }
 

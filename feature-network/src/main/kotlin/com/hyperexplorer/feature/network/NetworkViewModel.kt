@@ -45,6 +45,7 @@ import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException
+import kotlin.coroutines.coroutineContext
 
 /**
  * State holder layar lokasi jaringan; class biasa tanpa DI (pola state holder modul

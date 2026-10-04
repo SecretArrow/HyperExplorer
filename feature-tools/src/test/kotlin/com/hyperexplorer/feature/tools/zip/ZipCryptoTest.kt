@@ -95,12 +95,12 @@ class ZipCryptoTest {
             val sources = createSourceTree(tmp.newFolder("source"))
             val targetZip = File(tmp.root, "not-created.zip")
 
-            val exception =
-                runCatching { engine.zipFilesEncrypted(sources, targetZip, CharArray(0)) }
-                    .exceptionOrNull()
+            // Kontrak berbasis Result: IAE dibungkus Result.failure, bukan dilempar.
+            val result = engine.zipFilesEncrypted(sources, targetZip, CharArray(0))
 
-            assertTrue(exception is IllegalArgumentException)
-            assertEquals("Password is required for encrypted ZIP", exception?.message)
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+            assertEquals("Password is required for encrypted ZIP", result.exceptionOrNull()?.message)
             assertFalse(targetZip.exists()) // gagal cepat: tidak ada I/O yang dilakukan
         }
 
@@ -110,10 +110,12 @@ class ZipCryptoTest {
             val targetZip = createEncryptedArchive("nopw")
             val targetDir = tmp.newFolder("target")
 
-            val exception = runCatching { engine.unzip(targetZip, targetDir, CharArray(0)) }.exceptionOrNull()
+            // Kontrak berbasis Result: IAE dibungkus Result.failure, bukan dilempar.
+            val result = engine.unzip(targetZip, targetDir, CharArray(0))
 
-            assertTrue(exception is IllegalArgumentException)
-            assertEquals("Password is required for encrypted ZIP", exception?.message)
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+            assertEquals("Password is required for encrypted ZIP", result.exceptionOrNull()?.message)
         }
 
     @Test
@@ -122,12 +124,12 @@ class ZipCryptoTest {
             val sources = createSourceTree(tmp.newFolder("source"))
             val targetZip = File(tmp.root, "not-created-either.zip")
 
-            val exception =
-                runCatching { engine.zipFilesEncrypted(sources, targetZip, "   ".toCharArray()) }
-                    .exceptionOrNull()
+            // Kontrak berbasis Result: IAE dibungkus Result.failure, bukan dilempar.
+            val result = engine.zipFilesEncrypted(sources, targetZip, "   ".toCharArray())
 
-            assertTrue(exception is IllegalArgumentException)
-            assertEquals("Password is required for encrypted ZIP", exception?.message)
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+            assertEquals("Password is required for encrypted ZIP", result.exceptionOrNull()?.message)
             assertFalse(targetZip.exists())
         }
 

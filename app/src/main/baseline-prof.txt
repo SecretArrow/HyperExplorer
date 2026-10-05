@@ -7,7 +7,9 @@
 # tanpa Cloud Profiles.
 #
 # Format: [FLAGS]<class>;-><method>(<params>)<return>, wildcard * dan ** didukung.
+# Flag L (class preload) HANYA boleh tanpa method pattern; method rule wajib
+# memuat minimal satu flag H/S/P (profgen menolak L+method).
 HSPLcom/hyperexplorer/**;->**(**)**
-Lcom/hyperexplorer/**;->**(**)**
+Lcom/hyperexplorer/**;
 HSPLandroidx/compose/runtime/**;->**(**)**
 HSPLandroidx/startup/**;->**(**)**

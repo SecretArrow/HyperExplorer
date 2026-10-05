@@ -405,7 +405,12 @@ private fun RemoteEntryRow(
     ) {
         Icon(
             imageVector = if (entry.isDirectory) Icons.Outlined.Folder else Icons.Outlined.InsertDriveFile,
-            contentDescription = null,
+            // A11y: jenis entri (folder/berkas) tidak tersedia dalam teks manapun pada baris
+            // (subtitle direktori hanya tanggal), jadi ikon ini diberi deskripsi dinamis.
+            contentDescription =
+                stringResource(
+                    if (entry.isDirectory) R.string.network_cd_folder else R.string.network_cd_file,
+                ),
             tint = if (entry.isDirectory) FOLDER_ICON_TINT else MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.width(16.dp))

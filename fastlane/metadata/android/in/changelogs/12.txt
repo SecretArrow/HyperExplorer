@@ -1,0 +1,1 @@
+Peningkatan: aksesibilitas — baris berkas kini diumumkan sebagai satu label ("Folder/Berkas, nama, ukuran & tanggal") plus status terpilih utk TalkBack, entri jaringan mengumumkan jenisnya, dan audit ikon di seluruh layar.

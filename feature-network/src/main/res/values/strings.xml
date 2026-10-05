@@ -75,6 +75,8 @@
     <string name="network_retry">Retry</string>
     <string name="network_cd_download">Download</string>
     <string name="network_download_success">Downloaded to %1$s</string>
+    <string name="network_cd_folder">Folder</string>
+    <string name="network_cd_file">File</string>
     <string name="network_rename">Rename</string>
     <string name="network_new_name">New name</string>
     <string name="network_new_folder">New folder</string>

@@ -46,6 +46,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hyperexplorer.core.model.FileCategory
@@ -85,12 +88,25 @@ fun FileRow(
     modifier: Modifier = Modifier,
 ) {
     val background = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+    val subtitle = subtitleFor(node)
+    val label =
+        buildFileRowLabel(
+            isDirectory = node.isDirectory,
+            name = node.name,
+            subtitle = subtitle,
+            typeWord = stringResource(if (node.isDirectory) R.string.core_folder else R.string.core_file),
+        )
+    val isSelected = selected
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
                 .background(background)
                 .clickable(onClick = onClick)
+                .semantics(mergeDescendants = true) {
+                    contentDescription = label
+                    this.selected = isSelected
+                }
                 .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -108,7 +124,7 @@ fun FileRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = subtitleFor(node),
+                text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

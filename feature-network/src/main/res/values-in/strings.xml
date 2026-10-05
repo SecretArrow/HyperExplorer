@@ -75,6 +75,8 @@
     <string name="network_retry">Coba lagi</string>
     <string name="network_cd_download">Unduh</string>
     <string name="network_download_success">Berhasil diunduh ke %1$s</string>
+    <string name="network_cd_folder">Folder</string>
+    <string name="network_cd_file">Berkas</string>
     <string name="network_rename">Ganti nama</string>
     <string name="network_new_name">Nama baru</string>
     <string name="network_new_folder">Folder baru</string>

@@ -1,0 +1,1 @@
+Improved: accessibility — file rows now announce a merged label ("Folder/File, name, size & date") with selection state for TalkBack, remote entries announce their type, and an icon-audit across all screens.

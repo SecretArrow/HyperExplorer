@@ -83,6 +83,8 @@ Modul arsitektur stabil — tidak ada penambahan modul baru yang direncanakan.
 - Quick access home-screen widget — pin up to 9 favorite folders from the file browser
   (star icon), open them straight from the home screen (up to 4 shown), built with Glance;
   widget refreshes immediately when favorites change, stale folder taps are handled safely
+- Accessibility — TalkBack-friendly file rows (merged label with type, name, size, date and
+  selection state), remote entry type announcements, audited icon descriptions across screens
 
 ## CI/CD (GitHub Actions)
 

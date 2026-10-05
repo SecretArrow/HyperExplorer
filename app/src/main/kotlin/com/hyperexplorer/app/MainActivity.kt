@@ -77,6 +77,9 @@ import androidx.core.os.LocaleListCompat
 import com.hyperexplorer.app.widget.QuickAccessWidget
 import com.hyperexplorer.app.widget.WidgetFavoritesStore
 import com.hyperexplorer.core.common.favorites.FavoriteFolders
+import com.hyperexplorer.core.common.favorites.add
+import com.hyperexplorer.core.common.favorites.isFavorite
+import com.hyperexplorer.core.common.favorites.remove
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.core.ui.adaptive.windowWidthFor
 import com.hyperexplorer.core.ui.theme.HyperExplorerTheme

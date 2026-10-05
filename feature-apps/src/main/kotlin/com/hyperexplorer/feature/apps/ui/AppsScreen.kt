@@ -98,6 +98,9 @@ fun AppsScreen(
                         items(ui.apps, key = { it.packageName }) { app ->
                             val cannotOpenApp = stringResource(R.string.apps_error_launch)
                             val backupFailedMessage = stringResource(R.string.apps_backup_failed)
+                            // Konfigurasi-aware: resolusi template string di komposisi (bukan
+                            // context.getString di coroutine — dilarang lint compose 2026).
+                            val backupSuccessTemplate = stringResource(R.string.apps_backup_success)
                             AppRow(
                                 app = app,
                                 onClick = {
@@ -116,7 +119,9 @@ fun AppsScreen(
                                         onBackupDone(result)
                                         val message =
                                             result.fold(
-                                                onSuccess = { file -> context.getString(R.string.apps_backup_success, file.absolutePath) },
+                                                onSuccess = { file ->
+                                                    String.format(backupSuccessTemplate, file.absolutePath)
+                                                },
                                                 onFailure = { backupFailedMessage },
                                             )
                                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()

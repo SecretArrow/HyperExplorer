@@ -136,10 +136,12 @@ fun NetworkLocationsScreen(modifier: Modifier = Modifier) {
         onDispose { vm.closeCurrent() }
     }
 
+    // Konfigurasi-aware: resolusi template string di komposisi (lint LocalContextGetResourceValueCall).
+    val downloadSuccessTemplate = stringResource(R.string.network_download_success)
     LaunchedEffect(vm.downloadTarget) {
         val target = vm.downloadTarget ?: return@LaunchedEffect
         vm.consumeDownloadResult()
-        snackbarHostState.showSnackbar(context.getString(R.string.network_download_success, target))
+        snackbarHostState.showSnackbar(String.format(downloadSuccessTemplate, target))
     }
 
     Scaffold(

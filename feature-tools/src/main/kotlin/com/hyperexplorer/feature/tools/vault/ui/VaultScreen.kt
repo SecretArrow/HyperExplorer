@@ -234,6 +234,8 @@ private fun ReadyContent(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    // Konfigurasi-aware: resolusi string di komposisi (lint LocalContextGetResourceValueCall).
+    val invalidInputLabel = stringResource(R.string.vault_error_invalid_input)
     val busy = ready.busy
     Column(modifier = modifier.fillMaxSize()) {
         ImportSection(
@@ -241,7 +243,7 @@ private fun ReadyContent(
             onImport = { rawPath, deleteSource ->
                 if (rawPath.isBlank()) {
                     // Jangan pernah memanggil controller dengan jalur kosong.
-                    Toast.makeText(context, context.getString(R.string.vault_error_invalid_input), Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, invalidInputLabel, Toast.LENGTH_LONG).show()
                 } else {
                     controller.importFrom(rawPath, deleteSource)
                 }

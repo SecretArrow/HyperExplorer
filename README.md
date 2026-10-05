@@ -132,13 +132,14 @@ Set secrets repo berikut agar APK/AAB ditandatangani; tanpa itu hasilnya unsigne
 
 ## Roadmap
 
-Lihat `fileman.md` Bagian 9 (blueprint lengkap). Sudah tuntas: klien jaringan (SMB2/3, FTP, SFTP, WebDAV),
+Lihat `fileman.md` Bagian 9 (blueprint lengkap). **Semua item roadmap tuntas** — proyek mencapai milestone **v1.0.0**: klien jaringan (SMB2/3, FTP, SFTP, WebDAV),
 vault terenkripsi AES-256 di Android Keystore, pemutar media, transfer PC dengan autentikasi wajib + auto-off,
 analisis penyimpanan, manajer aplikasi, cloud FOSS Nextcloud (Login flow v2), sinkronisasi folder (WorkManager),
 kunci aplikasi biometrik, ekstraksi ZIP berpassword, pencarian berkas berbasis indeks,
-dukungan TV/layar besar (grid adaptif + leanback launcher), dan widget akses cepat (Glance).
-Berikutnya: perbaikan aksesibilitas, baseline profile, dan modernisasi toolchain (AGP 9 / Kotlin 2.4).
+dukungan TV/layar besar (grid adaptif + leanback launcher), widget akses cepat (Glance),
+aksesibilitas (TalkBack), baseline profile, dan modernisasi toolchain (AGP 9.3.3 / Kotlin 2.4.20 / Gradle 9.8).
 Distribusi F-Droid dengan build reproducible dibatalkan atas keputusan pemilik proyek.
+Rencana lanjutan (non-roadmap): migrasi built-in Kotlin AGP (opt-out sementara dihapus di AGP 10).
 
 ## Keamanan & Kepatuhan
 

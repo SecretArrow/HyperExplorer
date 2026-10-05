@@ -1,0 +1,1 @@
+Toolchain: AGP 9.3.3, Kotlin 2.4.20, Gradle 9.8.0, Compose BOM 2026.09.00, compileSdk/targetSdk 36, ktlint plugin 13.1.0 — modernized build toolchain for the 1.0 milestone.

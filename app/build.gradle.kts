@@ -14,14 +14,14 @@ val releaseKeyPassword: String? = System.getenv("RELEASE_KEY_PASSWORD")
 
 android {
     namespace = "com.hyperexplorer.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.hyperexplorer.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 13
-        versionName = "0.12.0"
+        targetSdk = 36
+        versionCode = 14
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

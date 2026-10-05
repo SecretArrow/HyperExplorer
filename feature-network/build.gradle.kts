@@ -17,7 +17,7 @@ plugins {
 
 android {
     namespace = "com.hyperexplorer.feature.network"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26

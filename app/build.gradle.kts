@@ -16,7 +16,7 @@ val releaseKeyPassword: String? = System.getenv("RELEASE_KEY_PASSWORD")
 
 android {
     namespace = "com.hyperexplorer.app"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.hyperexplorer.app"

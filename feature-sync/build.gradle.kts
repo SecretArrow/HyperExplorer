@@ -18,7 +18,7 @@ plugins {
 
 android {
     namespace = "com.hyperexplorer.feature.sync"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26

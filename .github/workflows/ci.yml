@@ -83,15 +83,18 @@ jobs:
       - name: Assemble debug
         run: ./gradlew assembleDebug --stacktrace
 
-      # Task 15: pastikan baseline profile benar-benar terpaket dalam APK
-      # (aturan app/src/main/baseline-prof.txt + dep profileinstaller).
-      - name: Verifikasi baseline profile terpaket
+      # Task 15: pastikan baseline profile benar-benar terpaket. AGP TIDAK
+      # memasukkan art profile ke APK debuggable, jadi verifikasi dilakukan
+      # pada APK release unsigned (build tanpa env signing = unsigned).
+      - name: Verifikasi baseline profile terpaket (APK release unsigned)
         run: |
-          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          ./gradlew :app:assembleRelease --stacktrace
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
           if unzip -l "$APK" | grep -q "assets/dexopt/baseline.prof"; then
-            echo "OK: assets/dexopt/baseline.prof ada dalam APK"
+            echo "OK: assets/dexopt/baseline.prof ada dalam $APK"
           else
             echo "GAGAL: baseline.prof tidak ditemukan dalam $APK"
+            unzip -l "$APK" | grep -i "dexopt" || true
             exit 1
           fi
 

@@ -39,7 +39,9 @@ import java.util.zip.CheckedOutputStream
  * (magic/versi/count/flag/CRC salah, stream terpotong, atau panjang string UTF tak wajar).
  * Subclass [IOException] agar pemanggil bisa menangkap keduanya sekaligus.
  */
-class IndexFormatException(detail: String) : IOException(detail)
+class IndexFormatException(
+    detail: String,
+) : IOException(detail)
 
 /**
  * Penyimpan indeks pencarian pada berkas biner (murni JVM, tanpa import android.*).

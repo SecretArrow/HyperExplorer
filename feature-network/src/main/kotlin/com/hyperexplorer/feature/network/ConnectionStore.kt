@@ -41,7 +41,9 @@ import org.json.JSONObject
  * harus dipanggil dari worker thread; gagal baca/tulis tidak pernah melempar ke
  * pemanggil (kembali kosong) agar UI tidak pernah mati karena penyimpanan rusak.
  */
-class ConnectionStore(context: Context) {
+class ConnectionStore(
+    context: Context,
+) {
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences by lazy { createPrefs(appContext) }
 

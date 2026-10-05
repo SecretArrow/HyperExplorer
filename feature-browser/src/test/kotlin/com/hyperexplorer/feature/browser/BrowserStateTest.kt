@@ -65,7 +65,11 @@ class BrowserStateTest {
 
             state.open(FileNode.from(sub))
             assertEquals(sub, state.ui.value.current)
-            assertEquals("inner.txt", state.ui.value.items[0].name)
+            assertEquals(
+                "inner.txt",
+                state.ui.value.items[0]
+                    .name,
+            )
 
             state.up()
             assertEquals(root, state.ui.value.current)

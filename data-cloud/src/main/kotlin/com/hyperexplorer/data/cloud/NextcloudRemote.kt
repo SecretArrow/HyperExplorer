@@ -68,12 +68,15 @@ import javax.xml.parsers.DocumentBuilderFactory
  * [IllegalStateException]. Kegagalan jaringan/protokol dibungkus [IOException] dengan
  * konteks operasi dan target.
  */
-class NextcloudRemote(private val connection: RemoteConnection) : RemoteFileSystem {
+class NextcloudRemote(
+    private val connection: RemoteConnection,
+) : RemoteFileSystem {
     @Volatile
     private var closed = false
 
     private val http: OkHttpClient =
-        OkHttpClient.Builder()
+        OkHttpClient
+            .Builder()
             .connectTimeout(Duration.ofSeconds(30))
             .readTimeout(Duration.ofSeconds(30))
             .writeTimeout(Duration.ofSeconds(30))

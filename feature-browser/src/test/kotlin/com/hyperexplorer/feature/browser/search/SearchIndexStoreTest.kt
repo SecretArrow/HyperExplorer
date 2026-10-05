@@ -192,7 +192,10 @@ class SearchIndexStoreTest {
         assertEquals(
             "folder target hanya berisi berkas indeks (tanpa jejak .tmp)",
             listOf("index.bin"),
-            tmp.root.listFiles()?.map { it.name }?.sorted(),
+            tmp.root
+                .listFiles()
+                ?.map { it.name }
+                ?.sorted(),
         )
     }
 

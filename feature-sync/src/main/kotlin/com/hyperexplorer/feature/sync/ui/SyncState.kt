@@ -135,15 +135,13 @@ class SyncState(
                     .onFailure { t ->
                         logSafely("read pairs", t)
                         loadFailed = true
-                    }
-                    .getOrDefault(emptyList())
+                    }.getOrDefault(emptyList())
             val readConnections =
                 runCatching { connectionStore.read() }
                     .onFailure { t ->
                         logSafely("read connections", t)
                         loadFailed = true
-                    }
-                    .getOrDefault(emptyList())
+                    }.getOrDefault(emptyList())
             val statuses = mutableMapOf<Long, String?>()
             readPairs.forEach { pair ->
                 statuses[pair.id] =
@@ -243,16 +241,14 @@ class SyncState(
             runCatching {
                 val id = pairStore.upsert(pair)
                 SyncScheduler.schedule(appContext, pair.copy(id = id))
+            }.onSuccess {
+                form = SyncFormState()
+                dialogVisible = false
+                refresh()
+            }.onFailure { t ->
+                logSafely("save pair", t)
+                formError = message(R.string.sync_error_save_failed)
             }
-                .onSuccess {
-                    form = SyncFormState()
-                    dialogVisible = false
-                    refresh()
-                }
-                .onFailure { t ->
-                    logSafely("save pair", t)
-                    formError = message(R.string.sync_error_save_failed)
-                }
         }
     }
 
@@ -271,11 +267,10 @@ class SyncState(
             runCatching {
                 SyncScheduler.cancel(appContext, id)
                 pairStore.delete(id)
+            }.onFailure { t ->
+                logSafely("delete pair", t)
+                listError = message(R.string.sync_error_delete)
             }
-                .onFailure { t ->
-                    logSafely("delete pair", t)
-                    listError = message(R.string.sync_error_delete)
-                }
             refresh()
         }
     }

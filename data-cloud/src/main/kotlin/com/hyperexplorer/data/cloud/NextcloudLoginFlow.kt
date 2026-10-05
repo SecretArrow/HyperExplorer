@@ -50,7 +50,8 @@ object NextcloudHttp {
      * siklus hidup klien-nya sendiri (tanpa berbagi kumpulan koneksi global).
      */
     fun default(): OkHttpClient =
-        OkHttpClient.Builder()
+        OkHttpClient
+            .Builder()
             .connectTimeout(Duration.ofSeconds(30))
             .readTimeout(Duration.ofSeconds(30))
             .writeTimeout(Duration.ofSeconds(30))
@@ -184,7 +185,12 @@ class NextcloudLoginFlow(
         configure: Request.Builder.() -> Unit,
     ): Request =
         try {
-            Request.Builder().url(url).header("Accept", JSON_MEDIA_TYPE).apply(configure).build()
+            Request
+                .Builder()
+                .url(url)
+                .header("Accept", JSON_MEDIA_TYPE)
+                .apply(configure)
+                .build()
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException("Nextcloud login flow: invalid request URL '$url': ${e.message}", e)
         }
@@ -259,15 +265,25 @@ class NextcloudLoginFlow(
 
     /** DTO respons start sesuai spesifikasi: {"poll":{"token","endpoint"},"login"}. */
     @Serializable
-    private data class StartResponseDto(val poll: PollDto, val login: String)
+    private data class StartResponseDto(
+        val poll: PollDto,
+        val login: String,
+    )
 
     /** DTO objek `poll` di dalam respons start. */
     @Serializable
-    private data class PollDto(val token: String, val endpoint: String)
+    private data class PollDto(
+        val token: String,
+        val endpoint: String,
+    )
 
     /** DTO respons polling sesuai spesifikasi: {"server","loginName","appPassword"}. */
     @Serializable
-    private data class PollResponseDto(val server: String, val loginName: String, val appPassword: String)
+    private data class PollResponseDto(
+        val server: String,
+        val loginName: String,
+        val appPassword: String,
+    )
 
     companion object {
         /** Batas waktu default [awaitCredentials]: 5 menit (pengguna butuh waktu membuka browser). */

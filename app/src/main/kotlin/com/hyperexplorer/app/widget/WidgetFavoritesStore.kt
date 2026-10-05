@@ -37,7 +37,9 @@ import com.hyperexplorer.core.common.favorites.FavoriteFoldersCodec
  * baca gagal -> [read] mengembalikan daftar kosong; tulis gagal -> dicatat via
  * Log.w dan state widget menampilkan data lama.
  */
-class WidgetFavoritesStore(context: Context) {
+class WidgetFavoritesStore(
+    context: Context,
+) {
     private val prefs =
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 

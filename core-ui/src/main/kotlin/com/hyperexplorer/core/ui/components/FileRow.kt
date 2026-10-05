@@ -106,8 +106,7 @@ fun FileRow(
                 .semantics(mergeDescendants = true) {
                     contentDescription = label
                     this.selected = isSelected
-                }
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                }.padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

@@ -153,7 +153,8 @@ class FtpService : Service() {
             }
         val host = localIp() ?: "127.0.0.1"
         val portText = if (port > 0) port.toString() else "…"
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        return NotificationCompat
+            .Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_share)
             .setContentTitle(getString(R.string.transfer_notification_title))
             .setContentText(getString(R.string.transfer_notification_content, host, portText, username))

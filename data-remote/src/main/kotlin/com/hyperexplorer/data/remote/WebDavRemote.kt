@@ -42,12 +42,15 @@ import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilderFactory
 
 /** Base path WebDAV dianggap plain HTTP (dav:// → http://); koneksi stateless. */
-class WebDavRemote(private val connection: RemoteConnection) : RemoteFileSystem {
+class WebDavRemote(
+    private val connection: RemoteConnection,
+) : RemoteFileSystem {
     @Volatile
     private var closed = false
 
     private val http: OkHttpClient =
-        OkHttpClient.Builder()
+        OkHttpClient
+            .Builder()
             .connectTimeout(Duration.ofSeconds(30))
             .readTimeout(Duration.ofSeconds(30))
             .writeTimeout(Duration.ofSeconds(30))

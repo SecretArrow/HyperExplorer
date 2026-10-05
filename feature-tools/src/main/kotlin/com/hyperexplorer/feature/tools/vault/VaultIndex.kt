@@ -38,7 +38,9 @@ import java.io.UTFDataFormatException
  * dalam modul ini; [VaultEngine] yang memetakannya menjadi
  * [VaultError.IndexCorrupt] sehingga tidak pernah bocor sebagai perilaku publik.
  */
-internal class VaultIndexFormatException(detail: String) : Exception(detail)
+internal class VaultIndexFormatException(
+    detail: String,
+) : Exception(detail)
 
 /**
  * Codec berkas indeks biner `index.bin` milik vault.

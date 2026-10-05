@@ -333,7 +333,12 @@ class FtpServer(
         }
 
         private fun handleType(argument: String?): String {
-            val parts = argument?.uppercase(Locale.US)?.split(" ")?.filter { it.isNotEmpty() }.orEmpty()
+            val parts =
+                argument
+                    ?.uppercase(Locale.US)
+                    ?.split(" ")
+                    ?.filter { it.isNotEmpty() }
+                    .orEmpty()
             val type = parts.firstOrNull()
             val second = parts.getOrNull(1)
             val validType = type == "A" || type == "I"

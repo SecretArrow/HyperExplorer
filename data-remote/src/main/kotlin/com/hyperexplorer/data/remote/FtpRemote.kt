@@ -36,7 +36,9 @@ import java.io.IOException
  * timeout 30 detik). Path operasi diubah menjadi absolut server ("/" + koordinat
  * remote); root koneksi = basePath koneksi, atau root server bila kosong.
  */
-class FtpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
+class FtpRemote(
+    private val connection: RemoteConnection,
+) : RemoteFileSystem {
     @Volatile
     private var closed = false
 

@@ -55,7 +55,9 @@ import java.util.zip.ZipOutputStream
  *
  * Semua I/O berjalan di [dispatcher] agar UI tidak terblokir.
  */
-class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+class ZipCrypto(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
     /**
      * Mengompresi [sources] menjadi arsip ZIP terenkripsi [targetZip].
      *
@@ -91,7 +93,8 @@ class ZipCrypto(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
             try {
                 targetZip.parentFile?.mkdirs()
                 val orderedSources =
-                    sources.asSequence()
+                    sources
+                        .asSequence()
                         .filter { it.absolutePath != targetZip.absolutePath }
                         .filter { it.exists() }
                         .sortedBy { it.name }

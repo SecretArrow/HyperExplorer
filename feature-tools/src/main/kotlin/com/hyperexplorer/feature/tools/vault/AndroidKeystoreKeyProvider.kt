@@ -39,7 +39,9 @@ import javax.crypto.spec.GCMParameterSpec
  * bawaan Keystore; DEK per berkas tetap dibungkus di dalam aplikasi, bukan di
  * dalam keystore, sehingga format blob tetap standar dan portabel.
  */
-class AndroidKeystoreKeyProvider(private val alias: String = "hyper_vault_kek") : VaultKeyProvider {
+class AndroidKeystoreKeyProvider(
+    private val alias: String = "hyper_vault_kek",
+) : VaultKeyProvider {
     /**
      * Mengambil kunci AES-256 GCM dari AndroidKeyStore, atau membuatnya bila belum ada.
      *
@@ -62,7 +64,8 @@ class AndroidKeystoreKeyProvider(private val alias: String = "hyper_vault_kek") 
             } else {
                 val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER)
                 generator.init(
-                    KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                    KeyGenParameterSpec
+                        .Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                         .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                         .setKeySize(KEY_SIZE_BITS)

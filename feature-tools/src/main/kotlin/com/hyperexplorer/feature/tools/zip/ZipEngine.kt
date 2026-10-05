@@ -36,7 +36,9 @@ import java.util.zip.ZipOutputStream
  * Mesin kompresi/dekompresi berkas berbasis java.util.zip (metode DEFLATED).
  * Semua I/O berjalan di [dispatcher] agar UI tidak terblokir.
  */
-class ZipEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+class ZipEngine(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
     /**
      * Mengompresi [sources] menjadi arsip [targetZip].
      * Entri top-level memakai nama entitasnya; isi folder memakai path relatif,

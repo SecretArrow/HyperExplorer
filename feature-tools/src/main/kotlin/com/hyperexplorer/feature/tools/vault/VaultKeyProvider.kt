@@ -66,7 +66,9 @@ interface VaultKeyProvider {
  *
  * @property secret kunci master AES-256, tepat 32 byte.
  */
-class SoftwareKeyProvider(private val secret: ByteArray) : VaultKeyProvider {
+class SoftwareKeyProvider(
+    private val secret: ByteArray,
+) : VaultKeyProvider {
     init {
         require(secret.size == 32) { "SoftwareKeyProvider membutuhkan kunci tepat 32 byte (AES-256), dapat ${secret.size} byte" }
     }

@@ -50,7 +50,10 @@ data class UiState(
     val selection: Set<String> = emptySet(),
 )
 
-data class Clipboard(val files: List<File>, val isCut: Boolean)
+data class Clipboard(
+    val files: List<File>,
+    val isCut: Boolean,
+)
 
 /**
  * State holder layar browser: navigasi folder, seleksi, recycle bin,
@@ -190,5 +193,8 @@ class BrowserState(
         }
     }
 
-    private fun selectedFiles(): List<File> = _ui.value.selection.map { File(it) }.filter { it.exists() }
+    private fun selectedFiles(): List<File> =
+        _ui.value.selection
+            .map { File(it) }
+            .filter { it.exists() }
 }

@@ -143,7 +143,12 @@ class VaultControllerTest {
         controller.importFrom(missing.absolutePath, deleteSource = false)
         scheduler.advanceUntilIdle()
 
-        assertEquals(VaultErrorKind.SOURCE_MISSING, controller.messages.value?.error?.kind)
+        assertEquals(
+            VaultErrorKind.SOURCE_MISSING,
+            controller.messages.value
+                ?.error
+                ?.kind,
+        )
         assertEquals(0, currentReady().entries.size)
     }
 
@@ -156,7 +161,12 @@ class VaultControllerTest {
         controller.importFrom(directory.absolutePath, deleteSource = false)
         scheduler.advanceUntilIdle()
 
-        assertEquals(VaultErrorKind.INVALID_INPUT, controller.messages.value?.error?.kind)
+        assertEquals(
+            VaultErrorKind.INVALID_INPUT,
+            controller.messages.value
+                ?.error
+                ?.kind,
+        )
         assertEquals(0, currentReady().entries.size)
     }
 
@@ -224,7 +234,12 @@ class VaultControllerTest {
         controller.deleteEntry("id-tidak-ada")
         scheduler.advanceUntilIdle()
 
-        assertEquals(VaultErrorKind.ENTRY_NOT_FOUND, controller.messages.value?.error?.kind)
+        assertEquals(
+            VaultErrorKind.ENTRY_NOT_FOUND,
+            controller.messages.value
+                ?.error
+                ?.kind,
+        )
         assertEquals(1, currentReady().entries.size)
     }
 
@@ -292,7 +307,12 @@ class VaultControllerTest {
         controller.verifyEntry(entry.id)
         scheduler.advanceUntilIdle()
 
-        assertEquals(VaultErrorKind.CORRUPT, controller.messages.value?.error?.kind)
+        assertEquals(
+            VaultErrorKind.CORRUPT,
+            controller.messages.value
+                ?.error
+                ?.kind,
+        )
     }
 
     @Test

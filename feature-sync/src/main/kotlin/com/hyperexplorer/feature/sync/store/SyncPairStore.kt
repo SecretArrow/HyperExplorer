@@ -47,7 +47,9 @@ import org.json.JSONObject
  * MasterKey cukup berat, jadi akses [prefs] dibuat lazy dan metode wajib
  * dipanggil dari worker thread.
  */
-class SyncPairStore(context: Context) {
+class SyncPairStore(
+    context: Context,
+) {
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences by lazy { createPrefs(appContext) }
 

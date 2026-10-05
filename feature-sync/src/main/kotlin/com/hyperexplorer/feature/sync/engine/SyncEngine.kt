@@ -49,7 +49,9 @@ import kotlin.math.abs
  *   ATAU selisih mtime > [MTIME_TOLERANCE_MS] (toleransi granularitas
  *   timestamp filesystem); berkas yang hanya ada di satu sisi = baru.
  */
-class SyncEngine(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+class SyncEngine(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
     /**
      * Menjalankan satu kali sinkronisasi [direction] antara [localRoot] dan
      * [remotePath] pada koneksi [fs].

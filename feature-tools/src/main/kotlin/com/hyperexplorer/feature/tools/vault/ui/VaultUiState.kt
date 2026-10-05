@@ -31,7 +31,10 @@ enum class VaultErrorKind { INVALID_INPUT, SOURCE_MISSING, ENTRY_NOT_FOUND, CORR
  * Galat siap-tampil: [kind] menentukan string sumber daya, [detail] berisi pesan asli
  * dari engine (dijamin bebas materi rahasia oleh kontrak engine).
  */
-data class VaultUiError(val kind: VaultErrorKind, val detail: String)
+data class VaultUiError(
+    val kind: VaultErrorKind,
+    val detail: String,
+)
 
 /**
  * Operasi vault yang dapat berjalan satu per satu; dipakai sebagai penanda `busy`
@@ -48,13 +51,20 @@ enum class VaultSuccess { IMPORTED, EXPORTED, DELETED, RENAMED, VERIFIED, OPENED
  * Pesan sekali-pakai untuk toast. Tepat satu dari [success] atau [error] bernilai
  * non-null; [detailArg] adalah argumen `%1$s` untuk pesan sukses bila ada.
  */
-data class VaultUiMessage(val success: VaultSuccess?, val error: VaultUiError?, val detailArg: String?)
+data class VaultUiMessage(
+    val success: VaultSuccess?,
+    val error: VaultUiError?,
+    val detailArg: String?,
+)
 
 /**
  * Keadaan vault ketika indeks berhasil dimuat: daftar entri terurut waktu-tambah
  * menurun, plus penanda operasi yang sedang berjalan ([busy], null bila idle).
  */
-data class VaultReadyState(val entries: List<VaultEntry>, val busy: VaultBusyOp? = null)
+data class VaultReadyState(
+    val entries: List<VaultEntry>,
+    val busy: VaultBusyOp? = null,
+)
 
 /**
  * Seluruh kemungkinan keadaan UI vault; `when` di layar wajib ekshaustif atas
@@ -65,8 +75,12 @@ sealed interface VaultUiState {
     data object Loading : VaultUiState
 
     /** Indeks termuat; daftar entri siap ditampilkan. */
-    data class Ready(val state: VaultReadyState) : VaultUiState
+    data class Ready(
+        val state: VaultReadyState,
+    ) : VaultUiState
 
     /** Pemuatan indeks gagal; pengguna dapat mencoba lagi. */
-    data class Failed(val error: VaultUiError) : VaultUiState
+    data class Failed(
+        val error: VaultUiError,
+    ) : VaultUiState
 }

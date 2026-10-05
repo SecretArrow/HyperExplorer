@@ -219,7 +219,11 @@ class SearchControllerTest {
 
         controller.search(SearchFilters(nameQuery = "catatan"))
         scheduler.advanceUntilIdle()
-        assertTrue("pra-syarat: harus ada hasil", controller.ui.value.entries.isNotEmpty())
+        assertTrue(
+            "pra-syarat: harus ada hasil",
+            controller.ui.value.entries
+                .isNotEmpty(),
+        )
 
         controller.clearResults()
 

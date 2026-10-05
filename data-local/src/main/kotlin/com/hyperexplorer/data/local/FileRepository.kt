@@ -33,7 +33,9 @@ import java.util.Properties
  * dengan MANAGE_EXTERNAL_STORAGE). Dukungan SAF/MediaStore adalah kelas lain
  * yang mengimplementasikan kontrak serupa.
  */
-class FileRepository(private val trashDir: File) {
+class FileRepository(
+    private val trashDir: File,
+) {
     init {
         if (!trashDir.exists()) trashDir.mkdirs()
     }

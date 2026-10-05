@@ -74,7 +74,9 @@ private sealed interface LockStatus {
     data object Lockout : LockStatus
 
     /** Galat lain dengan kode BiometricPrompt, atau [INTERNAL_ERROR_CODE] untuk galat internal. */
-    data class Error(val code: Int) : LockStatus
+    data class Error(
+        val code: Int,
+    ) : LockStatus
 }
 
 /**
@@ -140,7 +142,8 @@ fun AppLockScreen(
         }
         val promptInfo =
             try {
-                BiometricPrompt.PromptInfo.Builder()
+                BiometricPrompt.PromptInfo
+                    .Builder()
                     .setTitle(promptTitle)
                     .setSubtitle(promptSubtitle)
                     .setAllowedAuthenticators(
@@ -148,8 +151,7 @@ fun AppLockScreen(
                         // (BiometricPrompt.Authenticators baru ada sejak 1.2.0).
                         BiometricManager.Authenticators.BIOMETRIC_WEAK or
                             BiometricManager.Authenticators.DEVICE_CREDENTIAL,
-                    )
-                    .build()
+                    ).build()
                 // DEVICE_CREDENTIAL menyediakan batal/kredensial bawaan → tanpa setNegativeButtonText.
             } catch (e: IllegalArgumentException) {
                 status = LockStatus.Error(INTERNAL_ERROR_CODE)

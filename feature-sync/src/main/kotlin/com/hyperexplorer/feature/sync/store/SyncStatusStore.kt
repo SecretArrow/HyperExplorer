@@ -30,7 +30,9 @@ import android.content.SharedPreferences
  * Semua metode dibungkus runCatching dan tidak pernah melempar ke pemanggil:
  * penyimpanan status yang rusak tidak boleh mematikan worker maupun UI.
  */
-class SyncStatusStore(context: Context) {
+class SyncStatusStore(
+    context: Context,
+) {
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences by lazy {
         runCatching {
@@ -61,13 +63,23 @@ class SyncStatusStore(context: Context) {
     ) {
         runCatching {
             val message = summary.ifBlank { if (ok) RESULT_OK else RESULT_FAILED }
-            prefs.edit().putString(keyResult(pairId), message).putLong(keySyncAt(pairId), atEpochMs).apply()
+            prefs
+                .edit()
+                .putString(keyResult(pairId), message)
+                .putLong(keySyncAt(pairId), atEpochMs)
+                .apply()
         }
     }
 
     /** Hapus status terakhir [pairId] (mis. saat jadwal pasangan dibatalkan). */
     fun clear(pairId: Long) {
-        runCatching { prefs.edit().remove(keyResult(pairId)).remove(keySyncAt(pairId)).apply() }
+        runCatching {
+            prefs
+                .edit()
+                .remove(keyResult(pairId))
+                .remove(keySyncAt(pairId))
+                .apply()
+        }
     }
 
     private fun keyResult(pairId: Long): String = "$KEY_RESULT_PREFIX$pairId"

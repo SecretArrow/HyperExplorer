@@ -25,7 +25,9 @@ import android.content.Context
  * Penyimpan preferensi bahasa berbasis SharedPreferences.
  * Tanpa dependensi eksternal, tanpa jaringan: data hanya ada di perangkat.
  */
-class LanguagePrefs(context: Context) {
+class LanguagePrefs(
+    context: Context,
+) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /** Baca bahasa tersimpan; default [LanguageMode.SYSTEM] bila belum pernah diset. */

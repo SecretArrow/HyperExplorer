@@ -75,7 +75,8 @@ class QuickAccessWidgetReceiver : GlanceAppWidgetReceiver() {
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         try {
-            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            context
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .clear()
                 .apply()
@@ -137,15 +138,17 @@ object QuickAccessWidget : GlanceAppWidget() {
      * decode gagal -> Log.w lalu kosong; hasil decode dibatasi [WIDGET_MAX_ITEMS] dan path
      * blank ditolak.
      */
-    private fun loadPaths(context: Context): List<String> {
-        return try {
+    private fun loadPaths(context: Context): List<String> =
+        try {
             val raw =
-                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                context
+                    .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     .getString(PREFS_KEY_PATHS, null)
             if (raw.isNullOrBlank()) {
                 emptyList()
             } else {
-                FavoriteFoldersCodec.decode(raw, WIDGET_MAX_ITEMS)
+                FavoriteFoldersCodec
+                    .decode(raw, WIDGET_MAX_ITEMS)
                     .filter { it.isNotBlank() }
                     .take(WIDGET_MAX_ITEMS)
             }
@@ -158,7 +161,6 @@ object QuickAccessWidget : GlanceAppWidget() {
             )
             emptyList()
         }
-    }
 
     /** Isi widget: header + satu baris per folder favorit, atau pesan kosong non-clickable. */
     @Composable
@@ -201,7 +203,8 @@ object QuickAccessWidget : GlanceAppWidget() {
     ) {
         Row(
             modifier =
-                GlanceModifier.fillMaxWidth()
+                GlanceModifier
+                    .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .clickable(actionStartActivity(intentOpen(context, path))),
             verticalAlignment = Alignment.CenterVertically,
@@ -224,13 +227,12 @@ object QuickAccessWidget : GlanceAppWidget() {
     private fun intentOpen(
         context: Context,
         path: String,
-    ): Intent {
-        return Intent(context, MainActivity::class.java)
+    ): Intent =
+        Intent(context, MainActivity::class.java)
             .putExtra(MainActivity.EXTRA_OPEN_PATH, path)
             .setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP,
             )
-    }
 }

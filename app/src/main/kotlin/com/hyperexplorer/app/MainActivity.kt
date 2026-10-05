@@ -118,7 +118,9 @@ import java.io.File
 import java.util.Locale
 
 /** Layar utama yang dapat dipilih lewat navigasi bawah. */
-private enum class Screen(val labelRes: Int) {
+private enum class Screen(
+    val labelRes: Int,
+) {
     BROWSER(R.string.app_tab_files),
     APPS(R.string.app_tab_apps),
     STORAGE(R.string.app_tab_storage),
@@ -127,14 +129,18 @@ private enum class Screen(val labelRes: Int) {
 }
 
 /** Seksi pada tab Network: server FTP lokal, lokasi jaringan, atau sinkronisasi. */
-private enum class NetworkSection(val labelRes: Int) {
+private enum class NetworkSection(
+    val labelRes: Int,
+) {
     SERVER(R.string.app_network_section_server),
     LOCATIONS(R.string.app_network_section_locations),
     SYNC(R.string.app_network_section_sync),
 }
 
 /** Seksi pada tab Storage: analisis penyimpanan atau vault terenkripsi. */
-private enum class StorageSection(val labelRes: Int) {
+private enum class StorageSection(
+    val labelRes: Int,
+) {
     ANALYZER(R.string.app_storage_section_analyzer),
     VAULT(R.string.app_storage_section_vault),
 }
@@ -575,7 +581,8 @@ class MainActivity : AppCompatActivity() {
         if (!file.isFile) return
         val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
         val mime =
-            MimeTypeMap.getSingleton()
+            MimeTypeMap
+                .getSingleton()
                 .getMimeTypeFromExtension(displayName.substringAfterLast('.', "").lowercase(Locale.ROOT))
                 ?: "application/octet-stream"
         val intent =
@@ -592,7 +599,10 @@ class MainActivity : AppCompatActivity() {
      */
     private fun runZip() {
         val current = browserState.ui.value.current
-        val sources = browserState.ui.value.selection.map { File(it) }.filter { it.exists() }
+        val sources =
+            browserState.ui.value.selection
+                .map { File(it) }
+                .filter { it.exists() }
         if (sources.isEmpty()) return
         val archiveName =
             if (current == browserState.ui.value.root) {

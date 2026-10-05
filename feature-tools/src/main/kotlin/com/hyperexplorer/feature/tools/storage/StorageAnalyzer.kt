@@ -51,7 +51,9 @@ data class StorageReport(
  * 20 berkas terbesar, dan grup berkas berpotensi duplikat
  * (ukuran sama lalu dibandingkan lewat MD5, dengan batas hashing).
  */
-class StorageAnalyzer(private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+class StorageAnalyzer(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
     suspend fun analyze(root: File): StorageReport =
         withContext(dispatcher) {
             val files = root.walkTopDown().filter { it.isFile }.toList()

@@ -44,7 +44,9 @@ import java.io.IOException
  * operasi. Login kata sandi hanya bila kredensial non-anonim; kredensial anonim
  * bergantung pada server yang mengizinkan auth "none".
  */
-class SftpRemote(private val connection: RemoteConnection) : RemoteFileSystem {
+class SftpRemote(
+    private val connection: RemoteConnection,
+) : RemoteFileSystem {
     @Volatile
     private var closed = false
 

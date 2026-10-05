@@ -60,7 +60,10 @@ import javax.crypto.spec.SecretKeySpec
  * @property vaultDir direktori penyimpanan vault (blob + indeks); dibuat bila belum ada.
  * @property keyProvider penyedia pembungkusan DEK, mis. [AndroidKeystoreKeyProvider].
  */
-class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyProvider) {
+class VaultEngine(
+    private val vaultDir: File,
+    private val keyProvider: VaultKeyProvider,
+) {
     private val indexFile = File(vaultDir, VaultIndex.INDEX_FILE_NAME)
     private val secureRandom = SecureRandom()
 
@@ -324,10 +327,14 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
     /** Hasil penentuan target ekspor ketika nama tujuan sudah ada. */
     private sealed interface ExportTargetResolution {
         /** Lanjutkan dekripsi ke [target] (target dijamin tidak ada). */
-        data class Proceed(val target: File) : ExportTargetResolution
+        data class Proceed(
+            val target: File,
+        ) : ExportTargetResolution
 
         /** SKIP: [target] lama dikembalikan tanpa disentuh sama sekali. */
-        data class Skip(val target: File) : ExportTargetResolution
+        data class Skip(
+            val target: File,
+        ) : ExportTargetResolution
     }
 
     private fun resolveExportTarget(
@@ -675,7 +682,10 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
             VaultNameError.TOO_LONG -> "melebihi ${VaultNames.MAX_NAME_BYTES} byte UTF-8"
         }
 
-    private class BlobHeader(val contentNonce: ByteArray, val wrappedDek: ByteArray)
+    private class BlobHeader(
+        val contentNonce: ByteArray,
+        val wrappedDek: ByteArray,
+    )
 
     /** Sink nol untuk verifikasi: menghitung byte tanpa menyimpan apa pun. */
     private class NullByteSink : OutputStream() {
@@ -711,4 +721,6 @@ class VaultEngine(private val vaultDir: File, private val keyProvider: VaultKeyP
 }
 
 /** Sinyal internal struktur blob `.hve` rusak; selalu dipetakan ke [VaultError.CorruptEntry]. */
-private class VaultBlobFormatException(detail: String) : RuntimeException(detail)
+private class VaultBlobFormatException(
+    detail: String,
+) : RuntimeException(detail)

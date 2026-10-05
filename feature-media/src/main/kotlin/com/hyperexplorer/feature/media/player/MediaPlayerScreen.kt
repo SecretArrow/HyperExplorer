@@ -120,7 +120,8 @@ fun MediaPlayerScreen(
     val context = LocalContext.current
     val player =
         remember(path) {
-            ExoPlayer.Builder(context)
+            ExoPlayer
+                .Builder(context)
                 .build()
                 .apply {
                     setMediaItem(MediaItem.fromUri(Uri.fromFile(File(path))))
@@ -221,7 +222,8 @@ fun MediaPlayerScreen(
             if (playbackState == Player.STATE_BUFFERING) {
                 LinearProgressIndicator(
                     modifier =
-                        Modifier.fillMaxWidth()
+                        Modifier
+                            .fillMaxWidth()
                             .align(Alignment.BottomCenter)
                             .semantics { contentDescription = bufferingLabel },
                 )
@@ -235,7 +237,8 @@ fun MediaPlayerScreen(
 
         Column(
             modifier =
-                Modifier.fillMaxSize()
+                Modifier
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -313,7 +316,8 @@ private fun MediaPlayerErrorPanel(
 ) {
     Column(
         modifier =
-            modifier.fillMaxSize()
+            modifier
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

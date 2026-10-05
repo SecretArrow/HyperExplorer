@@ -30,13 +30,21 @@ import java.util.Locale
  * [Video] -> MediaPlayerScreen (isVideo = true), [Audio] -> MediaPlayerScreen (isVideo = false).
  */
 sealed interface ViewerRoute {
-    data class Image(val path: String) : ViewerRoute
+    data class Image(
+        val path: String,
+    ) : ViewerRoute
 
-    data class Text(val path: String) : ViewerRoute
+    data class Text(
+        val path: String,
+    ) : ViewerRoute
 
-    data class Video(val path: String) : ViewerRoute
+    data class Video(
+        val path: String,
+    ) : ViewerRoute
 
-    data class Audio(val path: String) : ViewerRoute
+    data class Audio(
+        val path: String,
+    ) : ViewerRoute
 }
 
 /**
@@ -55,8 +63,26 @@ sealed interface ViewerRoute {
 object ViewerRouter {
     private val TEXT_EXTENSIONS =
         setOf(
-            "txt", "md", "log", "json", "xml", "csv", "html", "htm", "css", "js",
-            "kt", "java", "py", "sh", "yaml", "yml", "ini", "cfg", "conf", "properties",
+            "txt",
+            "md",
+            "log",
+            "json",
+            "xml",
+            "csv",
+            "html",
+            "htm",
+            "css",
+            "js",
+            "kt",
+            "java",
+            "py",
+            "sh",
+            "yaml",
+            "yml",
+            "ini",
+            "cfg",
+            "conf",
+            "properties",
         )
 
     /**

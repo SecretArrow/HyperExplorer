@@ -57,25 +57,41 @@ enum class WrapMethod {
  */
 sealed interface VaultError {
     /** Masukan dari pemanggil tidak valid (nama ilegal, tujuan bukan direktori, dst.). */
-    data class InvalidInput(val reason: String) : VaultError
+    data class InvalidInput(
+        val reason: String,
+    ) : VaultError
 
     /** Berkas sumber tidak ada pada path yang diberikan. */
-    data class SourceMissing(val path: String) : VaultError
+    data class SourceMissing(
+        val path: String,
+    ) : VaultError
 
     /** Id entri tidak dikenal di indeks vault. */
-    data class EntryNotFound(val id: String) : VaultError
+    data class EntryNotFound(
+        val id: String,
+    ) : VaultError
 
     /** Entri ada tetapi blob-nya rusak, terpotong, atau tidak dapat didekripsi. */
-    data class CorruptEntry(val id: String, val detail: String) : VaultError
+    data class CorruptEntry(
+        val id: String,
+        val detail: String,
+    ) : VaultError
 
     /** Berkas indeks (utama maupun cadangan) tidak dapat di-parse; vault menolak menulis. */
-    data class IndexCorrupt(val detail: String) : VaultError
+    data class IndexCorrupt(
+        val detail: String,
+    ) : VaultError
 
     /** Kegagalan I/O sistem berkas; [operation] menyebut operasi apa yang gagal. */
-    data class IoFailure(val operation: String, val cause: String) : VaultError
+    data class IoFailure(
+        val operation: String,
+        val cause: String,
+    ) : VaultError
 
     /** Kunci kriptografis tidak tersedia atau tidak dapat dipakai (mis. Keystore rusak). */
-    data class KeyUnavailable(val detail: String) : VaultError
+    data class KeyUnavailable(
+        val detail: String,
+    ) : VaultError
 }
 
 /**
@@ -84,10 +100,14 @@ sealed interface VaultError {
  */
 sealed interface VaultResult<out T> {
     /** Operasi berhasil dengan nilai [value]. */
-    data class Ok<T>(val value: T) : VaultResult<T>
+    data class Ok<T>(
+        val value: T,
+    ) : VaultResult<T>
 
     /** Operasi gagal dengan [error] yang informatif (tanpa materi kunci). */
-    data class Err(val error: VaultError) : VaultResult<Nothing>
+    data class Err(
+        val error: VaultError,
+    ) : VaultResult<Nothing>
 }
 
 /**
@@ -95,4 +115,7 @@ sealed interface VaultResult<out T> {
  * [sourceDeleted] bernilai false bila pemanggil meminta penghapusan tetapi sistem
  * berkas menolak — ini BUKAN kegagalan impor.
  */
-data class ImportOutcome(val entry: VaultEntry, val sourceDeleted: Boolean)
+data class ImportOutcome(
+    val entry: VaultEntry,
+    val sourceDeleted: Boolean,
+)

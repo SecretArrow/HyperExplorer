@@ -25,7 +25,9 @@ import android.content.Context
  * Penyimpan preferensi tema berbasis SharedPreferences.
  * Tanpa dependensi eksternal, tanpa jaringan: data hanya ada di perangkat.
  */
-class ThemePrefs(context: Context) {
+class ThemePrefs(
+    context: Context,
+) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /** Baca tema tersimpan; default [ThemeMode.SYSTEM] bila belum pernah diset. */

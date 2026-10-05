@@ -20,7 +20,9 @@
 package com.hyperexplorer.core.common.favorites
 
 /** Wadah imutabel daftar path folder favorit (urutan penyematan dipertahankan). */
-data class FavoriteFolders(val items: List<String>)
+data class FavoriteFolders(
+    val items: List<String>,
+)
 
 /** Batas kapasitas default daftar favorit (dipakai [FavoriteFolders.add] dan [FavoriteFoldersCodec.decode]). */
 const val DEFAULT_MAX_FAVORITES = 9

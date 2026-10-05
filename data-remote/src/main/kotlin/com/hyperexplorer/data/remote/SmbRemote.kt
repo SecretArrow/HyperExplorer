@@ -44,7 +44,9 @@ import java.io.IOException
  * menolak backslash dari pemanggil. Segmen pertama path URI sudah menjadi
  * [RemoteConnection.share]; [RemoteConnection.basePath] menjadi root koordinat.
  */
-class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
+class SmbRemote(
+    private val connection: RemoteConnection,
+) : RemoteFileSystem {
     @Volatile
     private var closed = false
 
@@ -63,7 +65,8 @@ class SmbRemote(private val connection: RemoteConnection) : RemoteFileSystem {
         io("list", path) {
             RemotePath.requireSafe(path)
             val dir = RemotePath.join(connection.basePath, path)
-            diskShare().list(dir.replace('/', '\\'))
+            diskShare()
+                .list(dir.replace('/', '\\'))
                 .filter { it.fileName != "." && it.fileName != ".." }
                 .map { info ->
                     RemoteEntry(

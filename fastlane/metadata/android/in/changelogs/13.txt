@@ -1,0 +1,1 @@
+Performa: baseline profile — aplikasi kini menyertakan profil kompilasi fokus-startup (kode app + runtime Compose + App Startup) yang terinstal otomatis di perangkat, sehingga cold start terasa lebih cepat.

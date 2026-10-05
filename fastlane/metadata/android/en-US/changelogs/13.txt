@@ -1,0 +1,1 @@
+Performance: baseline profile — the app now ships a startup-focused compilation profile (app code + Compose runtime + App Startup) installed automatically on device, making cold starts noticeably faster.

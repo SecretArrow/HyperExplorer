@@ -85,6 +85,9 @@ Modul arsitektur stabil — tidak ada penambahan modul baru yang direncanakan.
   widget refreshes immediately when favorites change, stale folder taps are handled safely
 - Accessibility — TalkBack-friendly file rows (merged label with type, name, size, date and
   selection state), remote entry type announcements, audited icon descriptions across screens
+- Baseline profile — startup-focused AOT compilation profile (app code, Compose runtime, App
+  Startup) packaged into the APK and installed automatically via androidx.profileinstaller;
+  CI verifies it is actually present in every build
 
 ## CI/CD (GitHub Actions)
 

@@ -20,8 +20,8 @@ android {
         applicationId = "com.hyperexplorer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 12
-        versionName = "0.11.0"
+        versionCode = 13
+        versionName = "0.12.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -91,6 +91,8 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     // Widget "Akses cepat" (Glance AppWidget).
     implementation(libs.androidx.glance.appwidget)
+    // Instalasi baseline profile (cold-start lebih cepat) — aturan di src/main/baseline-prof.txt.
+    implementation(libs.androidx.profileinstaller)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

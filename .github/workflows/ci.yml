@@ -83,6 +83,18 @@ jobs:
       - name: Assemble debug
         run: ./gradlew assembleDebug --stacktrace
 
+      # Task 15: pastikan baseline profile benar-benar terpaket dalam APK
+      # (aturan app/src/main/baseline-prof.txt + dep profileinstaller).
+      - name: Verifikasi baseline profile terpaket
+        run: |
+          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          if unzip -l "$APK" | grep -q "assets/dexopt/baseline.prof"; then
+            echo "OK: assets/dexopt/baseline.prof ada dalam APK"
+          else
+            echo "GAGAL: baseline.prof tidak ditemukan dalam $APK"
+            exit 1
+          fi
+
       - name: Upload APK debug
         uses: actions/upload-artifact@v7
         with:

@@ -1,0 +1,13 @@
+# Human-readable baseline profile — Hyper Explorer (GPL-3.0-only).
+#
+# Aturan wildcard konservatif: seluruh kode aplikasi (jalur startup, browser,
+# widget, viewer) + runtime Compose + inisialisasi androidx (App Startup).
+# AGP memaketkan berkas ini ke assets/dexopt/baseline.prof; penginstalan
+# dikelola androidx.profileinstaller (dep :app) — cold-start lebih cepat
+# tanpa Cloud Profiles.
+#
+# Format: [FLAGS]<class>;-><method>(<params>)<return>, wildcard * dan ** didukung.
+HSPLcom/hyperexplorer/**;->**(**)**
+Lcom/hyperexplorer/**;->**(**)**
+HSPLandroidx/compose/runtime/**;->**(**)**
+HSPLandroidx/startup/**;->**(**)**

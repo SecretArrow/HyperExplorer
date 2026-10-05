@@ -67,4 +67,6 @@
     <string name="search_cat_apk">APKs</string>
     <string name="search_cat_other">Other</string>
     <string name="browser_cd_search">Search</string>
+    <string name="browser_cd_favorite">Add to quick access</string>
+    <string name="browser_cd_unfavorite">Remove from quick access</string>
 </resources>

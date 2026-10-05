@@ -60,6 +60,8 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,6 +74,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.LocaleListCompat
+import com.hyperexplorer.app.widget.QuickAccessWidget
+import com.hyperexplorer.app.widget.WidgetFavoritesStore
+import com.hyperexplorer.core.common.favorites.FavoriteFolders
 import com.hyperexplorer.core.model.FileNode
 import com.hyperexplorer.core.ui.adaptive.windowWidthFor
 import com.hyperexplorer.core.ui.theme.HyperExplorerTheme
@@ -145,11 +150,14 @@ class MainActivity : AppCompatActivity() {
     private var searchOpen by mutableStateOf(false)
     private var appLockEnabled by mutableStateOf(false)
     private var needsLock by mutableStateOf(false)
+    private var favorites by mutableStateOf(FavoriteFolders(emptyList()))
+    private var pendingWidgetPath by mutableStateOf<String?>(null)
 
     private lateinit var browserState: BrowserState
     private lateinit var appsState: AppsState
     private lateinit var themePrefs: ThemePrefs
     private lateinit var languagePrefs: LanguagePrefs
+    private lateinit var favoritesStore: WidgetFavoritesStore
     private lateinit var vaultDir: File
 
     private val zipEngine = ZipEngine()
@@ -190,6 +198,11 @@ class MainActivity : AppCompatActivity() {
         appLockEnabled = AppLockPrefs.read(this)
         // Buka terkunci bila kunci aktif; pengguna membuka kunci lewat AppLockScreen.
         needsLock = appLockEnabled
+        favoritesStore = WidgetFavoritesStore(this)
+        favorites = favoritesStore.read()
+        // Widget "akses cepat" dapat meluncurkan activity dgn EXTRA_OPEN_PATH; path
+        // disimpan dulu dan dikonsumsi di MainScaffold setelah UI utama & izin siap.
+        pendingWidgetPath = intent?.getStringExtra(EXTRA_OPEN_PATH)?.takeIf { it.isNotBlank() }
 
         setContent {
             val darkTheme =
@@ -211,6 +224,15 @@ class MainActivity : AppCompatActivity() {
             LanguageMode.ENGLISH -> LocaleListCompat.forLanguageTags("en")
             LanguageMode.INDONESIAN -> LocaleListCompat.forLanguageTags("id")
         }
+
+    /**
+     * Peluncuran ulang dari widget saat activity sudah berada di atas (launchMode
+     * singleTop): simpan path tujuan untuk dikonsumsi MainScaffold; blank diabaikan.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        pendingWidgetPath = intent.getStringExtra(EXTRA_OPEN_PATH)?.takeIf { it.isNotBlank() }
+    }
 
     @Composable
     private fun AppContent() {
@@ -255,6 +277,28 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     private fun MainScaffold() {
+        val browserUi by browserState.ui.collectAsState()
+        // Konsumsi path widget satu kali: folder valid -> navigasi; folder basi -> toast
+        // dan UI tetap di layar semula. Bila izin penyimpanan belum diberikan, path
+        // menunggu (banner izin tampil) dan dikonsumsi setelah izin aktif.
+        val widgetPath = pendingWidgetPath
+        LaunchedEffect(widgetPath, hasStorageAccess) {
+            if (widgetPath == null || !hasStorageAccess) return@LaunchedEffect
+            pendingWidgetPath = null
+            if (File(widgetPath).isDirectory) {
+                searchOpen = false
+                viewer = null
+                browserState.openPath(widgetPath)
+                screen = Screen.BROWSER
+            } else {
+                Toast
+                    .makeText(
+                        this@MainActivity,
+                        getString(R.string.app_widget_folder_missing),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+            }
+        }
         Scaffold(
             bottomBar = {
                 NavigationBar {
@@ -314,6 +358,8 @@ class MainActivity : AppCompatActivity() {
                             onSearch = { searchOpen = true },
                             // Lebar jendela aktual dipetakan ke klasifikasi (TV/tablet -> grid); screenWidthDp 0/UNDEFINED aman -> COMPACT.
                             windowWidth = windowWidthFor(LocalConfiguration.current.screenWidthDp),
+                            isFavorite = favorites.isFavorite(browserUi.current.path),
+                            onToggleFavorite = { toggleFavorite() },
                         )
                     Screen.APPS -> AppsScreen(state = appsState)
                     Screen.STORAGE -> StorageHub()
@@ -493,6 +539,20 @@ class MainActivity : AppCompatActivity() {
         } else {
             openFile(FileNode.from(target))
         }
+    }
+
+    /**
+     * Sematkan / lepaskan folder aktif dari daftar favorit widget: simpan ke
+     * [WidgetFavoritesStore] dan perbarui widget. Bila tidak ada perubahan
+     * (duplikat/penuh), penyimpanan tidak disentuh (defensif).
+     */
+    private fun toggleFavorite() {
+        val path = browserState.ui.value.current.path
+        val next = if (favorites.isFavorite(path)) favorites.remove(path) else favorites.add(path)
+        if (next == favorites) return
+        favorites = next
+        favoritesStore.write(next)
+        mainScope.launch { QuickAccessWidget.pushUpdate(applicationContext) }
     }
 
     /** Buka berkas hasil dekripsi vault dengan penampil internal atau aplikasi eksternal. */
@@ -707,6 +767,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        /** Extra intent utk membuka folder tertentu (dipakai widget "Akses cepat"). */
+        const val EXTRA_OPEN_PATH = "com.hyperexplorer.app.extra.OPEN_PATH"
+
         private const val REQUEST_CODE_STORAGE = 1001
     }
 }

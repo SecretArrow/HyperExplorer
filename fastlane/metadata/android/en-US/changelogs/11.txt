@@ -1,0 +1,1 @@
+New: Quick access home-screen widget — pin favorite folders from the file browser (star icon) and open them straight from the home screen.

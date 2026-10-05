@@ -38,7 +38,7 @@ Foundation, berlisensi **GPL-3.0-only**:
 |---|---|---|
 | `:app` | Android app | MainActivity, manifest, ikon, wiring UI |
 | `:core-model` | Kotlin JVM | `FileNode`, `FileCategory` (model netral sumber berkas) |
-| `:core-common` | Kotlin JVM | `PathUtils`, `ConflictStrategy` (overwrite/rename/skip) |
+| `:core-common` | Kotlin JVM | `PathUtils`, `ConflictStrategy` (overwrite/rename/skip), `FavoriteFolders` (widget favorites codec) |
 | `:core-ui` | Android lib | Tema Material 3 (dynamic color), komponen `FileRow`, `EmptyState` |
 | `:data-local` | Kotlin JVM | `FileOperations` (copy/move/delete/rename), `FileRepository` + recycle bin ber-metadata |
 | `:feature-browser` | Android lib | `BrowserState` (state holder) + `BrowserScreen` (Compose UI) |
@@ -52,7 +52,7 @@ Foundation, berlisensi **GPL-3.0-only**:
 | `:feature-sync` | Android lib | Sinkronisasi folder lokal↔remote satu arah (push/pull), WorkManager periodic, engine + worker + UI |
 | `:feature-settings` | Android lib | Tema, bahasa (EN/ID), kunci aplikasi biometrik, kebijakan privasi |
 
-Modul berikutnya di roadmap: distribusi **F-Droid** dengan build reproducible.
+Modul arsitektur stabil — tidak ada penambahan modul baru yang direncanakan.
 
 ## Fitur Saat Ini (scaffold MVP)
 
@@ -80,6 +80,9 @@ Modul berikutnya di roadmap: distribusi **F-Droid** dengan build reproducible.
 - TV & large-screen support — adaptive file grid (2 columns on medium, 3 on expanded widths),
   Android TV leanback launcher with a branded banner, D-pad/keyboard navigation
   (touchscreen not required), split-screen/Chromebook resizable
+- Quick access home-screen widget — pin up to 9 favorite folders from the file browser
+  (star icon), open them straight from the home screen (up to 4 shown), built with Glance;
+  widget refreshes immediately when favorites change, stale folder taps are handled safely
 
 ## CI/CD (GitHub Actions)
 
@@ -128,8 +131,9 @@ Lihat `fileman.md` Bagian 9 (blueprint lengkap). Sudah tuntas: klien jaringan (S
 vault terenkripsi AES-256 di Android Keystore, pemutar media, transfer PC dengan autentikasi wajib + auto-off,
 analisis penyimpanan, manajer aplikasi, cloud FOSS Nextcloud (Login flow v2), sinkronisasi folder (WorkManager),
 kunci aplikasi biometrik, ekstraksi ZIP berpassword, pencarian berkas berbasis indeks,
-dan dukungan TV/layar besar (grid adaptif + leanback launcher).
-Berikutnya: distribusi **F-Droid** dengan build reproducible.
+dukungan TV/layar besar (grid adaptif + leanback launcher), dan widget akses cepat (Glance).
+Berikutnya: perbaikan aksesibilitas, baseline profile, dan modernisasi toolchain (AGP 9 / Kotlin 2.4).
+Distribusi F-Droid dengan build reproducible dibatalkan atas keputusan pemilik proyek.
 
 ## Keamanan & Kepatuhan
 

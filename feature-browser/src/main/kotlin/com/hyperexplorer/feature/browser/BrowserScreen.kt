@@ -41,6 +41,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -75,6 +77,9 @@ import com.hyperexplorer.core.ui.components.FileRow
  *
  * @param windowWidth Lebar jendela yang diklasifikasi; COMPACT (default) mempertahankan
  *   daftar 1 kolom persis perilaku lama.
+ * @param isFavorite Folder aktif sedang tersemat di widget "Akses cepat".
+ * @param onToggleFavorite Aksi semat/lepas folder aktif; null (default) = ikon bintang
+ *   tidak ditampilkan (perilaku lama utk pemanggil lain tetap utuh).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +91,8 @@ fun BrowserScreen(
     onZip: (() -> Unit)? = null,
     onSearch: (() -> Unit)? = null,
     windowWidth: WindowWidth = WindowWidth.COMPACT,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null,
 ) {
     val layout = remember(windowWidth) { browserLayoutFor(windowWidth) }
     val ui by state.ui.collectAsState()
@@ -118,6 +125,17 @@ fun BrowserScreen(
                     }
                     IconButton(onClick = { showNewFolderDialog = true }) {
                         Icon(Icons.Filled.Create, contentDescription = stringResource(R.string.browser_new_folder))
+                    }
+                    if (onToggleFavorite != null) {
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                contentDescription =
+                                    stringResource(
+                                        if (isFavorite) R.string.browser_cd_unfavorite else R.string.browser_cd_favorite,
+                                    ),
+                            )
+                        }
                     }
                     if (onSearch != null) {
                         IconButton(onClick = onSearch) {

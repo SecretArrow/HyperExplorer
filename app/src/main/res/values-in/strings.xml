@@ -49,4 +49,8 @@
     <string name="app_extract_target_exists">Folder tujuan sudah ada: %1$s</string>
     <string name="app_default_archive_name">arsip</string>
     <string name="app_search_result_missing">Berkas sudah tidak ada</string>
+    <string name="widget_quick_access_label">Akses cepat</string>
+    <string name="widget_quick_access_desc">Buka folder tersemat dari layar utama</string>
+    <string name="widget_quick_access_empty">Sematkan folder dari penjelajah berkas untuk melihatnya di sini</string>
+    <string name="app_widget_folder_missing">Folder tidak tersedia lagi</string>
 </resources>

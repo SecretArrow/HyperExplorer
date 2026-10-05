@@ -67,4 +67,6 @@
     <string name="search_cat_apk">APK</string>
     <string name="search_cat_other">Lainnya</string>
     <string name="browser_cd_search">Cari</string>
+    <string name="browser_cd_favorite">Tambahkan ke akses cepat</string>
+    <string name="browser_cd_unfavorite">Hapus dari akses cepat</string>
 </resources>

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 // Hyper Explorer - a free and open source file manager for Android.
 // Copyright (C) 2025-2026 Hyper Explorer contributors
 //
@@ -26,9 +28,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
     buildFeatures {
         compose = true
@@ -59,4 +58,11 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+}
+
+// Kotlin 2.4: android.kotlinOptions deprecated-with-error -> kotlin.compilerOptions.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
 }

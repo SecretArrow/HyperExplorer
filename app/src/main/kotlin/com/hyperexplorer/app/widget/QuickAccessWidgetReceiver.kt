@@ -27,10 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.clickable
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.layout.Alignment
@@ -172,12 +172,18 @@ object QuickAccessWidget : GlanceAppWidget() {
             Column(modifier = GlanceModifier.fillMaxSize().padding(8.dp)) {
                 Text(
                     text = headerLabel,
-                    style = TextStyle(fontWeight = FontWeight.Bold),
-                    color = GlanceTheme.colors.onSurface,
+                    style =
+                        TextStyle(
+                            color = GlanceTheme.colors.onSurface,
+                            fontWeight = FontWeight.Bold,
+                        ),
                     maxLines = 1,
                 )
                 if (paths.isEmpty()) {
-                    Text(text = emptyMessage, color = GlanceTheme.colors.onSurface)
+                    Text(
+                        text = emptyMessage,
+                        style = TextStyle(color = GlanceTheme.colors.onSurface),
+                    )
                 } else {
                     for (path in paths) {
                         FolderRow(context, path)
@@ -200,7 +206,11 @@ object QuickAccessWidget : GlanceAppWidget() {
                     .clickable(actionStartActivity(intentOpen(context, path))),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = displayName(path), color = GlanceTheme.colors.onSurface, maxLines = 1)
+            Text(
+                text = displayName(path),
+                style = TextStyle(color = GlanceTheme.colors.onSurface),
+                maxLines = 1,
+            )
         }
     }
 

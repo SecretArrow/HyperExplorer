@@ -26,7 +26,10 @@ data class FavoriteFolders(val items: List<String>)
 const val DEFAULT_MAX_FAVORITES = 9
 
 /** Tambah [path]; blank/kosong/duplikat (setelah normalisasi) = no-op; bila items.size >= [max] (atau max <= 0) = no-op. */
-fun FavoriteFolders.add(path: String, max: Int = DEFAULT_MAX_FAVORITES): FavoriteFolders {
+fun FavoriteFolders.add(
+    path: String,
+    max: Int = DEFAULT_MAX_FAVORITES,
+): FavoriteFolders {
     // Cabang no-op aman (tanpa exception): normalisasi invalid; max <= 0; sudah ada (string persis);
     // penuh (items.size >= max). Urutan item existing TIDAK pernah berubah; hasil selalu instance baru.
     val normalized = normalizeFavoritePath(path) ?: return this
@@ -68,7 +71,10 @@ object FavoriteFoldersCodec {
     }
 
     /** Decode defensif: TIDAK PERNAH melempar/me-return null; raw null/kosong/garbage -> list aman. */
-    fun decode(raw: String?, max: Int = DEFAULT_MAX_FAVORITES): List<String> {
+    fun decode(
+        raw: String?,
+        max: Int = DEFAULT_MAX_FAVORITES,
+    ): List<String> {
         if (raw == null) return emptyList()
         if (raw.isEmpty()) return emptyList()
         // max <= 0 -> tidak ada item diterima (defensif, tanpa exception).

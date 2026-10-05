@@ -64,7 +64,6 @@ private const val TAG = "QuickAccessWidget"
  * pembaruan dipicu manual via [QuickAccessWidget.pushUpdate] saat daftar favorit berubah.
  */
 class QuickAccessWidgetReceiver : GlanceAppWidgetReceiver() {
-
     override val glanceAppWidget: GlanceAppWidget = QuickAccessWidget
 
     /**
@@ -95,11 +94,13 @@ class QuickAccessWidgetReceiver : GlanceAppWidgetReceiver() {
  * menampilkan pesan "kosong", tidak pernah melempar keluar dari provideGlance.
  */
 object QuickAccessWidget : GlanceAppWidget() {
-
     /** Batas tampilan widget: hanya 4 folder pertama dari daftar favorit; sisanya diabaikan. */
     const val WIDGET_MAX_ITEMS = 4
 
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
         val paths = loadPaths(context)
         val headerLabel = context.getString(R.string.widget_quick_access_label)
         val emptyMessage = context.getString(R.string.widget_quick_access_empty)
@@ -136,8 +137,9 @@ object QuickAccessWidget : GlanceAppWidget() {
      */
     private fun loadPaths(context: Context): List<String> {
         return try {
-            val raw = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(PREFS_KEY_PATHS, null)
+            val raw =
+                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                    .getString(PREFS_KEY_PATHS, null)
             if (raw.isNullOrBlank()) {
                 emptyList()
             } else {
@@ -158,7 +160,12 @@ object QuickAccessWidget : GlanceAppWidget() {
 
     /** Isi widget: header + satu baris per folder favorit, atau pesan kosong non-clickable. */
     @Composable
-    private fun Content(context: Context, paths: List<String>, headerLabel: String, emptyMessage: String) {
+    private fun Content(
+        context: Context,
+        paths: List<String>,
+        headerLabel: String,
+        emptyMessage: String,
+    ) {
         GlanceTheme {
             Column(modifier = GlanceModifier.fillMaxSize().padding(8.dp)) {
                 Text(
@@ -180,11 +187,15 @@ object QuickAccessWidget : GlanceAppWidget() {
 
     /** Satu baris folder: nama tampilan + klik membuka MainActivity langsung ke folder tsb. */
     @Composable
-    private fun FolderRow(context: Context, path: String) {
+    private fun FolderRow(
+        context: Context,
+        path: String,
+    ) {
         Row(
-            modifier = GlanceModifier.fillMaxWidth()
-                .padding(vertical = 4.dp)
-                .clickable(actionStartActivity(intentOpen(context, path))),
+            modifier =
+                GlanceModifier.fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable(actionStartActivity(intentOpen(context, path))),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = displayName(path), color = GlanceTheme.colors.onSurface, maxLines = 1)
@@ -198,7 +209,10 @@ object QuickAccessWidget : GlanceAppWidget() {
     }
 
     /** Intent eksplisit ke [MainActivity] membawa [MainActivity.EXTRA_OPEN_PATH] (singleTop). */
-    private fun intentOpen(context: Context, path: String): Intent {
+    private fun intentOpen(
+        context: Context,
+        path: String,
+    ): Intent {
         return Intent(context, MainActivity::class.java)
             .putExtra(MainActivity.EXTRA_OPEN_PATH, path)
             .setFlags(

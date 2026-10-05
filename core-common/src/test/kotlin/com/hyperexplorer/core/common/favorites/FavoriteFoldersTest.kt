@@ -25,7 +25,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FavoriteFoldersTest {
-
     @Test
     fun `decode null menghasilkan daftar kosong`() {
         val result = FavoriteFoldersCodec.decode(null)
